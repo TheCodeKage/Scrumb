@@ -15,7 +15,7 @@ class IdeaForm(ModelForm):
 class ProjectForm(ModelForm):
     class Meta:
         model = Project
-        exclude = ['author']
+        exclude = ['author', 'source_idea', 'created_at', 'updated_at']
         widgets = {
             "title": TextInput(attrs={"placeholder": "Project title"}),
             "description": Textarea(attrs={"rows": 4}),

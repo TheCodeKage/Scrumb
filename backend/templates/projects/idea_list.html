@@ -1,39 +1,45 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>Your Ideas</h2>
+<h2>Your Ideas</h2>
 
-  <a href="{% url 'idea_create' %}">➕ Add New Idea</a>
+<a href="{% url 'idea_create' %}">➕ Add New Idea</a>
 
-  <hr>
+<hr>
 
-  {% if ideas %}
-    <ul>
-      {% for idea in ideas %}
-        <li>
-          <p>{{ idea.idea }}</p>
-          <small>Added on {{ idea.added_on|date:"M d, Y H:i" }}</small>
-          <br>
-          <a href="{% url 'idea_update' idea.pk %}">✏️ Edit</a>
-        </li>
-        <hr>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No ideas yet. Add one and start building 🚀</p>
-  {% endif %}
+{% if ideas %}
+  <ul>
+    {% for idea in ideas %}
+      <li>
+        <p>{{ idea.idea }}</p>
+        <small>Added {{ idea.added_on|date:"M d, Y H:i" }}</small><br><br>
 
-  {% if is_paginated %}
-    <div>
-      {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
-      {% endif %}
+        <a href="{% url 'idea_update' idea.pk %}">✏️ Edit</a>
+        &nbsp;|&nbsp;
+        <a href="{% url 'project_create' %}?idea_pk={{ idea.pk }}">
+          🚀 Create Project
+        </a>
+      </li>
+      <hr>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No ideas yet.</p>
+{% endif %}
 
-      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+<!-- PAGINATION -->
+{% if is_paginated %}
+  <div>
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
 
-      {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}">Next</a>
-      {% endif %}
-    </div>
-  {% endif %}
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+  </div>
+{% endif %}
+
 {% endblock %}

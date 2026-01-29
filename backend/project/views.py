@@ -1,11 +1,12 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-# Create your views here.
-from django.views.generic import CreateView, UpdateView, ListView
+from django.utils import timezone
 
-from project.forms import IdeaForm
-from project.models import Idea
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import CreateView, UpdateView, ListView, TemplateView
+
+from .forms import IdeaForm, ProjectForm
+from .models import Idea, Project
 
 
 class IdeaCreateView(LoginRequiredMixin, CreateView):
@@ -25,8 +26,25 @@ class IdeaUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "projects/idea_form.html"
     success_url = reverse_lazy("idea_list")
 
-    def get_object(self, queryset=None):
-        return get_object_or_404(self.model, pk=self.kwargs['pk'], author=self.request.user)
+    def get_queryset(self):
+        return Idea.objects.filter(author=self.request.user, archived_on__isnull=True)
+
+
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = "projects/dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["ideas"] = Idea.objects.filter(
+            author=self.request.user,
+            archived_on__isnull=True
+        ).order_by("-added_on")[:5]
+
+        context["projects"] = Project.objects.filter(
+            author=self.request.user
+        ).order_by("-created_at")[:5]
+
+        return context
 
 
 class IdeaListView(LoginRequiredMixin, ListView):
@@ -36,4 +54,66 @@ class IdeaListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Idea.objects.filter(author=self.request.user).order_by("-added_on")
+        return Idea.objects.filter(
+            author=self.request.user,
+            archived_on__isnull=True
+        ).order_by("-added_on")
+
+
+class ProjectListView(LoginRequiredMixin, ListView):
+    model = Project
+    context_object_name = "projects"
+    template_name = "projects/project_list.html"
+    paginate_by = 10
+
+    def get_queryset(self):
+        return Project.objects.filter(
+            author=self.request.user
+        ).order_by("-created_at")
+
+
+class ProjectCreateView(LoginRequiredMixin, CreateView):
+    model = Project
+    form_class = ProjectForm
+    template_name = "projects/project_form.html"
+    success_url = reverse_lazy("idea_list")
+
+    def dispatch(self, request, *args, **kwargs):
+        self.idea = None
+        idea_pk = request.GET.get('idea_pk')
+
+        if idea_pk:
+            self.idea = get_object_or_404(
+                Idea,
+                pk=idea_pk,
+                author=self.request.user,
+                archived_on__isnull=True,
+            )
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super().get_initial()
+        if self.idea:
+            initial['description'] = self.idea.idea
+        return initial
+
+    def form_valid(self, form):
+        project = form.save(commit=False)
+        project.author = self.request.user
+        if self.idea:
+            project.source_idea = self.idea
+            self.idea.archived_on = timezone.now()
+            self.idea.save(update_fields=['archived_on'])
+        project.save()
+        return super().form_valid(form)
+
+
+class ProjectUpdateView(LoginRequiredMixin, UpdateView):
+    model = Project
+    form_class = ProjectForm
+    template_name = "projects/project_form.html"
+    success_url = reverse_lazy("idea_list")
+
+    def get_queryset(self):
+        return Project.objects.filter(author=self.request.user)
