@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>
+    {% if object %}
+      Edit Idea
+    {% else %}
+      Add New Idea
+    {% endif %}
+  </h2>
+
+  <form method="post">
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+
+    <div>
+      {{ form.idea.label_tag }}
+      <br>
+      {{ form.idea }}
+      {{ form.idea.errors }}
+    </div>
+
+    <br>
+
+    <button type="submit">💾 Save</button>
+    <a href="{% url 'idea_list' %}">Cancel</a>
+  </form>
+{% endblock %}
