@@ -36,7 +36,8 @@ FeatureFormSet = inlineformset_factory(
     Project,
     Feature,
     form=FeatureForm,
-    extra=0,
+    extra=1,
+    fields=["feature", "importance_score"],
     can_delete=True,
     widgets = {
         "feature": Textarea(attrs={
