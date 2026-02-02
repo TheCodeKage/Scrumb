@@ -1,14 +1,35 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.utils import timezone
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import CreateView, UpdateView, ListView, TemplateView
+from django.views.generic import CreateView, UpdateView, ListView, TemplateView, DeleteView, DetailView
 
 from .forms import IdeaForm, ProjectForm, FeatureFormSet
 from .models import Idea, Project
 
+
+#---------------------------------------------------------------------------------------------------
+#-------------------------------Dashboard--------------------------------------------------------------------
+
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = "projects/dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["ideas"] = Idea.objects.filter(
+            author=self.request.user,
+            archived_on__isnull=True
+        ).order_by("-added_on")[:5]
+
+        context["projects"] = Project.objects.filter(
+            author=self.request.user
+        ).order_by("-created_at")[:5]
+
+        return context
+
+
+#-----------------------------------Ideas--------------------------------------------------------------------
 
 class IdeaCreateView(LoginRequiredMixin, CreateView):
     model = Idea
@@ -31,23 +52,6 @@ class IdeaUpdateView(LoginRequiredMixin, UpdateView):
         return Idea.objects.filter(author=self.request.user, archived_on__isnull=True)
 
 
-class DashboardView(LoginRequiredMixin, TemplateView):
-    template_name = "projects/dashboard.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["ideas"] = Idea.objects.filter(
-            author=self.request.user,
-            archived_on__isnull=True
-        ).order_by("-added_on")[:5]
-
-        context["projects"] = Project.objects.filter(
-            author=self.request.user
-        ).order_by("-created_at")[:5]
-
-        return context
-
-
 class IdeaListView(LoginRequiredMixin, ListView):
     model = Idea
     context_object_name = "ideas"
@@ -60,6 +64,8 @@ class IdeaListView(LoginRequiredMixin, ListView):
             archived_on__isnull=True
         ).order_by("-added_on")
 
+
+#--------------------------------------Project----------------------------------------------------------------
 
 class ProjectListView(LoginRequiredMixin, ListView):
     model = Project
@@ -162,3 +168,32 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
                 return self.form_invalid(form)
 
         return redirect(self.success_url)
+
+
+class ProjectDetailView(LoginRequiredMixin, DetailView):
+    model = Project
+    template_name = "projects/project_detail.html"
+    context_object_name = "project"
+
+    def get_queryset(self):
+        return (
+            Project.objects
+            .filter(author=self.request.user)
+            .select_related("source_idea")
+            .prefetch_related(
+                "features__tasks",
+                "tasks",
+            )
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.object
+
+        context["features"] = project.features.all()
+        context["unassigned_tasks"] = project.tasks.filter(feature__isnull=True)
+
+        return context
+
+
+#------------------------------------------------------------------------------------------------------------

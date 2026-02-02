@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -49,3 +50,22 @@ class Feature(models.Model):
     class Meta:
         ordering = ['-importance_score', 'id']
         unique_together = ('project', 'feature')
+
+
+class Task(models.Model):
+    STATUS_CHOICES = [("todo", "To-Do"), ("ongoing", "Ongoing"),("done", "Completed"),]
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="tasks")
+    feature = models.ForeignKey(Feature, on_delete=models.SET_NULL, null=True, blank=True, related_name="tasks")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="todo")
+    assignee = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="tasks")
+    order = models.PositiveIntegerField()
+    estimate_hours = models.PositiveIntegerField(null=True, blank=True)
+    auto_generated = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.project}-{self.title[:50]}"
+
+    class Meta:
+        ordering = ["order"]
