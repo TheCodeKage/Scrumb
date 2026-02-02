@@ -1,11 +1,12 @@
-from django.shortcuts import get_object_or_404
+from django.db import transaction
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView, UpdateView, ListView, TemplateView
 
-from .forms import IdeaForm, ProjectForm
+from .forms import IdeaForm, ProjectForm, FeatureFormSet
 from .models import Idea, Project
 
 
@@ -92,6 +93,16 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.POST:
+            context["feature_formset"] = FeatureFormSet(self.request.POST)
+        else:
+            context["feature_formset"] = FeatureFormSet()
+
+        return context
+
     def get_initial(self):
         initial = super().get_initial()
         if self.idea:
@@ -99,14 +110,21 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return initial
 
     def form_valid(self, form):
-        project = form.save(commit=False)
-        project.author = self.request.user
-        if self.idea:
-            project.source_idea = self.idea
-            self.idea.archived_on = timezone.now()
-            self.idea.save(update_fields=['archived_on'])
-        project.save()
-        return super().form_valid(form)
+        context = self.get_context_data()
+        feature_formset = context["feature_formset"]
+
+        with transaction.atomic():
+            project = form.save(commit=False)
+            project.author = self.request.user
+            project.save()
+
+            if feature_formset.is_valid():
+                feature_formset.instance = project
+                feature_formset.save()
+            else:
+                return self.form_invalid(form)
+
+        return redirect(self.success_url)
 
 
 class ProjectUpdateView(LoginRequiredMixin, UpdateView):
@@ -117,3 +135,30 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_queryset(self):
         return Project.objects.filter(author=self.request.user)
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.POST:
+            context["feature_formset"] = FeatureFormSet(self.request.POST, instance=self.object)
+        else:
+            context["feature_formset"] = FeatureFormSet(instance=self.object)
+
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        feature_formset = context["feature_formset"]
+
+        with transaction.atomic():
+            form.save()
+
+            if feature_formset.is_valid():
+                feature_formset.save()
+            else:
+                return self.form_invalid(form)
+
+        return redirect(self.success_url)

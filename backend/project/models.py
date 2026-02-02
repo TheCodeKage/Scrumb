@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 # Create your models here.
 class Idea(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ideas')
@@ -48,5 +49,3 @@ class Feature(models.Model):
     class Meta:
         ordering = ['-importance_score', 'id']
         unique_together = ('project', 'feature')
-
-
