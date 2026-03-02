@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -36,3 +37,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
         save_tasks(tasks_data)
         print(tasks_data)
         return Response({"status": "Plan Generated and Tasks Created"})
+
+
+def healthz(request):
+    return JsonResponse({
+        "status": "healthy",
+        "service": "scrumb-backend"
+    })
