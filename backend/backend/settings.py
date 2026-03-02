@@ -39,9 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "project.apps.ProjectConfig",
     "django.contrib.admin",
-    "skills.apps.SkillsConfig"
+    "projects.apps.ProjectsConfig"
 ]
 
 MIDDLEWARE = [
@@ -110,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Kolkata"
 
 USE_I18N = True
 
@@ -126,3 +125,18 @@ GEMINI_KEY = os.getenv("GEMINI_KEY")
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/logout/"
+
+#Rest Framework
+
+INSTALLED_APPS.append("rest_framework")
+# settings.py
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # This removes SessionAuth, which is what triggers the CSRF requirement
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+}
