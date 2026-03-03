@@ -50,7 +50,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         # The Cheating Detector
         if new_status == 'done':
             # Check if any child tasks are NOT done
-            has_unfinished_children = instance.sub_tasks.exclude(status='done').exists()
+            has_unfinished_children = instance.subtasks.exclude(status='done').exists()
 
             if has_unfinished_children:
                 # We stop the process here and send a 400 error
