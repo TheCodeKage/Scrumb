@@ -42,6 +42,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    http_method_names = ['get', 'patch', 'delete', 'head', 'options']
 
     def perform_update(self, serializer):
         instance = self.get_object()
