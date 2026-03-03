@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from rest_framework import viewsets
+from rest_framework import viewsets, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Project, Task
@@ -37,6 +37,28 @@ class ProjectViewSet(viewsets.ModelViewSet):
         save_tasks(tasks_data)
         print(tasks_data)
         return Response({"status": "Plan Generated and Tasks Created"})
+
+
+class TaskViewSet(viewsets.ModelViewSet):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        new_status = serializer.validated_data.get('status')
+
+        # The Cheating Detector
+        if new_status == 'done':
+            # Check if any child tasks are NOT done
+            has_unfinished_children = instance.sub_tasks.exclude(status='done').exists()
+
+            if has_unfinished_children:
+                # We stop the process here and send a 400 error
+                raise serializers.ValidationError({
+                    "shame_message": f"Execution Integrity Violation: '{instance.title}' cannot be finished while its sub-tasks are still pending."
+                })
+
+        serializer.save()
 
 
 def healthz(request):
