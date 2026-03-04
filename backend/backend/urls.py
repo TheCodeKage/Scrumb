@@ -19,9 +19,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from projects.views import healthz
+from projects.routers import router as project_router
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('healthz', healthz),
-    path('api/projects/', include('projects.urls')),
+    path('', include(project_router.urls)),
 ]
