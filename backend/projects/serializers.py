@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from .logic import calculate_health
 from .models import Project, Task
 
 
@@ -39,11 +40,23 @@ class TaskSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     tasks = serializers.SerializerMethodField()
+    health = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
-        fields = ['id', 'name', 'description', 'guarantee_date','tasks', 'completion_percentage']
+        fields = ['id', 'name', 'description', 'guarantee_date','tasks', 'completion_percentage', 'health']
 
     def get_tasks(self, project):
         root_tasks = project.tasks.filter(parent_task__isnull=True)
         return TaskSerializer(root_tasks, many=True).data
+
+    def get_health(self, project):
+        status, velocity, distance, target_cut = calculate_health(project)
+        time = velocity and round(distance/velocity)
+        health = {
+            "status": status,
+            "daily_velocity": velocity,
+            "current_panic_requirement": f"{target_cut}% scope cut needed",
+            "expected_complete_in": f"{time} days",
+        }
+        return health

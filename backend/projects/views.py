@@ -1,10 +1,13 @@
 from django.http import JsonResponse
+from django.utils import timezone
 from rest_framework import viewsets, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from api_caller import generate_tasks, get_panic_recommendations
+from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut
 from .models import Project, Task
 from .serializers import TaskSerializer, ProjectSerializer
-from api_caller import generate_tasks, get_panic_recommendations
 
 
 # Create your views here.
@@ -21,51 +24,41 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
         tasks_data = generate_tasks(project.name, project.description)
 
-        def save_tasks(data, parent=None):
-            for task in data:
-                t = Task.objects.create(
-                    project=project,
-                    parent_task=parent,
-                    title=task['title'],
-                    importance=task['importance'],
-                    phase_label=task['phase_label'],
-                    status='to-do',
-                )
-                t.save()
-                if (((name:='subtasks') in task) and task['subtasks']) or (((name:='sub_tasks') in task) and task['sub_tasks']):
-                    save_tasks(task[name], parent=t)
-
-        save_tasks(tasks_data)
-        print(tasks_data)
+        save_tasks(tasks_data, project)
         return Response({"status": "Plan Generated and Tasks Created"})
 
     @action(detail=True, methods=['post'])
     def panic_mode(self, request, pk=None):
         project = self.get_object()
-
-        tasks_to_cut = Task.objects.filter(
-            id__in=
-                get_panic_recommendations(
-                    project,
-                    project.completion_percentage
-                )
+        count_old, count_new, imp_old, imp_new = (
+            cut_tasks(
+                get_panic_recommendations(project, calculate_target_cut(project)),
+                project
+            )
         )
 
-        for i in tasks_to_cut:
-            i.archive_recursive(reason="Panic Mode: Strategic Scope Cut")
+        return Response({
+            "no_of_tasks_before": count_old,
+            "no_of_tasks_after": count_new,
+            "total_importance_before": imp_old,
+            "total_importance_after": imp_new,
+        })
 
-        count = tasks_to_cut.count()
-        for task in tasks_to_cut:
-            task.status = 'archived'
-            task.save()  # This triggers your signal!
+    @action(detail=True, methods=['get'])
+    def health(self, request, pk=None):
+        project = self.get_object()
 
-            # We manually update the reason for the signal-created history entry
-            last_history = task.history.first()
-            if last_history:
-                last_history.change_reason = "Panic Mode: Automated scope reduction."
-                last_history.save()
+        status, velocity, distance, target_cut = calculate_health(project)
 
-        return Response({"message": f"Panic Mode Activated. {count} tasks archived."})
+        return Response({
+            "project_name": project.name,
+            "status": status,
+            "completion_percentage": project.completion_percentage,
+            "daily_velocity": velocity,
+            "current_panic_requirement": f"{target_cut}% scope cut needed",
+            "days_until_guarantee": (project.guarantee_date - timezone.now().date()).days,
+            "expected_complete_by": f"{round(distance/velocity)} days",
+        })
 
 
 class TaskViewSet(viewsets.ModelViewSet):

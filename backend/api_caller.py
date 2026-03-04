@@ -47,46 +47,14 @@ def generate_tasks(project_name, project_description):
     return json.loads(clean_json)
 
 
-def calculate_target_cut(project):
-    # 1. Calculate Time Remaining
-    days_left = (project.guarantee_date - timezone.now().date()).days
-    if days_left <= 0: return 100  # Absolute Panic: Deadline passed.
-
-    # 2. Calculate Work Remaining (Importance Weighted)
-    unfinished_tasks = project.tasks.exclude(status='archived').exclude(status='done')
-    work_remaining = unfinished_tasks.aggregate(Sum('importance'))['importance__sum'] or 0
-
-    # 3. Get Velocity (Average importance finished per day in the last 3 days)
-    # If no history exists, we assume a "Standard" velocity of 5 units/day
-    recent_done = TaskHistory.objects.filter(
-        task__project=project,
-        to_status='done',
-        timestamp__gte=timezone.now() - timedelta(days=3)
-    ).count()
-
-    velocity = max(recent_done * 5, 5)  # Default to 5 so we don't divide by zero
-
-    # 4. The "Reality" Check
-    estimated_days_needed = work_remaining / velocity
-
-    if estimated_days_needed <= days_left:
-        return 0  # We are on track. No cuts needed.
-
-    # 5. The Cut Percentage
-    # (Days we don't have / Days we need) * 100
-    cut_percent = ((estimated_days_needed - days_left) / estimated_days_needed) * 100
-    return min(round(cut_percent, 2), 90)  # Cap at 90% so we don't delete the whole project
-
-
-def get_panic_recommendations(project, completion_rate):
-    # 1. Get the target cut from our math engine
-    target_cut = calculate_target_cut(project)
+def get_panic_recommendations(project: Project, target_cut: float):
+    completion_rate = Project.completion_percentage
 
     if target_cut == 0:
         return []
 
     # 2. Format tasks for the AI (Need ID + Title + Importance)
-    unfinished_qs = project.tasks.exclude(status='archived').exclude(status='done')
+    unfinished_qs = project.tasks.exclude(status__in=('archived', 'done'))
     task_data = list(unfinished_qs.values('id', 'title', 'importance'))
 
     days_remaining = (project.guarantee_date - timezone.now().date()).days
@@ -122,4 +90,4 @@ def get_panic_recommendations(project, completion_rate):
 
 if __name__ == '__main__':
     print(f"DEBUG: Key is {GEMINI_KEY}")
-    print(get_panic_recommendations(Project.objects.get(id=1), Project.completion_percentage))
+    print(get_panic_recommendations(Project.objects.get(id=1), target_cut=2))

@@ -58,6 +58,7 @@ class Task(models.Model):
         # 1. Update self
         if self.status != 'archived':
             self.status = 'archived'
+            self._change_reason = reason
             # We pass a custom reason so TaskHistory knows why it died
             self.save(update_fields=['status'])
 
