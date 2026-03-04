@@ -7,24 +7,27 @@ from django.utils import timezone
 from projects.models import TaskHistory, Task, Project
 
 
+def get_daily_velocity(project: Project, days=7):
+    recent_done_importance = TaskHistory.objects.filter(
+        task__project=project,
+        to_status='done',
+        timestamp__gte=timezone.now() - timedelta(days=days)
+    ).aggregate(total=Sum('task__importance'))['total'] or 0
+
+    # We use max(..., 1) to avoid DivisionByZero or making the AI think we are dead
+    return round(recent_done_importance / days, 2) or 0.1
+
 def calculate_target_cut(project: Project):
     # 1. Calculate Time Remaining
     days_left = (project.guarantee_date - timezone.now().date()).days
     if days_left <= 0: return 100  # Absolute Panic: Deadline passed.
 
     # 2. Calculate Work Remaining (Importance Weighted)
-    unfinished_tasks = project.tasks.exclude(status='archived').exclude(status='done')
+    unfinished_tasks = project.tasks.exclude(status__in=('done', 'archived'))
     work_remaining = unfinished_tasks.aggregate(Sum('importance'))['importance__sum'] or 0
 
     # 3. Get Velocity (Average importance finished per day in the last 3 days)
-    # If no history exists, we assume a "Standard" velocity of 5 units/day
-    recent_done = TaskHistory.objects.filter(
-        task__project=project,
-        to_status='done',
-        timestamp__gte=timezone.now() - timedelta(days=3)
-    ).count()
-
-    velocity = max(recent_done * 5, 5)  # Default to 5 so we don't divide by zero
+    velocity = get_daily_velocity(project, days=7)
 
     # 4. The "Reality" Check
     estimated_days_needed = work_remaining / velocity
@@ -48,7 +51,6 @@ def save_tasks(data: Iterable, project: Project, parent=None):
             phase_label=task['phase_label'],
             status='to-do',
         )
-        t.save()
         if (((name := 'subtasks') in task) and task['subtasks']) or (
                 ((name := 'sub_tasks') in task) and task['sub_tasks']):
             save_tasks(task[name], parent=t, project=project)
@@ -79,13 +81,7 @@ def calculate_health(project: Project):
 
     # 2. Velocity Math (Points per day)
     # We look at history for the last 7 days
-    recent_done = TaskHistory.objects.filter(
-        task__project=project,
-        to_status='done',
-        timestamp__gte=timezone.now() - timedelta(days=7)
-    ).aggregate(total=Sum('task__importance'))['total'] or 0
-
-    velocity = round(recent_done / 7, 2)
+    velocity = get_daily_velocity(project, days=7)
 
     # 3. Categorization
     status = "HEALTHY"
@@ -94,6 +90,5 @@ def calculate_health(project: Project):
 
     total_importance = project.tasks.exclude(status__in=('archived', 'done')).aggregate(importance=Sum('importance'))[
                            'importance'] or 0
-    distance = ((1 - (completion / 100)) * total_importance)
 
-    return status, velocity, distance, target_cut
+    return status, velocity, total_importance, target_cut
