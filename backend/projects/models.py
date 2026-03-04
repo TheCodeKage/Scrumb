@@ -10,7 +10,7 @@ class Project(models.Model):
     is_active = models.BooleanField(default=True)
     created_on = models.DateField(auto_now=True)
 
-    guarantee_date = models.DateField(null=True, blank=True)
+    guarantee_date = models.DateField()
 
     def __str__(self):
         return self.name + self.guarantee_date.strftime("%m/%d/%Y")
