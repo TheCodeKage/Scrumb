@@ -10,7 +10,7 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             'id',
-            'parent_task', # The ID of the parent
+            'parent_task',
             'title',
             'status',
             'importance',
@@ -42,7 +42,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id', 'name', 'description', 'tasks', 'completion_percentage']
+        fields = ['id', 'name', 'description', 'guarantee_date','tasks', 'completion_percentage']
 
     def get_tasks(self, project):
         root_tasks = project.tasks.filter(parent_task__isnull=True)

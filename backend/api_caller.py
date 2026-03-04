@@ -1,17 +1,31 @@
+import os
+import django
+
+# Set the environment variable to your settings file
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+
+# Initialize Django
+django.setup()
+
+from datetime import timedelta
+
+from django.db.models import Sum
+from django.utils import timezone
+
 from backend.settings import GEMINI_KEY
 
 from google import genai
 import json
 
+from projects.models import TaskHistory, Project
 
 client = genai.Client(api_key=str(GEMINI_KEY).strip())
 
 
 def generate_tasks(project_name, project_description):
     prompt = f"""
-    You are a Senior Project Architect for Scrumb.
-    Project Name: {project_name}
-    Description: {project_description}
+    You are a Senior Project Architect for {project_name}.
+    Description of {project_name}: {project_description}
 
     Create a comprehensive execution plan. 
     Format: A JSON list of tasks. 
@@ -32,6 +46,80 @@ def generate_tasks(project_name, project_description):
     clean_json = response.text.replace('```json', '').replace('```', '').strip()
     return json.loads(clean_json)
 
+
+def calculate_target_cut(project):
+    # 1. Calculate Time Remaining
+    days_left = (project.guarantee_date - timezone.now().date()).days
+    if days_left <= 0: return 100  # Absolute Panic: Deadline passed.
+
+    # 2. Calculate Work Remaining (Importance Weighted)
+    unfinished_tasks = project.tasks.exclude(status='archived').exclude(status='done')
+    work_remaining = unfinished_tasks.aggregate(Sum('importance'))['importance__sum'] or 0
+
+    # 3. Get Velocity (Average importance finished per day in the last 3 days)
+    # If no history exists, we assume a "Standard" velocity of 5 units/day
+    recent_done = TaskHistory.objects.filter(
+        task__project=project,
+        to_status='done',
+        timestamp__gte=timezone.now() - timedelta(days=3)
+    ).count()
+
+    velocity = max(recent_done * 5, 5)  # Default to 5 so we don't divide by zero
+
+    # 4. The "Reality" Check
+    estimated_days_needed = work_remaining / velocity
+
+    if estimated_days_needed <= days_left:
+        return 0  # We are on track. No cuts needed.
+
+    # 5. The Cut Percentage
+    # (Days we don't have / Days we need) * 100
+    cut_percent = ((estimated_days_needed - days_left) / estimated_days_needed) * 100
+    return min(round(cut_percent, 2), 90)  # Cap at 90% so we don't delete the whole project
+
+
+def get_panic_recommendations(project, completion_rate):
+    # 1. Get the target cut from our math engine
+    target_cut = calculate_target_cut(project)
+
+    if target_cut == 0:
+        return []
+
+    # 2. Format tasks for the AI (Need ID + Title + Importance)
+    unfinished_qs = project.tasks.exclude(status='archived').exclude(status='done')
+    task_data = list(unfinished_qs.values('id', 'title', 'importance'))
+
+    days_remaining = (project.guarantee_date - timezone.now().date()).days
+
+    prompt = f"""
+    SYSTEM: You are a CLI tool designed to output raw JSON only. You have no personality. You do not explain. You only execute.
+    
+    CONTEXT: Project "{project.name}" ({project.description}) is failing.
+    MATH: Days Left: {days_remaining} | Completion: {completion_rate}% | TARGET CUT: {target_cut}% of importance weight.
+    
+    DATA:
+    {json.dumps(task_data)}
+    
+    STRICT ALGORITHM:
+    1. Sort tasks by 'importance' ASC.
+    2. Select tasks to archive until the sum of their 'importance' reaches {target_cut}% of the total unfinished importance.
+    3. PROTECT: Importance > 8 and their parents.
+    4. If a task is protected, skip it and move to the next lowest importance.
+    
+    OUTPUT FORMAT:
+    ["id1", "id2"]
+    """
+
+    response = client.models.generate_content(
+        model="gemini-2.5-flash-lite",  # Or your specific model version
+        contents=prompt
+    )
+
+    # Strip markdown and load
+    raw_text = response.text.strip().replace('```json', '').replace('```', '')
+    return json.loads(raw_text)
+
+
 if __name__ == '__main__':
     print(f"DEBUG: Key is {GEMINI_KEY}")
-    print(generate_tasks("PDFSummary", "An app that allows user to upload pdf, uses gemini api to summarize it and returns summary"))
+    print(get_panic_recommendations(Project.objects.get(id=1), Project.completion_percentage))

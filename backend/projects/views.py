@@ -4,7 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Project, Task
 from .serializers import TaskSerializer, ProjectSerializer
-from api_caller import generate_tasks
+from api_caller import generate_tasks, get_panic_recommendations
+
 
 # Create your views here.
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -37,6 +38,34 @@ class ProjectViewSet(viewsets.ModelViewSet):
         save_tasks(tasks_data)
         print(tasks_data)
         return Response({"status": "Plan Generated and Tasks Created"})
+
+    @action(detail=True, methods=['post'])
+    def panic_mode(self, request, pk=None):
+        project = self.get_object()
+
+        tasks_to_cut = Task.objects.filter(
+            id__in=
+                get_panic_recommendations(
+                    project,
+                    project.completion_percentage
+                )
+        )
+
+        for i in tasks_to_cut:
+            i.archive_recursive(reason="Panic Mode: Strategic Scope Cut")
+
+        count = tasks_to_cut.count()
+        for task in tasks_to_cut:
+            task.status = 'archived'
+            task.save()  # This triggers your signal!
+
+            # We manually update the reason for the signal-created history entry
+            last_history = task.history.first()
+            if last_history:
+                last_history.change_reason = "Panic Mode: Automated scope reduction."
+                last_history.save()
+
+        return Response({"message": f"Panic Mode Activated. {count} tasks archived."})
 
 
 class TaskViewSet(viewsets.ModelViewSet):
