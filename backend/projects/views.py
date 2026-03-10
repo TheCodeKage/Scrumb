@@ -4,8 +4,8 @@ from rest_framework import viewsets, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api_caller import generate_tasks, get_panic_recommendations
-from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut
+from api_caller import generate_tasks, get_panic_recommendations, shame_team
+from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut, get_team_shame_data
 from .models import Project, Task
 from .serializers import TaskSerializer, ProjectSerializer
 
@@ -59,6 +59,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
             "days_until_guarantee": (project.guarantee_date - timezone.now().date()).days,
             "expected_complete_by": f"{round(distance/velocity)} days",
         })
+
+    @action(detail=True, methods=['get'])
+    def team_shame(self, request, pk=None):
+        project = self.get_object()
+        shame_data = get_team_shame_data(project)
+        return Response(
+            shame_team(shame_data)
+        )
 
 
 class TaskViewSet(viewsets.ModelViewSet):

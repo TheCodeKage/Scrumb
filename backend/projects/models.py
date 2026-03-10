@@ -41,6 +41,9 @@ class Task(models.Model):
     phase_label = models.CharField(max_length=100)
 
     parent_task = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True, related_name='subtasks')
+    owner = models.CharField(max_length=100)
+
+    updated_on = models.DateTimeField(auto_now=True)
 
     @property
     def is_parent(self):

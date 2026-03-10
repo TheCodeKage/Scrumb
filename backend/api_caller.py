@@ -1,5 +1,7 @@
 import os
+
 import django
+from google.genai.types import GenerateContentResponse
 
 # Set the environment variable to your settings file
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
@@ -7,19 +9,31 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 # Initialize Django
 django.setup()
 
-from datetime import timedelta
-
-from django.db.models import Sum
 from django.utils import timezone
-
 from backend.settings import GEMINI_KEY
-
 from google import genai
 import json
-
-from projects.models import TaskHistory, Project
+from projects.models import Project
 
 client = genai.Client(api_key=str(GEMINI_KEY).strip())
+
+
+def send_prompt(prompt):
+    response = client.models.generate_content(
+        model="gemini-2.5-flash-lite",
+        contents=prompt
+    )
+    return response
+
+
+def clean_json(response: GenerateContentResponse):
+    return response.text.replace('```json', '').replace('```', '').strip()
+
+
+def get_ai_response(prompt: str, in_json=True):
+    if in_json:
+        return json.loads(clean_json(send_prompt(prompt)))
+    return send_prompt(prompt).text
 
 
 def generate_tasks(project_name, project_description):
@@ -38,13 +52,7 @@ def generate_tasks(project_name, project_description):
     4. If no technology stack is specified, use abstract, high-level terms (e.g., 'Backend Logic' instead of 'Django'). Do not assume the project uses specific libraries or languages unless explicitly stated.
     """
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash-lite",
-        contents=prompt
-    )
-    # Clean the response (sometimes AI adds markdown blocks)
-    clean_json = response.text.replace('```json', '').replace('```', '').strip()
-    return json.loads(clean_json)
+    return get_ai_response(prompt)
 
 
 def get_panic_recommendations(project: Project, target_cut: float):
@@ -78,14 +86,13 @@ def get_panic_recommendations(project: Project, target_cut: float):
     ["id1", "id2"]
     """
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash-lite",  # Or your specific model version
-        contents=prompt
-    )
+    return get_ai_response(prompt)
 
-    # Strip markdown and load
-    raw_text = response.text.strip().replace('```json', '').replace('```', '')
-    return json.loads(raw_text)
+
+def shame_team(shame_data: list[dict[str, str]]):
+    prompt = f"Based on this data: {shame_data}, write a brutal but funny 2-sentence summary of why the project is failing. Mention names."
+
+    return get_ai_response(prompt, in_json=False)
 
 
 if __name__ == '__main__':

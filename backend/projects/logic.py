@@ -92,3 +92,19 @@ def calculate_health(project: Project):
                            'importance'] or 0
 
     return status, velocity, total_importance, target_cut
+
+
+def get_team_shame_data(project: Project):
+    # 1. Identify the "Stallers"
+    stalled_tasks = project.tasks.filter(status='doing').order_by('updated_on')[:3]
+
+    # 2. Prepare the data for Gemini
+    shame_data = []
+    for task in stalled_tasks:
+        shame_data.append({
+            "owner": task.owner,  # The simple string field
+            "task": task.title,
+            "days_stalled": (timezone.now() - task.updated_on).days
+        })
+
+    return shame_data
