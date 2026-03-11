@@ -22,7 +22,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         if Task.objects.filter(project=project).exists():
             return Response({"error": "Plan already exists!"}, status=400)
 
-        tasks_data = generate_tasks(project.name, project.description)
+        tasks_data = generate_tasks(project)
 
         save_tasks(tasks_data, project)
         return Response({"status": "Plan Generated and Tasks Created"})
@@ -63,9 +63,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def team_shame(self, request, pk=None):
         project = self.get_object()
-        shame_data = get_team_shame_data(project)
+        shame_data, team_data = get_team_shame_data(project)
         return Response(
-            shame_team(shame_data)
+            shame_team(shame_data, team_data)
         )
 
 

@@ -6,34 +6,38 @@ from .models import Project, Task
 
 class TaskSerializer(serializers.ModelSerializer):
     sub_tasks = serializers.SerializerMethodField()
+    blocking_tasks = serializers.SerializerMethodField()
+    is_blocked = serializers.ReadOnlyField()
 
     class Meta:
         model = Task
         fields = [
-            'id',
-            'parent_task',
-            'title',
-            'status',
-            'importance',
-            'phase_label',
-            'sub_tasks', 
-            'owner', 
+            'id', 'parent_task', 'title', 'status', 'importance',
+            'phase_label', 'sub_tasks', 'owner',
+            'is_blocked', 'blocking_tasks'
         ]
 
 
     def get_sub_tasks(self, task):
-        child_tasks = Task.objects.filter(parent_task=task)
-        return TaskSerializer(child_tasks, many=True).data
+        # Optimization: Use the related_name 'subtasks' defined in your model
+        return TaskSerializer(task.subtasks.all(), many=True).data
+
+    def get_blocking_tasks(self, task):
+        # Return a simple list of titles/IDs that are stopping this task
+        return task.depends_on.exclude(status='done').values('id', 'title')
 
     def validate_status(self, value):
         if value == 'done' and self.instance:
-            has_incomplete = Task.objects.filter(
-                parent_task=self.instance
-            ).exclude(status='done').exists()
-
-            if has_incomplete:
+            # 1. Vertical Check: Sub-tasks
+            if self.instance.subtasks.exclude(status='done').exists():
                 raise serializers.ValidationError(
-                    "Cannot mark as done: some sub-tasks are still incomplete."
+                    "Cannot mark as done: sub-tasks are incomplete."
+                )
+
+            # 2. Horizontal Check: Dependencies (depends_on)
+            if self.instance.is_blocked:
+                raise serializers.ValidationError(
+                    "Cannot mark as done: horizontal dependencies are incomplete."
                 )
 
         return value
@@ -45,7 +49,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id', 'name', 'description', 'guarantee_date','tasks', 'completion_percentage', 'health']
+        fields = ['id', 'name', 'description', 'guarantee_date', "team", 'tasks', 'completion_percentage', 'health']
 
     def get_tasks(self, project):
         root_tasks = project.tasks.filter(parent_task__isnull=True)

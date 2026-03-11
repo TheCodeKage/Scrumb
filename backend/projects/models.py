@@ -11,7 +11,7 @@ class Project(models.Model):
     created_on = models.DateField(auto_now=True)
 
     guarantee_date = models.DateField()
-    team = models.CharField(max_length=100)
+    team = models.JSONField()
 
     def __str__(self):
         return self.name + self.guarantee_date.strftime("%m/%d/%Y")
@@ -37,6 +37,7 @@ class Task(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
 
     title = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True)
     status = models.CharField(max_length=20, choices=[("to-do", "To-Do"), ("doing", "Doing"), ("done", "Done"), ("archived", "Archived")])
     importance = models.IntegerField(default=0)
     phase_label = models.CharField(max_length=100)
@@ -50,6 +51,18 @@ class Task(models.Model):
     @property
     def is_parent(self):
         return self.subtasks.exists()
+
+    @property
+    def is_blocked(self):
+        # 1. Check horizontal (Direct dependencies)
+        if self.depends_on.exclude(status='done').exists():
+            return True
+
+        # 2. Check vertical (If parent is blocked, you are too)
+        if self.parent_task and self.parent_task.is_blocked:
+            return True
+
+        return False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

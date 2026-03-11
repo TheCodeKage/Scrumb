@@ -42,20 +42,52 @@ def calculate_target_cut(project: Project):
     return min(round(cut_percent, 2), 90)  # Cap at 90% so we don't delete the whole project
 
 
-def save_tasks(data: Iterable, project: Project, parent=None):
-    for task in data:
-        t = Task.objects.create(
-            project=project,
-            parent_task=parent,
-            title=task['title'],
-            importance=task['importance'],
-            phase_label=task['phase_label'],
-            status='to-do',
-            owner=random.choice(project['members'].split(','))
-        )
-        if (((name := 'subtasks') in task) and task['subtasks']) or (
-                ((name := 'sub_tasks') in task) and task['sub_tasks']):
-            save_tasks(task[name], parent=t, project=project)
+def save_tasks(data: Iterable, project: Project):
+    # Dictionary to keep track of { "slug": TaskObject }
+    slug_to_task_map = {}
+
+    # --- PASS 1: CREATE ALL TASKS ---
+    def create_recursive(tasks_list, parent=None):
+        for task_data in tasks_list:
+            t = Task.objects.create(
+                project=project,
+                parent_task=parent,
+                title=task_data['title'],
+                importance=task_data['importance'],
+                phase_label=task_data.get('phase_label', 'Development'),
+                status='to-do',
+                owner=task_data['owner'],
+                slug=task_data['slug']  # Ensure you added 'slug' to your Task Model
+            )
+
+            # Add to our flat map for linking later
+            slug_to_task_map[t.slug] = t
+
+            # Handle sub-tasks (if any)
+            sub_key = 'sub_tasks' if 'sub_tasks' in task_data else 'subtasks'
+            if sub_key in task_data and task_data[sub_key]:
+                create_recursive(task_data[sub_key], parent=t)
+
+    create_recursive(data)
+
+    # --- PASS 2: LINK DEPENDENCIES ---
+    def link_recursive(tasks_list):
+        for task_data in tasks_list:
+            current_task = slug_to_task_map.get(task_data['slug'])
+
+            # Link dependencies using the slug map
+            if 'depends_on' in task_data and task_data['depends_on']:
+                for dep_slug in task_data['depends_on']:
+                    dep_task = slug_to_task_map.get(dep_slug)
+                    if dep_task:
+                        current_task.depends_on.add(dep_task)
+
+            # Recurse into sub-tasks to link their dependencies too
+            sub_key = 'sub_tasks' if 'sub_tasks' in task_data else 'subtasks'
+            if sub_key in task_data and task_data[sub_key]:
+                link_recursive(task_data[sub_key])
+
+    link_recursive(data)
 
 
 def cut_tasks(tasks_to_cut: Iterable, project: Project):
@@ -101,6 +133,7 @@ def get_team_shame_data(project: Project):
     stalled_tasks = project.tasks.filter(status='doing').order_by('updated_on')[:3]
 
     # 2. Prepare the data for Gemini
+    team_data = project.team
     shame_data = []
     for task in stalled_tasks:
         shame_data.append({
@@ -109,4 +142,4 @@ def get_team_shame_data(project: Project):
             "days_stalled": (timezone.now() - task.updated_on).days
         })
 
-    return shame_data
+    return shame_data, team_data
