@@ -36,20 +36,35 @@ def get_ai_response(prompt: str, in_json=True):
     return send_prompt(prompt).text
 
 
-def generate_tasks(project_name, project_description):
+def generate_tasks(project: Project):
+    # project.teams is now your JSONField:
+    # [{"name": "Sohal", "skills": ["React", "CSS"]}, {"name": "Gopi", "skills": ["Python", "Django"]}]
+    team_data = project.team
+
     prompt = f"""
-    You are a Senior Project Architect for {project_name}.
-    Description of {project_name}: {project_description}
+    You are the "Architect Prime" for {project.name}.
+    PROJECT GOAL: {project.description}
+    AVAILABLE TEAM: {json.dumps(team_data)}
 
-    Create a comprehensive execution plan. 
-    Format: A JSON list of tasks. 
-    Each task MUST have: 'title', 'importance' (1-10), 'phase_label', and optional 'sub_tasks' (a list of tasks).
+    TASK: Generate a Directed Acyclic Graph (DAG) of tasks for an MVP.
 
-    Constraints:
-    1. Focus on MVP.
-    2. Output ONLY valid JSON. No conversational text.
-    3. Break complex tasks into sub_tasks.
-    4. If no technology stack is specified, use abstract, high-level terms (e.g., 'Backend Logic' instead of 'Django'). Do not assume the project uses specific libraries or languages unless explicitly stated.
+    STRICT JSON STRUCTURE:
+    Return a JSON list of objects. Each object must contain:
+    - "slug": A unique, short identifier following project name (e.g., "{project.name}_db-setup").
+    - "title": Clear task name.
+    - "importance": 1-10.
+    - "owner": The name of the team member best suited based on their skills.
+    - "depends_on": A list of "slugs" that MUST be 'done' before this task can start. Use [] if none.
+    - "sub_tasks": (Optional) A nested list of tasks following this same structure.
+
+    EXECUTION RULES:
+    1. WATERFALL LOGIC: Ensure 'depends_on' creates a logical flow (e.g., API cannot start until Database is designed).
+    2. DELEGATION: If a task requires 'CSS', assign it to the member with 'CSS' in their skills.
+    3. MVP FOCUS: Only generate tasks required to reach a functional prototype.
+    4. NO DIALOGUE: Output ONLY the raw JSON list.
+    5. MANDATORY NESTING: Every high-level "Phase" must contain at least 3-5 sub_tasks. Do not provide a flat list.
+    6. CROSS-HIERARCHY LINKS: Horizontal depends_on can link any task to any other task, regardless of nesting level.
+    7. FORMAT ENFORCEMENT: If a task is a "Parent," it should describe the goal; its sub_tasks should describe the actions.
     """
 
     return get_ai_response(prompt)
@@ -89,8 +104,8 @@ def get_panic_recommendations(project: Project, target_cut: float):
     return get_ai_response(prompt)
 
 
-def shame_team(shame_data: list[dict[str, str]]):
-    prompt = f"Based on this data: {shame_data}, write a brutal but funny 2-sentence summary of why the project is failing. Mention names."
+def shame_team(shame_data: list[dict[str, str]], team_data: dict[str, str]):
+    prompt = f"Based on this data: {shame_data} and data on team: {team_data}, write a brutal but funny 2-sentence summary of why the project is failing. Mention names."
 
     return get_ai_response(prompt, in_json=False)
 
