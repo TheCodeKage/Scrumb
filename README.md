@@ -41,7 +41,7 @@ Scrumb solves this with three principles:
   - Scope Executioner
 
 ### IDE Integration
-- JetBrains Plugin (Sohal's Realm)
+- JetBrains Plugin (Sehal's Realm)
 
 ### Database
 - PostgreSQL  
@@ -157,7 +157,7 @@ Example:
 ```
 🚨 CRITICAL PATH BOTTLENECK  
 
-Developer: Sohal  
+Developer: Sehal  
 Blocked Tasks: 6  
 Impact: Entire Frontend Team  
 ```
