@@ -41,7 +41,7 @@ class Task(models.Model):
     phase_label = models.CharField(max_length=100)
 
     parent_task = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True, related_name='subtasks')
-    owner = models.CharField(max_length=100)
+    owner = models.CharField(max_length=100,blank=True,null=True)
 
     updated_on = models.DateTimeField(auto_now=True)
 
