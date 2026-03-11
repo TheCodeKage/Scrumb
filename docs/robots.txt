@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://thecodekage.github.io/scrumb/sitemap.xml
+Sitemap: https://www.scrumb.in/sitemap.xml
