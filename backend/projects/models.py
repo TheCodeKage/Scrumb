@@ -11,6 +11,7 @@ class Project(models.Model):
     created_on = models.DateField(auto_now=True)
 
     guarantee_date = models.DateField()
+    team = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name + self.guarantee_date.strftime("%m/%d/%Y")
@@ -36,12 +37,13 @@ class Task(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
 
     title = models.CharField(max_length=100)
-    status = models.CharField(max_length=20, choices=[("to-do", "To-Do"), ("doing", "Doing"), ("done", "Done"), ("Archived", "Archived")])
+    status = models.CharField(max_length=20, choices=[("to-do", "To-Do"), ("doing", "Doing"), ("done", "Done"), ("archived", "Archived")])
     importance = models.IntegerField(default=0)
     phase_label = models.CharField(max_length=100)
 
     parent_task = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True, related_name='subtasks')
-    owner = models.CharField(max_length=100)
+    depends_on = models.ManyToManyField("self", blank=True, related_name='blocked_tasks', symmetrical=False)
+    owner = models.CharField(max_length=100,blank=True,null=True)
 
     updated_on = models.DateTimeField(auto_now=True)
 

@@ -1,3 +1,4 @@
+import random
 from collections.abc import Iterable
 from datetime import timedelta
 
@@ -50,6 +51,7 @@ def save_tasks(data: Iterable, project: Project, parent=None):
             importance=task['importance'],
             phase_label=task['phase_label'],
             status='to-do',
+            owner=random.choice(project['members'].split(','))
         )
         if (((name := 'subtasks') in task) and task['subtasks']) or (
                 ((name := 'sub_tasks') in task) and task['sub_tasks']):
