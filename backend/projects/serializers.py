@@ -16,7 +16,8 @@ class TaskSerializer(serializers.ModelSerializer):
             'status',
             'importance',
             'phase_label',
-            'sub_tasks'
+            'sub_tasks', 
+            'owner', 
         ]
 
 
