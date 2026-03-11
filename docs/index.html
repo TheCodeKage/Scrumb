@@ -90,6 +90,44 @@
       line-height: 1.5;
     }
 
+    .plugin-section {
+      margin-top: 3rem;
+      padding: 2rem;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .download-btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 12px 22px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #6366f1, #22d3ee);
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99,102,241,0.35);
+    }
+
+    .instructions {
+      margin-top: 1.5rem;
+      text-align: left;
+      font-size: 0.95rem;
+      color: #cbd5f5;
+      line-height: 1.6;
+    }
+
+    .instructions ol {
+      margin-top: 0.5rem;
+      padding-left: 1.2rem;
+    }
+
     .status {
       margin-top: 2.5rem;
       font-size: 0.95rem;
@@ -139,6 +177,32 @@
       <div class="feature">
         <h3>⚡ Built for Real Teams</h3>
         <p>Designed for students, startups, and fast-moving engineering teams.</p>
+      </div>
+    </div>
+
+    <div class="plugin-section">
+      <h2>JetBrains Plugin (Early Access)</h2>
+      <p style="margin-top:10px;color:#cbd5f5;">
+        Try the <strong>Scrumb JetBrains plugin</strong> — a very early demo that brings
+        AI-powered sprint assistance directly inside your IDE.
+      </p>
+
+      <a class="download-btn" href="scrumb-plugin.zip" download>
+        Download Plugin (.zip)
+      </a>
+
+      <div class="instructions">
+        <strong>Installation Instructions:</strong>
+        <ol>
+          <li>Download the plugin zip file above.</li>
+          <li>Open your JetBrains IDE (IntelliJ, PyCharm, WebStorm, etc.).</li>
+          <li>Go to <strong>Settings</strong>.</li>
+          <li>Navigate to <strong>Plugins</strong>.</li>
+          <li>Click the <strong>⚙ Settings icon</strong>.</li>
+          <li>Select <strong>Install Plugin From Disk</strong>.</li>
+          <li>Select the downloaded <strong>.zip file</strong>.</li>
+          <li>Restart the IDE when prompted.</li>
+        </ol>
       </div>
     </div>
 
