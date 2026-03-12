@@ -50,7 +50,7 @@ def generate_tasks(project: Project):
 
     STRICT JSON STRUCTURE:
     Return a JSON list of objects. Each object must contain:
-    - "slug": A unique, short identifier following project name (e.g., "{project.name}_db-setup").
+    - "slug": A unique, short identifier (e.g., "db-setup").
     - "title": Clear task name.
     - "importance": 1-10.
     - "owner": The name of the team member best suited based on their skills.

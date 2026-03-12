@@ -57,7 +57,7 @@ def save_tasks(data: Iterable, project: Project):
                 phase_label=task_data.get('phase_label', 'Development'),
                 status='to-do',
                 owner=task_data['owner'],
-                slug=task_data['slug']  # Ensure you added 'slug' to your Task Model
+                slug=str(project.id)+'_'+task_data['slug']  # Ensure you added 'slug' to your Task Model
             )
 
             # Add to our flat map for linking later
@@ -110,7 +110,6 @@ def cut_tasks(tasks_to_cut: Iterable, project: Project):
 
 
 def calculate_health(project: Project):
-    completion = project.completion_percentage
     target_cut = calculate_target_cut(project)
 
     # 2. Velocity Math (Points per day)
