@@ -1,10 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://www.scrumb.in/</loc>
-<lastmod>2026-03-11</lastmod>
 <priority>1.0</priority>
+</url>
+
+<url>
+<loc>https://www.scrumb.in/ai-scrum-master</loc>
+</url>
+
+<url>
+<loc>https://www.scrumb.in/sprint-planning-ai</loc>
+</url>
+
+<url>
+<loc>https://www.scrumb.in/jetbrains-ai-plugin</loc>
+</url>
+
+<url>
+<loc>https://www.scrumb.in/docs</loc>
+</url>
+
+<url>
+<loc>https://www.scrumb.in/faq</loc>
 </url>
 
 </urlset>
