@@ -13,6 +13,8 @@ class Project(models.Model):
     guarantee_date = models.DateField()
     team = models.JSONField()
 
+    is_detailed = models.BooleanField(default=False)
+
     def __str__(self):
         return self.name + self.guarantee_date.strftime("%m/%d/%Y")
 
@@ -37,7 +39,7 @@ class Task(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
 
     title = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=False)
     status = models.CharField(max_length=20, choices=[("to-do", "To-Do"), ("doing", "Doing"), ("done", "Done"), ("archived", "Archived")])
     importance = models.IntegerField(default=0)
     phase_label = models.CharField(max_length=100)
@@ -47,6 +49,9 @@ class Task(models.Model):
     owner = models.CharField(max_length=100,blank=True,null=True)
 
     updated_on = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('project', 'slug')
 
     @property
     def is_parent(self):
@@ -94,3 +99,27 @@ class TaskHistory(models.Model):
 
     class Meta:
         ordering = ['-timestamp']
+
+
+class ArchitectQuestion(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='questions')
+    text = models.TextField() # The question from Gemini
+
+    @property
+    def is_answered(self):
+        return self.options.filter(is_selected=True).exists()
+
+    @property
+    def selected_options(self):
+        return self.options.filter(is_selected=True)
+
+    @property
+    def selected_option_text(self):
+        return [q.text for q in self.selected_options]
+
+
+class Option(models.Model):
+    question = models.ForeignKey("ArchitectQuestion", on_delete=models.CASCADE, related_name='options')
+    text = models.TextField()
+    is_selected = models.BooleanField(default=False)
+    is_recommended = models.BooleanField(default=False)

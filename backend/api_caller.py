@@ -3,6 +3,8 @@ import os
 import django
 from google.genai.types import GenerateContentResponse
 
+from projects.logic import get_selected_constraints
+
 # Set the environment variable to your settings file
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 
@@ -36,17 +38,64 @@ def get_ai_response(prompt: str, in_json=True):
     return send_prompt(prompt).text
 
 
+def check_description(project: Project):
+    prompt = f"""
+    You are the "Architect Prime". We are starting a project: {project.name}.
+    DESCRIPTION: {project.description}
+    TEAM: {json.dumps(project.team)}
+
+    TASK: We need to build a high-precision Task DAG. To do this, we need to finalize the Technical Blueprint. 
+
+    If the description is too vague (like "a bus app"), generate 3-5 MANDATORY Multiple Choice Questions to lock in the architecture.
+
+    RULES FOR QUESTIONS:
+    1. NO META-TALK: Do not ask "Why is this vague?". 
+    2. BE TECHNICAL: Ask about Frameworks, Databases, Auth, or specific MVP Features.
+    3. KEEP IT SIMPLE: Options should be short (e.g., "Django + React" vs "FastAPI + Next.js").
+    4. TEAM AWARE: Look at the TEAM skills. If Gopi knows Python, make Python-based stacks the 'recommended' options.
+
+    STRICT JSON STRUCTURE:
+    {{
+        "is_detailed": false,
+        "questions": [
+            {{
+                "text": "What is the primary tech stack for the MVP?",
+                "options": ["Django (Python) + React", "FastAPI (Python) + Vue", "Node.js + React"],
+                "architect_recommendation": "Django (Python) + React"
+            }},
+            {{
+                "text": "How will we handle real-time location tracking?",
+                "options": ["WebSockets (Pusher/Socket.io)", "Firebase Realtime DB", "HTTP Polling (Simple)"],
+                "architect_recommendation": "Firebase Realtime DB"
+            }}
+        ]
+    }}
+    """
+    return get_ai_response(prompt)
+
+
 def generate_tasks(project: Project):
-    # project.teams is now your JSONField:
-    # [{"name": "Sohal", "skills": ["React", "CSS"]}, {"name": "Gopi", "skills": ["Python", "Django"]}]
     team_data = project.team
+    # --- NEW: Get the MCQ results ---
+    user_choices = get_selected_constraints(project)
 
     prompt = f"""
-    You are the "Architect Prime" for {project.name}.
-    PROJECT GOAL: {project.description}
-    AVAILABLE TEAM: {json.dumps(team_data)}
+        You are the "Architect Prime" for {project.name}.
+        GOAL: {project.description}
+        DEADLINE: {project.guarantee_date} (Current Date: {timezone.now().date()})
 
-    TASK: Generate a Directed Acyclic Graph (DAG) of tasks for an MVP.
+        TEAM RESOURCES: {json.dumps(team_data)}
+
+        STRICT TECHNICAL CONSTRAINTS (User Selected):
+        {json.dumps(user_choices)}
+
+        TASK: Generate a Directed Acyclic Graph (DAG) of tasks for an MVP.
+
+        RULES:
+        1. COMPLIANCE: Every task must align with the 'STRICT TECHNICAL CONSTRAINTS'. 
+        2. SCOPE: Adjust task complexity to fit the DEADLINE. If the deadline is close, skip polish.
+        3. NESTING: Use the 'sub_tasks' field for every high-level phase (3-5 subtasks minimum).
+        4. OWNERSHIP: Assign owners based on skills in TEAM RESOURCES.
 
     STRICT JSON STRUCTURE:
     Return a JSON list of objects. Each object must contain:
@@ -71,7 +120,7 @@ def generate_tasks(project: Project):
 
 
 def get_panic_recommendations(project: Project, target_cut: float):
-    completion_rate = Project.completion_percentage
+    completion_rate = project.completion_percentage
 
     if target_cut == 0:
         return []
