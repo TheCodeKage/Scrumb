@@ -2,10 +2,55 @@ import random
 from collections.abc import Iterable
 from datetime import timedelta
 
+from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
 
-from projects.models import TaskHistory, Task, Project
+from projects.models import TaskHistory, Task, Project, ArchitectQuestion, Option
+
+
+def get_selected_constraints(project: Project):
+    """
+    Gathers all the choices made by the team.
+    """
+    selections = []
+    # Using your model structure
+    for question in project.questions.all():
+        selected_texts = question.selected_option_text # Your property
+        if selected_texts:
+            selections.append({
+                "context": question.text,
+                "choice": ", ".join(selected_texts)
+            })
+    return selections
+
+
+@transaction.atomic
+def add_questions(project: Project, questions: Iterable[dict]):
+    for q_data in questions:
+        # 1. Create the Parent Question
+        question_obj = ArchitectQuestion.objects.create(
+            project=project,
+            text=q_data["text"]
+        )
+
+        # 2. Prepare the Options for THIS question only
+        option_objects = [
+            Option(
+                question=question_obj,
+                text=opt_text,
+                is_recommended=opt_text==q_data["architect_recommendation"]
+            ) for opt_text in q_data["options"]
+        ]
+
+        # 3. Bulk create options per question
+        Option.objects.bulk_create(option_objects)
+
+
+def answer_question(project: Project, question_id: int, answer_id: int):
+    answer = Option.objects.get(id=answer_id, question_id=question_id, question__project=project)
+    answer.is_selected = True
+    answer.save()
 
 
 def get_daily_velocity(project: Project, days=7):
@@ -17,6 +62,7 @@ def get_daily_velocity(project: Project, days=7):
 
     # We use max(..., 1) to avoid DivisionByZero or making the AI think we are dead
     return round(recent_done_importance / days, 2) or 0.1
+
 
 def calculate_target_cut(project: Project):
     # 1. Calculate Time Remaining
@@ -42,6 +88,7 @@ def calculate_target_cut(project: Project):
     return min(round(cut_percent, 2), 90)  # Cap at 90% so we don't delete the whole project
 
 
+@transaction.atomic
 def save_tasks(data: Iterable, project: Project):
     # Dictionary to keep track of { "slug": TaskObject }
     slug_to_task_map = {}
@@ -57,7 +104,7 @@ def save_tasks(data: Iterable, project: Project):
                 phase_label=task_data.get('phase_label', 'Development'),
                 status='to-do',
                 owner=task_data['owner'],
-                slug=str(project.id)+'_'+task_data['slug']  # Ensure you added 'slug' to your Task Model
+                slug=task_data['slug']  # Ensure you added 'slug' to your Task Model
             )
 
             # Add to our flat map for linking later
@@ -90,6 +137,7 @@ def save_tasks(data: Iterable, project: Project):
     link_recursive(data)
 
 
+@transaction.atomic
 def cut_tasks(tasks_to_cut: Iterable, project: Project):
     old = project.tasks.filter(status__in=['to-do', 'doing', 'done'])
     count_old = old.count()

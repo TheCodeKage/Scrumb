@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .logic import calculate_health
-from .models import Project, Task
+from .models import Project, Task, ArchitectQuestion, Option
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -43,17 +43,43 @@ class TaskSerializer(serializers.ModelSerializer):
         return value
 
 
+class QuestionSerializer(serializers.ModelSerializer):
+    class OptionSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Option
+            fields = ['id', 'text', 'is_selected', 'is_recommended']
+            read_only_fields = ('id', 'text', 'is_recommended')
+
+
+    options = OptionSerializer(many=True)
+    class Meta:
+        model = ArchitectQuestion
+        fields = [
+            'id',
+            'text',
+            'options'
+        ]
+        # Only 'answer' should be writeable by the user/IDE
+        read_only_fields = ('id', 'text')
+
+
 class ProjectSerializer(serializers.ModelSerializer):
     tasks = serializers.SerializerMethodField()
+    questions = serializers.SerializerMethodField()
     health = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
-        fields = ['id', 'name', 'description', 'guarantee_date', "team", 'tasks', 'completion_percentage', 'health']
+        read_only_fields = ('is_detailed',)
+        fields = ['id', 'name', 'description', 'guarantee_date', "team", 'tasks', 'completion_percentage', 'health', 'is_detailed', 'questions']
 
     def get_tasks(self, project):
         root_tasks = project.tasks.filter(parent_task__isnull=True)
         return TaskSerializer(root_tasks, many=True).data
+
+    def get_questions(self, project):
+        questions = project.questions.all()
+        return QuestionSerializer(questions, many=True).data
 
     def get_health(self, project):
         status, velocity, distance, target_cut = calculate_health(project)

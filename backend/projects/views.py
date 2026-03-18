@@ -1,13 +1,14 @@
+from django.db import transaction
 from django.http import JsonResponse
 from django.utils import timezone
 from rest_framework import viewsets, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api_caller import generate_tasks, get_panic_recommendations, shame_team
-from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut, get_team_shame_data
-from .models import Project, Task
-from .serializers import TaskSerializer, ProjectSerializer
+from api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
+from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut, get_team_shame_data, add_questions
+from .models import Project, Task, ArchitectQuestion
+from .serializers import TaskSerializer, ProjectSerializer, QuestionSerializer
 
 
 # Create your views here.
@@ -15,20 +16,36 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
+    def perform_create(self, serializer):
+        # 1. Save the project first
+        project = serializer.save()
+        audit_data = check_description(project)
+
+        if audit_data.get("is_detailed"):
+            project.is_detailed = True
+            project.save(update_fields=["is_detailed"])
+        else:
+            add_questions(project, audit_data.get("questions", []))
+
     @action(detail=True, methods=['post'])
     def generate_plan(self, request, pk=None):
         project = self.get_object()
 
-        if Task.objects.filter(project=project).exists():
-            return Response({"error": "Plan already exists!"}, status=400)
+        # Ensure every question has exactly one 'is_selected=True' option
+        if project.questions.filter(options__is_selected=True).distinct().count() < project.questions.count():
+            return Response({"error": "You haven't answered all the Architect's questions yet."}, status=400)
+
+        # Flip the switch: The project is now detailed enough because the user chose the MCQs
+        project.is_detailed = True
+        project.save(update_fields=['is_detailed'])
 
         tasks_data = generate_tasks(project)
-
         save_tasks(tasks_data, project)
-        return Response({"status": "Plan Generated and Tasks Created"})
+        return Response({"status": "Plan Generated"})
 
     @action(detail=True, methods=['post'])
     def panic_mode(self, request, pk=None):
+        if not request.data.get('target_cut'): print("Hell0")
         project = self.get_object()
         count_old, count_new, imp_old, imp_new = (
             cut_tasks(
@@ -68,6 +85,21 @@ class ProjectViewSet(viewsets.ModelViewSet):
             shame_team(shame_data, team_data)
         )
 
+    @action(detail=True, methods=['get'])
+    def interview(self, request, pk=None):
+        project = self.get_object()
+
+        # If Gemini is still thinking (Audit phase), tell the IDE to wait
+        if not project.is_detailed and not project.questions.exists():
+            return Response({"status": "AUDITING", "message": "Architect is reviewing..."})
+
+        # Return the questions so Sohal can render the MCQs
+        serializer = QuestionSerializer(project.questions.all(), many=True)
+        return Response({
+            "status": "INTERVIEWING",
+            "questions": serializer.data
+        })
+
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
@@ -91,6 +123,32 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
+
+class QuestionViewSet(viewsets.GenericViewSet, viewsets.mixins.ListModelMixin, viewsets.mixins.UpdateModelMixin):
+    queryset = ArchitectQuestion.objects.all()
+    serializer_class = QuestionSerializer
+
+    def perform_update(self, serializer):
+        selected_option_id = self.request.data.get('selected_option_id')
+        question = self.get_object()
+
+        if selected_option_id:
+            with transaction.atomic():
+                # 1. Ensure the option actually belongs to this question (Security)
+                option_to_select = question.options.filter(id=selected_option_id)
+
+                if not option_to_select.exists():
+                    raise serializers.ValidationError("Invalid Option ID for this question.")
+
+                # 2. Reset all and select the new one
+                question.options.all().update(is_selected=False)
+                option_to_select.update(is_selected=True)
+
+        # 3. Save the serializer to trigger any other signals/logic
+        serializer.save()
+
+        # 4. CRITICAL: Refresh the object from DB so the response shows the new state
+        question.refresh_from_db()
 
 def healthz(request):
     return JsonResponse({
