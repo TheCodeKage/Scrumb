@@ -1,173 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>FAQ — Scrumb AI Scrum Master | Common Questions Answered</title>
-  <meta name="description" content="Frequently asked questions about Scrumb — the AI-powered Scrum Master for agile teams. Learn about features, the JetBrains plugin, pricing, and early access." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.scrumb.in/faq" />
-
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="FAQ — Scrumb AI Scrum Master" />
-  <meta property="og:description" content="Common questions about Scrumb — AI sprint planning, blocker detection, JetBrains plugin, and early access." />
-  <meta property="og:url" content="https://www.scrumb.in/faq" />
-  <meta property="og:image" content="https://www.scrumb.in/preview.png" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FAQ — Scrumb AI Project Execution Engine</title>
+  <meta name="description" content="Frequently asked questions about Scrumb: the Architect Audit, DAG task planning, Panic Mode, Shame Engine, JetBrains plugin, and early access pricing."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://www.scrumb.in/faq"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="FAQ — Scrumb AI Project Execution Engine"/>
+  <meta property="og:description" content="Frequently asked questions about Scrumb: the Architect Audit, DAG task planning, Panic Mode, Shame Engine, JetBrains plugin, and early access pricing."/>
+  <meta property="og:url" content="https://www.scrumb.in/faq"/>
+  <meta property="og:image" content="https://www.scrumb.in/preview.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:site_name" content="Scrumb"/>
+  <meta property="og:locale" content="en_IN"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="FAQ — Scrumb AI Project Execution Engine"/>
+  <meta name="twitter:description" content="Frequently asked questions about Scrumb: the Architect Audit, DAG task planning, Panic Mode, Shame Engine, JetBrains plugin, and early access pricing."/>
+  <meta name="twitter:image" content="https://www.scrumb.in/preview.png"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is Scrumb?","acceptedAnswer":{"@type":"Answer","text":"Scrumb is an AI project execution engine for small developer teams. It uses an Architect Audit MCQ interview to plan projects, generates a DAG task dependency graph, and includes Panic Mode for scope management and a Shame Engine for accountability."}},{"@type":"Question","name":"Is Scrumb free?","acceptedAnswer":{"@type":"Answer","text":"Yes, Scrumb is completely free during early access."}},{"@type":"Question","name":"Which JetBrains IDEs does Scrumb support?","acceptedAnswer":{"@type":"Answer","text":"IntelliJ IDEA, PyCharm, WebStorm, GoLand, and other JetBrains IDEs."}},{"@type":"Question","name":"Who is Scrumb for?","acceptedAnswer":{"@type":"Answer","text":"Hackathon teams, student dev groups, early-stage startups, and small engineering squads of 2-5 people with a real deadline."}}]}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root { --bg:#06090f; --surface:#0d1117; --border:rgba(99,179,255,0.1); --text:#d4dff5; --text-muted:#6b7fa3; --accent:#4fa3ff; --accent-2:#00e5c3; --radius:12px; }
-    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.6;overflow-x:hidden;}
-    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(79,163,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,163,255,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
-    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(6,9,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
-    .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:var(--accent);text-decoration:none;}
-    .nav-links{display:flex;gap:1.5rem;list-style:none;}
-    .nav-links a{color:var(--text-muted);text-decoration:none;font-size:0.9rem;font-weight:500;transition:color 0.2s;}
-    .nav-links a:hover{color:var(--text);}
-    .nav-cta{background:var(--accent);color:var(--bg) !important;padding:0.45rem 1.1rem;border-radius:8px;font-weight:600 !important;}
-    main{position:relative;z-index:1;padding-top:5rem;max-width:720px;margin:0 auto;padding-left:2rem;padding-right:2rem;}
-    .page-hero{padding:4rem 0 3rem;text-align:center;}
-    .page-hero h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:0.8rem;}
-    .page-hero p{color:var(--text-muted);font-size:1rem;max-width:500px;margin:0 auto;}
-    .faq-list{display:flex;flex-direction:column;gap:0.6rem;padding-bottom:5rem;}
-    .faq-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
-    .faq-q{padding:1.2rem 1.5rem;font-weight:600;font-size:0.95rem;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem;user-select:none;}
-    .faq-q:hover{color:var(--accent);}
-    .faq-arrow{font-size:0.8rem;color:var(--text-muted);transition:transform 0.25s;flex-shrink:0;}
-    .faq-item.open .faq-arrow{transform:rotate(180deg);}
-    .faq-a{max-height:0;overflow:hidden;transition:max-height 0.3s ease,padding 0.3s;}
-    .faq-item.open .faq-a{max-height:400px;}
-    .faq-a-inner{padding:0 1.5rem 1.2rem;font-size:0.9rem;color:var(--text-muted);line-height:1.75;}
-    .faq-a-inner a{color:var(--accent);text-decoration:none;}
-    .faq-a-inner a:hover{text-decoration:underline;}
-    footer{border-top:1px solid var(--border);padding:2rem;text-align:center;max-width:100%;}
-    footer a{color:var(--text-muted);text-decoration:none;margin:0 0.8rem;font-size:0.85rem;}
-    footer a:hover{color:var(--text);}
-    footer p{font-size:0.8rem;color:var(--text-muted);margin-top:1rem;}
-    @media(max-width:600px){.nav-links{display:none;}}
-  </style>
+:root{--bg:#0a0a08;--bg-2:#0f0f0c;--bg-3:#141410;--border:rgba(255,176,0,0.15);--border-strong:rgba(255,176,0,0.35);--border-red:rgba(255,59,59,0.2);--text:#e8e4d4;--text-muted:#6e6a58;--text-dim:#3a3830;--amber:#ffb000;--amber-dim:rgba(255,176,0,0.07);--green:#00ff88;--red:#ff3b3b;--red-dim:rgba(255,59,59,0.06);--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--display:'Bebas Neue',sans-serif;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.022) 2px,rgba(0,0,0,0.022) 4px);pointer-events:none;z-index:9999;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:52px;background:rgba(10,10,8,0.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:var(--display);font-size:1.6rem;letter-spacing:0.08em;color:var(--amber);text-decoration:none;display:flex;align-items:center;gap:0.5rem;}
+.nav-tag{font-family:var(--mono);font-size:0.58rem;color:var(--text-dim);letter-spacing:0.05em;}
+.nav-links{display:flex;gap:0;list-style:none;}
+.nav-links a{color:var(--text-muted);text-decoration:none;font-family:var(--mono);font-size:0.68rem;letter-spacing:0.04em;padding:0 0.85rem;height:52px;display:flex;align-items:center;border-left:1px solid var(--border);transition:color 0.15s,background 0.15s;white-space:nowrap;}
+.nav-links a:hover,.nav-links a.active{color:var(--amber);background:var(--amber-dim);}
+.nav-cta{color:var(--amber)!important;border-left:1px solid var(--border-strong)!important;}
+.site-footer{border-top:1px solid var(--border);padding:1.8rem 2rem;background:var(--bg-2);}
+.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:auto repeat(4,1fr);gap:2rem;align-items:start;}
+.footer-logo-wrap .footer-logo{font-family:var(--display);font-size:1.4rem;letter-spacing:0.08em;color:var(--amber);display:block;margin-bottom:0.4rem;}
+.footer-logo-wrap p{font-family:var(--mono);font-size:0.62rem;color:var(--text-dim);line-height:1.6;max-width:160px;}
+.footer-col h4{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.7rem;}
+.footer-col a{display:block;font-family:var(--mono);font-size:0.68rem;color:var(--text-dim);text-decoration:none;padding:0.18rem 0;transition:color 0.15s;}
+.footer-col a:hover{color:var(--amber);}
+.footer-bottom{max-width:1100px;margin:1.2rem auto 0;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;}
+.footer-copy{font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);}
+.btn-primary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.72rem 1.6rem;background:var(--amber);color:var(--bg);font-family:var(--mono);font-size:0.76rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;transition:opacity 0.15s,transform 0.15s;border:none;cursor:pointer;}
+.btn-primary:hover{opacity:0.85;transform:translateY(-1px);}
+.btn-secondary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.72rem 1.6rem;background:transparent;color:var(--text-muted);font-family:var(--mono);font-size:0.76rem;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;border:1px solid var(--border);transition:border-color 0.15s,color 0.15s;}
+.btn-secondary:hover{border-color:var(--border-strong);color:var(--text);}
+.section-marker{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.8rem;}
+.section-marker::before{content:'// ';opacity:0.45;}
+.breadcrumb{font-family:var(--mono);font-size:0.66rem;color:var(--text-muted);margin-bottom:1.5rem;letter-spacing:0.04em;}
+.breadcrumb a{color:var(--amber);text-decoration:none;}
+.page-wrap{max-width:1100px;margin:0 auto;padding:0 2rem;}
+.blink{animation:blink 1.1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@media(max-width:900px){.nav-links{display:none;}.footer-inner{grid-template-columns:1fr 1fr;}}
+@media(max-width:500px){.footer-inner{grid-template-columns:1fr;}}
 
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      { "@type": "Question", "name": "What is Scrumb?", "acceptedAnswer": { "@type": "Answer", "text": "Scrumb is an AI-powered Scrum Master that helps agile teams plan sprints, detect blockers, and track progress — directly inside JetBrains IDEs." } },
-      { "@type": "Question", "name": "Is Scrumb free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Scrumb is free during early access. The JetBrains plugin can be downloaded at no cost." } },
-      { "@type": "Question", "name": "Which JetBrains IDEs does Scrumb support?", "acceptedAnswer": { "@type": "Answer", "text": "Scrumb supports IntelliJ IDEA, PyCharm, WebStorm, and GoLand, among other JetBrains IDEs." } },
-      { "@type": "Question", "name": "Who is Scrumb for?", "acceptedAnswer": { "@type": "Answer", "text": "Scrumb is designed for student teams, startups, and small engineering teams working with agile methodologies." } }
-    ]
-  }
-  </script>
+.inner-main{position:relative;z-index:1;padding-top:52px;}
+.inner-hero{max-width:900px;margin:0 auto;padding:4rem 2rem 3rem;border-bottom:1px solid var(--border);}
+.inner-hero h1{font-family:var(--display);font-size:clamp(2.8rem,6vw,5.5rem);letter-spacing:0.04em;line-height:0.95;color:var(--text);margin-bottom:1rem;}
+.inner-hero h1 span{color:var(--amber);}
+.inner-hero p{color:var(--text-muted);font-size:0.95rem;max-width:580px;line-height:1.8;border-left:2px solid var(--border-strong);padding-left:1.2rem;}
+.prose-wrap{max-width:760px;margin:0 auto;padding:3rem 2rem 5rem;}
+.prose-wrap h2{font-family:var(--display);font-size:clamp(1.8rem,3.5vw,3rem);letter-spacing:0.04em;color:var(--text);margin:3rem 0 0.8rem;line-height:1;}
+.prose-wrap h3{font-family:var(--mono);font-size:0.82rem;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:0.06em;margin:1.8rem 0 0.6rem;}
+.prose-wrap p{color:var(--text-muted);font-size:0.92rem;line-height:1.85;margin-bottom:1rem;}
+.prose-wrap p strong{color:var(--text);font-weight:500;}
+.prose-wrap a{color:var(--amber);}
+.prose-wrap ul{list-style:none;display:flex;flex-direction:column;gap:0.4rem;margin:0.8rem 0 1.4rem;}
+.prose-wrap ul li{color:var(--text-muted);font-size:0.9rem;padding:0.55rem 1rem 0.55rem 2.2rem;background:var(--bg-2);border:1px solid var(--border);position:relative;line-height:1.6;}
+.prose-wrap ul li::before{content:'\2192';position:absolute;left:0.7rem;color:var(--amber);}
+.prose-wrap blockquote{border-left:3px solid var(--amber);padding:1rem 1.4rem;background:var(--bg-2);margin:1.8rem 0;}
+.prose-wrap blockquote p{color:var(--text);font-style:italic;margin:0;}
+.callout{padding:1rem 1.2rem;margin:1.2rem 0;font-size:0.87rem;line-height:1.7;border-left:3px solid var(--amber);background:var(--amber-dim);color:var(--text-muted);}
+.callout strong{color:var(--amber);}
+.callout.warn{border-left-color:var(--red);background:var(--red-dim);}
+.callout.warn strong{color:var(--red);}
+.callout.ok{border-left-color:var(--green);background:rgba(0,255,136,0.05);}
+.callout.ok strong{color:var(--green);}
+.cta-box{background:linear-gradient(135deg,rgba(255,176,0,0.07),rgba(0,255,136,0.03));border:1px solid var(--border-strong);padding:2rem;margin:3rem 0;text-align:center;}
+.cta-box h3{font-family:var(--display);font-size:1.8rem;letter-spacing:0.05em;color:var(--text);margin-bottom:0.5rem;}
+.cta-box p{color:var(--text-muted);font-size:0.88rem;margin-bottom:1.2rem;line-height:1.7;}
+.code-block{background:var(--bg-3);border:1px solid var(--border);padding:1.2rem 1.5rem;font-family:var(--mono);font-size:0.76rem;color:var(--text-muted);line-height:1.9;margin:1rem 0;overflow-x:auto;}
+.c-green{color:var(--green);}.c-amber{color:var(--amber);}.c-red{color:var(--red);}.c-dim{color:var(--text-dim);}
+.compare-table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:0.83rem;}
+.compare-table th{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 0.8rem;border:1px solid var(--border);background:var(--bg-3);color:var(--text-muted);text-align:left;}
+.compare-table td{padding:0.6rem 0.8rem;border:1px solid var(--border);color:var(--text-muted);vertical-align:top;line-height:1.6;}
+.compare-table tr:nth-child(even) td{background:var(--bg-2);}
+.good{color:var(--green);}.bad{color:var(--red);}
+
+.related-links{margin:3rem 0;padding-top:2rem;border-top:1px solid var(--border);}
+.related-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.8rem;margin-top:1rem;}
+.related-card{display:flex;flex-direction:column;gap:0.3rem;padding:1rem 1.2rem;background:var(--bg-2);border:1px solid var(--border);text-decoration:none;transition:border-color 0.15s,background 0.15s;}
+.related-card:hover{border-color:var(--border-strong);background:var(--amber-dim);}
+.rc-label{font-family:var(--mono);font-size:0.72rem;font-weight:600;color:var(--amber);letter-spacing:0.05em;}
+.rc-desc{font-size:0.82rem;color:var(--text-muted);}
+@media(max-width:600px){.related-grid{grid-template-columns:1fr;}}
+
+.faq-list{display:flex;flex-direction:column;gap:0.5rem;max-width:760px;margin:0 auto;padding:2rem 2rem 5rem;}
+.faq-item{background:var(--bg-2);border:1px solid var(--border);overflow:hidden;}
+.faq-q{padding:1.1rem 1.4rem;font-family:var(--mono);font-size:0.82rem;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem;user-select:none;letter-spacing:0.02em;}
+.faq-q:hover{color:var(--amber);background:var(--amber-dim);}
+.faq-arrow{font-size:0.7rem;color:var(--text-muted);transition:transform 0.25s;flex-shrink:0;}
+.faq-item.open .faq-arrow{transform:rotate(180deg);}
+.faq-a{max-height:0;overflow:hidden;transition:max-height 0.3s ease;}
+.faq-item.open .faq-a{max-height:600px;}
+.faq-a-inner{padding:0 1.4rem 1.2rem;font-size:0.88rem;color:var(--text-muted);line-height:1.8;}
+.faq-a-inner a{color:var(--amber);text-decoration:none;}
+.faq-a-inner a:hover{text-decoration:underline;}
+.faq-hero{max-width:760px;margin:0 auto;padding:4rem 2rem 2rem;text-align:center;}
+.faq-hero h1{font-family:var(--display);font-size:clamp(2.5rem,5vw,5rem);letter-spacing:0.04em;color:var(--text);margin-bottom:0.8rem;}
+.faq-hero h1 span{color:var(--amber);}
+.faq-hero p{color:var(--text-muted);font-size:0.92rem;max-width:480px;margin:0 auto;}
+</style>
 </head>
 <body>
-
 <nav>
-  <a href="/" class="nav-logo">Scrumb</a>
-  <ul class="nav-links">
-    <li><a href="/ai-scrum-master">AI Scrum Master</a></li>
-    <li><a href="/sprint-planning-ai">Sprint Planning</a></li>
-    <li><a href="/jetbrains-ai-plugin">JetBrains Plugin</a></li>
-    <li><a href="/docs">Docs</a></li>
-    <li><a href="/faq" class="nav-cta">Get Early Access</a></li>
-  </ul>
-</nav>
-
-<main>
-  <div class="page-hero">
-    <h1>Frequently Asked Questions</h1>
-    <p>Everything you need to know about Scrumb, the JetBrains plugin, and how it helps agile teams.</p>
+  <a href="/" class="nav-logo">SCRUMB<span class="nav-tag"> v0.1-alpha</span></a>
+  <ul class="nav-links"><li><a href="/">HOME</a></li><li><a href="/how-it-works">HOW IT WORKS</a></li><li><a href="/shame-engine">SHAME ENGINE</a></li><li><a href="/jetbrains-ai-plugin">PLUGIN</a></li><li><a href="/blog/why-hackathon-projects-fail">BLOG</a></li><li><a href="/faq" class="active">FAQ</a></li><li><a href="/docs" class="nav-cta">DOCS</a></li></ul>
+</nav><main class="inner-main">
+  <div class="faq-hero">
+    <div class="breadcrumb"><a href="/">SCRUMB</a> / FAQ</div>
+    <h1>FREQUENTLY<br><span>ASKED</span></h1>
+    <p>Everything you need to know about Scrumb, the Architect Audit, DAG planning, Panic Mode, the Shame Engine, and the JetBrains plugin.</p>
   </div>
-
-  <div class="faq-list">
-
-    <div class="faq-item open">
-      <div class="faq-q">What is Scrumb? <span class="faq-arrow">▼</span></div>
-      <div class="faq-a"><div class="faq-a-inner">
-        Scrumb is an AI-powered Scrum Master designed for agile developer teams. It helps teams plan sprints, detect blockers early, and track progress — all directly inside your JetBrains IDE. It's built for teams that need structure but don't have a dedicated Scrum Master.
-      </div></div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q">Is Scrumb free to use? <span class="faq-arrow">▼</span></div>
-      <div class="faq-a"><div class="faq-a-inner">
-        Yes — Scrumb is completely free during early access. Download the <a href="/jetbrains-ai-plugin">JetBrains plugin</a> at no cost. Future pricing plans may be introduced as the product matures, but early access users will always be grandfathered in.
-      </div></div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q">Which JetBrains IDEs does Scrumb support? <span class="faq-arrow">▼</span></div>
-      <div class="faq-a"><div class="faq-a-inner">
-        The plugin works with IntelliJ IDEA, PyCharm, WebStorm, GoLand, and other JetBrains IDEs that support the standard plugin installation from disk. See the <a href="/jetbrains-ai-plugin">JetBrains plugin page</a> for full installation instructions.
-      </div></div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q">Who is Scrumb designed for? <span class="faq-arrow">▼</span></div>
-      <div class="faq-a"><div class="faq-a-inner">
-        Scrumb is built for student teams running capstone or hackathon projects, early-stage startups without a dedicated Scrum Master, and small engineering squads that want better sprint visibility without heavy tooling overhead.
-      </div></div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q">What does an AI Scrum Master actually do? <span class="faq-arrow">▼</span></div>
-      <div class="faq-a"><div class="faq-a-inner">
-        Scrumb's AI assists with sprint planning (story breakdowns, timeline estimation, workload balancing), detects blockers before they derail the sprint, and provides continuous progress tracking — all without manual check-ins or status updates. Learn more on the <a href="/ai-scrum-master">AI Scrum Master page</a>.
-      </div></div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q">Does Scrumb integrate with Jira or other project management tools? <span class="faq-arrow">▼</span></div>
-      <div class="faq-a"><div class="faq-a-inner">
-        Jira integration is on the roadmap. The current early access plugin operates independently inside your JetBrains IDE. Integrations with popular project management and issue tracking tools will be added as the product grows.
-      </div></div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q">Is Scrumb available on VS Code or other editors? <span class="faq-arrow">▼</span></div>
-      <div class="faq-a"><div class="faq-a-inner">
-        Not yet. The current focus is on the JetBrains plugin ecosystem. VS Code and other editors are being considered for future releases based on user demand.
-      </div></div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q">How is Scrumb different from using ChatGPT for sprint planning? <span class="faq-arrow">▼</span></div>
-      <div class="faq-a"><div class="faq-a-inner">
-        ChatGPT is a general-purpose tool — it can help draft sprint goals or decompose stories if you prompt it correctly. Scrumb is purpose-built for agile workflows and lives inside your IDE, meaning it can observe your actual development activity and provide contextual, real-time sprint intelligence rather than one-off responses.
-      </div></div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-q">Where can I find documentation for the plugin? <span class="faq-arrow">▼</span></div>
-      <div class="faq-a"><div class="faq-a-inner">
-        See the <a href="/docs">Scrumb Documentation</a> page for installation and usage instructions. The <a href="/jetbrains-ai-plugin">JetBrains plugin page</a> also has a step-by-step installation guide.
-      </div></div>
-    </div>
-
-  </div>
+  <div class="faq-list"><div class="faq-item open"><div class="faq-q">What is Scrumb?<span class="faq-arrow">&#x25BC;</span></div><div class="faq-a"><div class="faq-a-inner">Scrumb is an AI project execution engine for small developer teams. It runs a technical MCQ interview (the Architect Audit) to lock in your stack and scope, then generates a <a href="/how-it-works">DAG-based task dependency graph</a>. It also includes <a href="/shame-engine">Shame Engine</a> accountability and Panic Mode scope trimming. See the <a href="/">homepage</a> for the full overview.</div></div></div>
+<div class="faq-item"><div class="faq-q">Is Scrumb free?<span class="faq-arrow">&#x25BC;</span></div><div class="faq-a"><div class="faq-a-inner">Yes &#x2014; completely free during early access. The <a href="/jetbrains-ai-plugin">JetBrains plugin</a> can be downloaded at no cost. Future pricing will be announced before early access ends, and current users will be grandfathered in.</div></div></div>
+<div class="faq-item"><div class="faq-q">Who is Scrumb designed for?<span class="faq-arrow">&#x25BC;</span></div><div class="faq-a"><div class="faq-a-inner">Hackathon teams with 48-hour deadlines, student dev groups running capstone projects, early-stage startups without a dedicated Scrum Master, and small engineering squads of 2&#x2013;5 people who need to ship by a real deadline.</div></div></div>
+<div class="faq-item"><div class="faq-q">What JetBrains IDEs does it support?<span class="faq-arrow">&#x25BC;</span></div><div class="faq-a"><div class="faq-a-inner">IntelliJ IDEA, PyCharm, WebStorm, and GoLand. Any JetBrains IDE that supports plugin installation from disk should work. See the <a href="/jetbrains-ai-plugin">plugin page</a> for installation instructions.</div></div></div>
+<div class="faq-item"><div class="faq-q">What is the Architect Audit?<span class="faq-arrow">&#x25BC;</span></div><div class="faq-a"><div class="faq-a-inner">The Architect Audit is Scrumb's entry gate. Before any tasks are created, the AI fires a series of technical multiple-choice questions at your project idea &#x2014; locking in your tech stack, team skill levels, and MVP scope. It prevents decision paralysis and scope creep from the start. See <a href="/how-it-works">How It Works</a> for a full walkthrough.</div></div></div>
+<div class="faq-item"><div class="faq-q">What is a DAG and why does Scrumb use one?<span class="faq-arrow">&#x25BC;</span></div><div class="faq-a"><div class="faq-a-inner">A Directed Acyclic Graph (DAG) is a dependency graph where every task knows what it depends on, what depends on it, and who owns it. Unlike flat to-do lists, a DAG shows the critical path &#x2014; the chain where any delay cascades downstream. Scrumb generates this automatically after the Architect Audit. Read more: <a href="/blog/ai-project-management-for-developers">AI Project Management for Developers</a>.</div></div></div>
+<div class="faq-item"><div class="faq-q">What is the Shame Engine?<span class="faq-arrow">&#x25BC;</span></div><div class="faq-a"><div class="faq-a-inner">The Shame Engine monitors stalled tasks and generates named accountability reports when stall thresholds are exceeded. It's opt-in per team, configurable per sprint, and designed to be direct, factual, and a little funny. <a href="/shame-engine">Full Shame Engine documentation &#x2192;</a></div></div></div>
+<div class="faq-item"><div class="faq-q">What is Panic Mode?<span class="faq-arrow">&#x25BC;</span></div><div class="faq-a"><div class="faq-a-inner">Panic Mode activates when Scrumb detects that remaining task volume cannot be completed before the deadline at current velocity. It automatically analyzes the task tree, identifies which tasks are critical for a working demo, and archives the rest. Read more on the <a href="/how-it-works">How It Works</a> page.</div></div></div>
+<div class="faq-item"><div class="faq-q">How is Scrumb different from Jira or Trello?<span class="faq-arrow">&#x25BC;</span></div><div class="faq-a"><div class="faq-a-inner">Jira and Trello are tools you fill. Scrumb generates the structure automatically via the Architect Audit and enforces it through Integrity Guard. It also responds dynamically to deadline pressure via Panic Mode &#x2014; something no static tool can do. Read the comparison: <a href="/blog/ai-project-management-for-developers">AI Project Management for Developers</a>.</div></div></div>
+<div class="faq-item"><div class="faq-q">Does Scrumb work for solo developers?<span class="faq-arrow">&#x25BC;</span></div><div class="faq-a"><div class="faq-a-inner">Yes &#x2014; the Architect Audit and DAG generator work for solo projects. The Shame Engine is more useful for teams, but Panic Mode and Integrity Guard are useful regardless of team size.</div></div></div>
+<div class="faq-item"><div class="faq-q">Where can I find the documentation?<span class="faq-arrow">&#x25BC;</span></div><div class="faq-a"><div class="faq-a-inner">See the <a href="/docs">Scrumb Documentation</a> page for installation and usage instructions. The <a href="/jetbrains-ai-plugin">JetBrains plugin page</a> also has step-by-step installation.</div></div></div>
+</div>
 </main>
-
-<footer>
-  <a href="/">Home</a>
-  <a href="/ai-scrum-master">AI Scrum Master</a>
-  <a href="/sprint-planning-ai">Sprint Planning AI</a>
-  <a href="/jetbrains-ai-plugin">JetBrains Plugin</a>
-  <a href="/docs">Documentation</a>
-  <p>© 2026 Scrumb · AI Scrum Master FAQ</p>
-</footer>
-
 <script>
-  document.querySelectorAll('.faq-q').forEach(q => {
-    q.addEventListener('click', () => {
-      const item = q.closest('.faq-item');
-      item.classList.toggle('open');
-    });
-  });
+  document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.closest('.faq-item').classList.toggle('open')));
 </script>
-
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-logo-wrap">
+      <span class="footer-logo">SCRUMB</span>
+      <p>The compiler for your project. Made in India &#x1F1EE;&#x1F1F3;</p>
+    </div>
+    <div class="footer-col">
+      <h4>PRODUCT</h4>
+      <a href="/">Home</a>
+      <a href="/how-it-works">How It Works</a>
+      <a href="/shame-engine">Shame Engine</a>
+      <a href="/jetbrains-ai-plugin">JetBrains Plugin</a>
+    </div>
+    <div class="footer-col">
+      <h4>FEATURES</h4>
+      <a href="/agile-ai-tool">Agile AI Tool</a>
+      <a href="/ai-scrum-master">AI Scrum Master</a>
+      <a href="/sprint-planning-ai">Sprint Planning AI</a>
+    </div>
+    <div class="footer-col">
+      <h4>BLOG</h4>
+      <a href="/blog/why-hackathon-projects-fail">Why Hackathons Fail</a>
+      <a href="/blog/ai-project-management-for-developers">AI Project Management</a>
+      <a href="/blog/ai-scrum-master-future">Future of AI Scrum</a>
+    </div>
+    <div class="footer-col">
+      <h4>SUPPORT</h4>
+      <a href="/docs">Documentation</a>
+      <a href="/faq">FAQ</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">&#169; 2026 SCRUMB &#xB7; AI Project Execution Engine</span>
+    <span class="footer-copy">Early access &#x2014; free to use</span>
+  </div>
+</footer>
 </body>
 </html>

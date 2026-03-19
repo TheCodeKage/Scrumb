@@ -1,235 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Why Hackathon Projects Fail (And How AI Can Fix It) | Scrumb Blog</title>
-  <meta name="description" content="Most hackathon projects don't fail because of bad code. They fail because of bad planning, scope creep, and no accountability. Here's how AI-driven project execution changes that." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.scrumb.in/blog/why-hackathon-projects-fail" />
-
-  <meta property="og:type" content="article" />
-  <meta property="og:title" content="Why Hackathon Projects Fail (And How AI Can Fix It) | Scrumb" />
-  <meta property="og:description" content="Most hackathon teams lose not because of bad code — but because of scope creep, decision paralysis, and no real task ownership. Here's the fix." />
-  <meta property="og:url" content="https://www.scrumb.in/blog/why-hackathon-projects-fail" />
-  <meta property="og:image" content="https://www.scrumb.in/preview.png" />
-  <meta property="og:site_name" content="Scrumb" />
-  <meta property="article:published_time" content="2026-02-10" />
-
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Why Hackathon Projects Fail | Scrumb Blog" />
-  <meta name="twitter:description" content="Most hackathon teams lose not because of bad code — but scope creep and no accountability." />
-  <meta name="twitter:image" content="https://www.scrumb.in/preview.png" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
+  <meta name="description" content="Most hackathon teams don't fail because of bad code — they fail because of scope creep, decision paralysis, and no real task ownership. How AI-driven project execution fixes this."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://www.scrumb.in/blog/why-hackathon-projects-fail"/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:title" content="Why Hackathon Projects Fail (And How AI Can Fix It) | Scrumb Blog"/>
+  <meta property="og:description" content="Most hackathon teams don't fail because of bad code — they fail because of scope creep, decision paralysis, and no real task ownership. How AI-driven project execution fixes this."/>
+  <meta property="og:url" content="https://www.scrumb.in/blog/why-hackathon-projects-fail"/>
+  <meta property="og:image" content="https://www.scrumb.in/preview.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:site_name" content="Scrumb"/>
+  <meta property="og:locale" content="en_IN"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Why Hackathon Projects Fail (And How AI Can Fix It) | Scrumb Blog"/>
+  <meta name="twitter:description" content="Most hackathon teams don't fail because of bad code — they fail because of scope creep, decision paralysis, and no real task ownership. How AI-driven project execution fixes this."/>
+  <meta name="twitter:image" content="https://www.scrumb.in/preview.png"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Why Hackathon Projects Fail (And How AI Can Fix It)","description":"Most hackathon teams lose not because of bad code but because of scope creep, decision paralysis, and no task ownership.","datePublished":"2026-02-10","author":{"@type":"Person","name":"Naman Agrawal"},"publisher":{"@type":"Organization","name":"Scrumb","url":"https://www.scrumb.in"},"mainEntityOfPage":"https://www.scrumb.in/blog/why-hackathon-projects-fail","image":"https://www.scrumb.in/preview.png"}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root { --bg:#0a0a08; --bg-2:#0f0f0c; --bg-3:#141410; --border:rgba(255,176,0,0.15); --border-strong:rgba(255,176,0,0.35); --text:#e8e4d4; --text-muted:#6e6a58; --text-dim:#3a3830; --amber:#ffb000; --amber-dim:rgba(255,176,0,0.07); --green:#00ff88; --red:#ff3b3b; --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif; --display:'Bebas Neue',sans-serif; }
-    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-    body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;overflow-x:hidden;}
-    body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);pointer-events:none;z-index:9999;}
-    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:52px;background:rgba(10,10,8,0.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
-    .nav-logo{font-family:var(--display);font-size:1.6rem;letter-spacing:0.08em;color:var(--amber);text-decoration:none;}
-    .nav-links{display:flex;gap:0;list-style:none;}
-    .nav-links a{color:var(--text-muted);text-decoration:none;font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em;padding:0 1rem;height:52px;display:flex;align-items:center;border-left:1px solid var(--border);transition:color 0.15s,background 0.15s;}
-    .nav-links a:hover{color:var(--amber);background:var(--amber-dim);}
-    .nav-cta{color:var(--amber) !important;}
-    main{position:relative;z-index:1;padding-top:52px;}
+:root{--bg:#0a0a08;--bg-2:#0f0f0c;--bg-3:#141410;--border:rgba(255,176,0,0.15);--border-strong:rgba(255,176,0,0.35);--border-red:rgba(255,59,59,0.2);--text:#e8e4d4;--text-muted:#6e6a58;--text-dim:#3a3830;--amber:#ffb000;--amber-dim:rgba(255,176,0,0.07);--green:#00ff88;--red:#ff3b3b;--red-dim:rgba(255,59,59,0.06);--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--display:'Bebas Neue',sans-serif;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.022) 2px,rgba(0,0,0,0.022) 4px);pointer-events:none;z-index:9999;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:52px;background:rgba(10,10,8,0.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:var(--display);font-size:1.6rem;letter-spacing:0.08em;color:var(--amber);text-decoration:none;display:flex;align-items:center;gap:0.5rem;}
+.nav-tag{font-family:var(--mono);font-size:0.58rem;color:var(--text-dim);letter-spacing:0.05em;}
+.nav-links{display:flex;gap:0;list-style:none;}
+.nav-links a{color:var(--text-muted);text-decoration:none;font-family:var(--mono);font-size:0.68rem;letter-spacing:0.04em;padding:0 0.85rem;height:52px;display:flex;align-items:center;border-left:1px solid var(--border);transition:color 0.15s,background 0.15s;white-space:nowrap;}
+.nav-links a:hover,.nav-links a.active{color:var(--amber);background:var(--amber-dim);}
+.nav-cta{color:var(--amber)!important;border-left:1px solid var(--border-strong)!important;}
+.site-footer{border-top:1px solid var(--border);padding:1.8rem 2rem;background:var(--bg-2);}
+.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:auto repeat(4,1fr);gap:2rem;align-items:start;}
+.footer-logo-wrap .footer-logo{font-family:var(--display);font-size:1.4rem;letter-spacing:0.08em;color:var(--amber);display:block;margin-bottom:0.4rem;}
+.footer-logo-wrap p{font-family:var(--mono);font-size:0.62rem;color:var(--text-dim);line-height:1.6;max-width:160px;}
+.footer-col h4{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.7rem;}
+.footer-col a{display:block;font-family:var(--mono);font-size:0.68rem;color:var(--text-dim);text-decoration:none;padding:0.18rem 0;transition:color 0.15s;}
+.footer-col a:hover{color:var(--amber);}
+.footer-bottom{max-width:1100px;margin:1.2rem auto 0;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;}
+.footer-copy{font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);}
+.btn-primary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.72rem 1.6rem;background:var(--amber);color:var(--bg);font-family:var(--mono);font-size:0.76rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;transition:opacity 0.15s,transform 0.15s;border:none;cursor:pointer;}
+.btn-primary:hover{opacity:0.85;transform:translateY(-1px);}
+.btn-secondary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.72rem 1.6rem;background:transparent;color:var(--text-muted);font-family:var(--mono);font-size:0.76rem;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;border:1px solid var(--border);transition:border-color 0.15s,color 0.15s;}
+.btn-secondary:hover{border-color:var(--border-strong);color:var(--text);}
+.section-marker{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.8rem;}
+.section-marker::before{content:'// ';opacity:0.45;}
+.breadcrumb{font-family:var(--mono);font-size:0.66rem;color:var(--text-muted);margin-bottom:1.5rem;letter-spacing:0.04em;}
+.breadcrumb a{color:var(--amber);text-decoration:none;}
+.page-wrap{max-width:1100px;margin:0 auto;padding:0 2rem;}
+.blink{animation:blink 1.1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@media(max-width:900px){.nav-links{display:none;}.footer-inner{grid-template-columns:1fr 1fr;}}
+@media(max-width:500px){.footer-inner{grid-template-columns:1fr;}}
 
-    .article-wrap{max-width:720px;margin:0 auto;padding:4rem 2rem 6rem;}
-
-    .breadcrumb{font-family:var(--mono);font-size:0.68rem;color:var(--text-muted);margin-bottom:1.5rem;letter-spacing:0.04em;}
-    .breadcrumb a{color:var(--amber);text-decoration:none;}
-
-    .article-cat{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.8rem;}
-
-    .article-wrap h1{font-family:var(--display);font-size:clamp(2.2rem,5vw,4rem);letter-spacing:0.04em;line-height:1.05;color:var(--text);margin-bottom:1.2rem;}
-
-    .article-meta{display:flex;gap:1.5rem;font-family:var(--mono);font-size:0.68rem;color:var(--text-muted);margin-bottom:3rem;flex-wrap:wrap;}
-
-    .article-body h2{font-family:var(--display);font-size:clamp(1.6rem,3.5vw,2.8rem);letter-spacing:0.05em;color:var(--text);margin:3rem 0 0.8rem;}
-
-    .article-body p{color:var(--text-muted);font-size:0.93rem;margin-bottom:1.1rem;line-height:1.85;}
-    .article-body p strong{color:var(--text);font-weight:500;}
-
-    .article-body ul{margin:0.8rem 0 1.5rem;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:0.4rem;}
-    .article-body ul li{color:var(--text-muted);font-size:0.9rem;padding:0.55rem 1rem 0.55rem 2.2rem;background:var(--bg-2);border:1px solid var(--border);position:relative;line-height:1.6;}
-    .article-body ul li::before{content:'→';position:absolute;left:0.7rem;color:var(--amber);}
-
-    .article-body blockquote{border-left:3px solid var(--amber);padding:1rem 1.4rem;background:var(--bg-2);margin:1.8rem 0;}
-    .article-body blockquote p{color:var(--text);font-size:0.95rem;font-style:italic;margin:0;line-height:1.7;}
-
-    .inline-code{font-family:var(--mono);font-size:0.82rem;background:var(--bg-3);border:1px solid var(--border);padding:0.1rem 0.4rem;color:var(--amber);}
-
-    .cta-box{background:linear-gradient(135deg,rgba(255,176,0,0.07),rgba(0,255,136,0.03));border:1px solid var(--border-strong);padding:2rem;margin:3rem 0;text-align:center;}
-    .cta-box h3{font-family:var(--display);font-size:1.8rem;letter-spacing:0.05em;color:var(--text);margin-bottom:0.5rem;}
-    .cta-box p{color:var(--text-muted);font-size:0.88rem;margin-bottom:1.2rem;line-height:1.7;}
-    .btn-primary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.7rem 1.5rem;background:var(--amber);color:var(--bg);font-family:var(--mono);font-size:0.75rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;transition:opacity 0.15s,transform 0.15s;}
-    .btn-primary:hover{opacity:0.85;transform:translateY(-1px);}
-
-    footer{border-top:1px solid var(--border);padding:1.4rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
-    .footer-logo{font-family:var(--display);font-size:1.2rem;letter-spacing:0.08em;color:var(--amber);}
-    .footer-links{display:flex;gap:0;list-style:none;}
-    .footer-links a{color:var(--text-dim);text-decoration:none;font-family:var(--mono);font-size:0.68rem;padding:0 0.9rem;border-left:1px solid var(--border);transition:color 0.15s;}
-    .footer-links a:hover{color:var(--text-muted);}
-    .footer-copy{font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);}
-    @media(max-width:768px){.nav-links{display:none;}}
-  </style>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    "headline": "Why Hackathon Projects Fail (And How AI Can Fix It)",
-    "description": "Most hackathon teams lose not because of bad code but because of scope creep, decision paralysis, and no task ownership. How AI-driven project execution changes that.",
-    "datePublished": "2026-02-10",
-    "author": { "@type": "Person", "name": "Naman Agrawal" },
-    "publisher": { "@type": "Organization", "name": "Scrumb", "url": "https://www.scrumb.in" },
-    "mainEntityOfPage": "https://www.scrumb.in/blog/why-hackathon-projects-fail",
-    "image": "https://www.scrumb.in/preview.png",
-    "keywords": "hackathon project management, AI project planning, hackathon team tools, project execution for developers"
-  }
-  </script>
+.article-hero{max-width:760px;margin:0 auto;padding:4rem 2rem 2.5rem;border-bottom:1px solid var(--border);}
+.article-cat{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.8rem;}
+.article-hero h1{font-family:var(--display);font-size:clamp(2.2rem,5vw,4rem);letter-spacing:0.04em;line-height:1.05;color:var(--text);margin-bottom:1rem;}
+.article-meta{display:flex;gap:1.5rem;font-family:var(--mono);font-size:0.66rem;color:var(--text-muted);flex-wrap:wrap;}
+.article-body{max-width:760px;margin:0 auto;padding:2.5rem 2rem 5rem;}
+.article-body h2{font-family:var(--display);font-size:clamp(1.6rem,3.5vw,2.8rem);letter-spacing:0.05em;color:var(--text);margin:3rem 0 0.8rem;line-height:1;}
+.article-body h3{font-family:var(--mono);font-size:0.82rem;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:0.05em;margin:1.8rem 0 0.5rem;}
+.article-body p{color:var(--text-muted);font-size:0.92rem;margin-bottom:1.1rem;line-height:1.85;}
+.article-body p strong{color:var(--text);font-weight:500;}
+.article-body a{color:var(--amber);}
+.article-body ul{list-style:none;display:flex;flex-direction:column;gap:0.4rem;margin:0.8rem 0 1.5rem;}
+.article-body ul li{color:var(--text-muted);font-size:0.9rem;padding:0.55rem 1rem 0.55rem 2.2rem;background:var(--bg-2);border:1px solid var(--border);position:relative;line-height:1.6;}
+.article-body ul li::before{content:'\2192';position:absolute;left:0.7rem;color:var(--amber);}
+.article-body blockquote{border-left:3px solid var(--amber);padding:1rem 1.4rem;background:var(--bg-2);margin:1.8rem 0;}
+.article-body blockquote p{color:var(--text);font-style:italic;margin:0;line-height:1.7;}
+.article-body .code-block{background:var(--bg-3);border:1px solid var(--border);padding:1.2rem 1.5rem;font-family:var(--mono);font-size:0.76rem;color:var(--text-muted);line-height:1.9;margin:1.2rem 0;overflow-x:auto;}
+.article-body .compare-table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:0.82rem;}
+.article-body .compare-table th{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 0.8rem;border:1px solid var(--border);background:var(--bg-3);color:var(--text-muted);text-align:left;}
+.article-body .compare-table td{padding:0.6rem 0.8rem;border:1px solid var(--border);color:var(--text-muted);vertical-align:top;line-height:1.6;}
+.article-body .compare-table tr:nth-child(even) td{background:var(--bg-2);}
+.good{color:var(--green);}.bad{color:var(--red);}
+.article-cta{background:linear-gradient(135deg,rgba(255,176,0,0.07),rgba(0,255,136,0.03));border:1px solid var(--border-strong);padding:2rem;margin:3rem 0;text-align:center;}
+.article-cta h3{font-family:var(--display);font-size:1.8rem;letter-spacing:0.05em;color:var(--text);margin-bottom:0.5rem;}
+.article-cta p{color:var(--text-muted);font-size:0.88rem;margin-bottom:1.2rem;line-height:1.7;}
+.blog-also{margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);}
+.blog-also .section-marker{margin-bottom:0.8rem;}
+.blog-also-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.8rem;}
+.blog-also-card{display:flex;flex-direction:column;gap:0.3rem;padding:1rem 1.2rem;background:var(--bg-2);border:1px solid var(--border);text-decoration:none;transition:border-color 0.15s,background 0.15s;}
+.blog-also-card:hover{border-color:var(--border-strong);background:var(--amber-dim);}
+.bac-label{font-family:var(--mono);font-size:0.68rem;font-weight:600;color:var(--amber);}
+.bac-desc{font-size:0.82rem;color:var(--text-muted);}
+@media(max-width:600px){.blog-also-grid{grid-template-columns:1fr;}}
+</style>
 </head>
 <body>
-
 <nav>
-  <a href="/" class="nav-logo">SCRUMB</a>
-  <ul class="nav-links">
-    <li><a href="/how-it-works">HOW IT WORKS</a></li>
-    <li><a href="/shame-engine">SHAME ENGINE</a></li>
-    <li><a href="/jetbrains-ai-plugin">JETBRAINS PLUGIN</a></li>
-    <li><a href="/faq">FAQ</a></li>
-    <li><a href="/docs" class="nav-cta">EARLY ACCESS →</a></li>
-  </ul>
-</nav>
-
-<main>
-  <div class="article-wrap">
-    <div class="breadcrumb"><a href="/">SCRUMB</a> / <a href="/blog">BLOG</a> / WHY HACKATHON PROJECTS FAIL</div>
-    <div class="article-cat">EXECUTION & PLANNING</div>
+  <a href="/" class="nav-logo">SCRUMB<span class="nav-tag"> v0.1-alpha</span></a>
+  <ul class="nav-links"><li><a href="/">HOME</a></li><li><a href="/how-it-works">HOW IT WORKS</a></li><li><a href="/shame-engine">SHAME ENGINE</a></li><li><a href="/jetbrains-ai-plugin">PLUGIN</a></li><li><a href="/blog/why-hackathon-projects-fail" class="active">BLOG</a></li><li><a href="/faq">FAQ</a></li><li><a href="/docs" class="nav-cta">DOCS</a></li></ul>
+</nav><main class="inner-main">
+  <div class="article-hero">
+    <div class="breadcrumb"><a href="/">SCRUMB</a> / <a href="/blog/why-hackathon-projects-fail">BLOG</a> / WHY HACKATHON PROJECTS FAIL</div>
+    <div class="article-cat">EXECUTION &amp; PLANNING</div>
     <h1>Why Hackathon Projects Fail (And How AI Can Fix It)</h1>
-    <div class="article-meta">
-      <span>✍ NAMAN AGRAWAL</span>
-      <span>📅 FEBRUARY 10, 2026</span>
-      <span>⏱ 6 MIN READ</span>
+    <div class="article-meta"><span>&#x270D; NAMAN AGRAWAL</span><span>&#x1F4C5; FEBRUARY 10, 2026</span><span>&#x23F1; 6 MIN READ</span></div>
+  </div>
+  <div class="article-body">
+    <p>Most hackathon teams don't lose because they wrote bad code. They lose because they wrote the wrong code, ran out of time building features nobody asked for, and submitted a half-working project they couldn't coherently explain. The technical execution was fine. The <strong>project execution</strong> was a disaster.</p>
+    <h2>THE FOUR FAILURE MODES</h2>
+<p><strong>1. Decision paralysis at hour zero.</strong> The team has an idea. Someone says "Next.js." Someone else says "Django." An hour disappears. Nobody has written anything. The clock is at 47 hours.</p>
+<p><strong>2. Scope that expands to fill all available time.</strong> You planned a simple CRUD app. By hour 12, someone's added a recommendation engine. The MVP has been forgotten. The deadline hasn't.</p>
+<p><strong>3. No real task ownership.</strong> "We'll figure out who does what as we go." Three people are working on the frontend because nobody explicitly owned the backend. The integration point becomes a 4am crisis.</p>
+<p><strong>4. Velocity drift nobody notices until it's too late.</strong> A key task has been "in progress" for 14 hours. No commits. No updates. Nobody asked. It was on the critical path. The project is now unfinishable. This is discovered at 4am on the final day.</p>
+<blockquote><p>"The problem is never 'we didn't know how to build it.' The problem is almost always 'we didn't know what to build first, and nobody was watching whether it was getting built at all.'"</p></blockquote>
+
+<h2>WHAT AI ACTUALLY CHANGES</h2>
+<p>Generic productivity tools don't solve any of these problems. Notion, Trello, Jira — they're containers for information you put in. They don't interrogate your plan. They don't flag when a critical path task stalls. They don't trim your scope when the math stops working.</p>
+<p>AI-driven project execution changes the dynamic because it can do things a passive tool can't:</p>
+<ul>
+  <li>Ask the right technical questions before you start, to lock in scope and stack</li>
+  <li>Generate a task dependency graph based on your team's actual skills</li>
+  <li>Monitor progress and surface drift before it becomes a crisis</li>
+  <li>Automatically rebalance scope when deadline math fails</li>
+  <li>Assign accountability by name when someone's blocking the sprint</li>
+</ul>
+
+<h2>THE ARCHITECT AUDIT: KILLING DECISION PARALYSIS</h2>
+<p>The first thing <a href="/how-it-works">Scrumb does</a> is refuse to accept a vague description. It generates technical multiple-choice questions: What's your backend? What does your team have experience with? What's the MVP scope? What gets cut if you're 12 hours behind at the midpoint?</p>
+<p>These questions are annoying. They're supposed to be. A project that can't answer them in the first hour will fail by the last one.</p>
+
+<h2>PANIC MODE: WHEN THE MATH BREAKS</h2>
+<p>Every hackathon hits a moment where there are 18 hours left and 30 hours of work remaining. Panic Mode is Scrumb's automated scope management: it identifies critical tasks (required for a working demo) and archives non-critical ones. The scope becomes what the timeline can actually support.</p>
+
+<h2>THE SHAME ENGINE: BECAUSE ACCOUNTABILITY IS SOCIAL</h2>
+<p>The most effective accountability mechanism in a 4-person team isn't a dashboard — it's the awareness that your teammates know what you've been doing (or not doing) for the last two days. The <a href="/shame-engine">Shame Engine</a> makes that explicit. It's funny. It's uncomfortable. It works.</p>
+
+<div class="article-cta"><h3>STOP PLANNING. START BUILDING.</h3><p>Scrumb gives your hackathon team a technical task graph, deadline enforcement, and accountability in under 10 minutes. Free during early access.</p><a href="/docs" class="btn-primary">&#x2192; GET EARLY ACCESS</a></div>
+
+<div class="blog-also">
+  <div class="section-marker">MORE FROM THE BLOG</div>
+  <div class="blog-also-grid">
+    <a href="/blog/ai-project-management-for-developers" class="blog-also-card"><span class="bac-label">AI PROJECT MANAGEMENT FOR DEVS</span><span class="bac-desc">Why Jira fails small teams and what DAGs fix</span></a>
+    <a href="/blog/ai-scrum-master-future" class="blog-also-card"><span class="bac-label">THE FUTURE OF AI SCRUM MASTERS</span><span class="bac-desc">How AI is transforming agile project management</span></a>
+  </div>
+</div>
+  </div>
+</main><footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-logo-wrap">
+      <span class="footer-logo">SCRUMB</span>
+      <p>The compiler for your project. Made in India &#x1F1EE;&#x1F1F3;</p>
     </div>
-
-    <div class="article-body">
-      <p>
-        Most hackathon teams don't lose because they wrote bad code. They lose because they wrote the wrong code, ran out of time building features nobody asked for, and submitted a half-working project they couldn't coherently explain. The technical execution was fine. The project execution was a disaster.
-      </p>
-      <p>
-        After watching dozens of hackathon retrospectives, the failure pattern is almost always the same. It's not a skill problem. It's a <strong>structure problem.</strong>
-      </p>
-
-      <h2>THE FOUR FAILURE MODES</h2>
-
-      <p><strong>1. Decision Paralysis at Hour Zero</strong></p>
-      <p>
-        The team has an idea. Someone says "we should use Next.js." Someone else says "actually, let's do this in Django." An hour disappears. Nobody has written anything. The clock is at 47 hours and you're still debating the stack for a project that doesn't exist yet.
-      </p>
-
-      <p><strong>2. Scope That Expands to Fill All Available Time</strong></p>
-      <p>
-        You planned a simple CRUD app. By hour 12, someone has added a recommendation engine. By hour 24, someone else is integrating a third-party API that requires OAuth. The MVP has been forgotten. The deadline hasn't.
-      </p>
-
-      <p><strong>3. No Real Task Ownership</strong></p>
-      <p>
-        "We'll figure out who does what as we go." This sentence ends more hackathon dreams than any technical challenge. Three people are all working on the frontend because nobody explicitly owned the backend. The integration point becomes a crisis at hour 40.
-      </p>
-
-      <p><strong>4. Velocity Drift That Nobody Notices Until It's Too Late</strong></p>
-      <p>
-        A key task has been "in progress" for 14 hours. No commits. No updates. Nobody asked about it because nobody was tracking it. The task was on the critical path. The project is now unfinishable. This is discovered at 4am on the final day.
-      </p>
-
-      <blockquote>
-        <p>The problem is never "we didn't know how to build it." The problem is almost always "we didn't know what to build first, and nobody was watching whether it was getting built at all."</p>
-      </blockquote>
-
-      <h2>WHAT AI ACTUALLY CHANGES HERE</h2>
-
-      <p>
-        Generic productivity tools don't solve any of these problems. Notion, Trello, Jira — they're all containers that hold information you put into them. They don't interrogate your plan. They don't flag when a critical path task has stalled. They don't trim your scope when the math stops working.
-      </p>
-
-      <p>
-        AI-driven project execution changes the dynamic because it can do things a tool can't:
-      </p>
-
-      <ul>
-        <li>Ask the right technical questions before you start, to lock in scope and stack</li>
-        <li>Generate a task dependency graph based on your actual team's skills — not an idealized team</li>
-        <li>Monitor progress and surface drift before it becomes a crisis</li>
-        <li>Automatically rebalance scope when deadline math fails</li>
-        <li>Assign accountability by name when someone's blocking the sprint</li>
-      </ul>
-
-      <h2>THE ARCHITECT AUDIT: KILLING DECISION PARALYSIS</h2>
-
-      <p>
-        The first thing Scrumb does when you describe your project is refuse to accept the description. It generates a set of technical multiple-choice questions: What's your backend? What does your team have experience with? What's the MVP scope — not the dream scope? What gets cut if you're 12 hours behind at the midpoint?
-      </p>
-      <p>
-        These questions are annoying. They're supposed to be. A project that can't answer them in the first hour will fail by the last one. The Architect Audit forces the conversation that teams avoid having — and forces it at the start, when changing decisions is free, rather than at hour 36, when it costs everything.
-      </p>
-
-      <h2>THE DAG: WHY FLAT TASK LISTS FAIL</h2>
-
-      <p>
-        A flat to-do list is useless for a technical project. It has no concept of order, dependency, or ownership. You can mark <span class="inline-code">[ deploy to Vercel ]</span> done before <span class="inline-code">[ build the API ]</span> is finished, and the list doesn't care.
-      </p>
-      <p>
-        A Directed Acyclic Graph (DAG) does care. Every task in a DAG knows what it depends on, what depends on it, and who owns it. If task B is blocked because task A isn't done, that's explicit and visible. You can't mark B done before A is done. You can see at a glance which tasks are on the critical path — the ones where a 2-hour delay cascades into an 8-hour delay downstream.
-      </p>
-      <p>
-        This is how software is actually structured. It's how projects should be managed.
-      </p>
-
-      <h2>PANIC MODE: WHEN THE MATH BREAKS</h2>
-
-      <p>
-        Every hackathon hits a moment where the velocity data stops adding up. There are 18 hours left and the remaining work was estimated at 30. At this point, a team has three options: panic, work 30 hours straight and fail, or make a disciplined scoping decision right now.
-      </p>
-      <p>
-        Panic Mode is Scrumb's automated version of option three. It analyzes the remaining task tree, identifies which tasks are critical for a functional demo and which are nice-to-have, and archives the non-critical ones. The scope becomes what the timeline can actually support — not what you wished you could build.
-      </p>
-      <p>
-        The result is a project that ships. Smaller than planned, but complete, working, and demoable.
-      </p>
-
-      <h2>THE SHAME ENGINE: BECAUSE ACCOUNTABILITY IS SOCIAL</h2>
-
-      <p>
-        Small teams run on social dynamics. The most effective accountability mechanism in a 4-person team isn't a dashboard — it's the awareness that your teammates know exactly what you've been doing (or not doing) for the last two days.
-      </p>
-      <p>
-        The Shame Engine makes that explicit. When a task stalls past a threshold, it generates a report that names the blocker, quantifies the delay, and calculates the downstream impact. It's funny. It's uncomfortable. It works.
-      </p>
-
-      <div class="cta-box">
-        <h3>STOP PLANNING. START BUILDING.</h3>
-        <p>Scrumb gives your hackathon team a technical task graph, deadline enforcement, and accountability tooling in under 10 minutes. Free during early access.</p>
-        <a href="/docs" class="btn-primary">→ GET EARLY ACCESS</a>
-      </div>
+    <div class="footer-col">
+      <h4>PRODUCT</h4>
+      <a href="/">Home</a>
+      <a href="/how-it-works">How It Works</a>
+      <a href="/shame-engine">Shame Engine</a>
+      <a href="/jetbrains-ai-plugin">JetBrains Plugin</a>
+    </div>
+    <div class="footer-col">
+      <h4>FEATURES</h4>
+      <a href="/agile-ai-tool">Agile AI Tool</a>
+      <a href="/ai-scrum-master">AI Scrum Master</a>
+      <a href="/sprint-planning-ai">Sprint Planning AI</a>
+    </div>
+    <div class="footer-col">
+      <h4>BLOG</h4>
+      <a href="/blog/why-hackathon-projects-fail">Why Hackathons Fail</a>
+      <a href="/blog/ai-project-management-for-developers">AI Project Management</a>
+      <a href="/blog/ai-scrum-master-future">Future of AI Scrum</a>
+    </div>
+    <div class="footer-col">
+      <h4>SUPPORT</h4>
+      <a href="/docs">Documentation</a>
+      <a href="/faq">FAQ</a>
     </div>
   </div>
-</main>
-
-<footer>
-  <span class="footer-logo">SCRUMB</span>
-  <ul class="footer-links">
-    <li><a href="/">HOME</a></li>
-    <li><a href="/how-it-works">HOW IT WORKS</a></li>
-    <li><a href="/shame-engine">SHAME ENGINE</a></li>
-    <li><a href="/faq">FAQ</a></li>
-  </ul>
-  <span class="footer-copy">© 2026 SCRUMB</span>
+  <div class="footer-bottom">
+    <span class="footer-copy">&#169; 2026 SCRUMB &#xB7; AI Project Execution Engine</span>
+    <span class="footer-copy">Early access &#x2014; free to use</span>
+  </div>
 </footer>
-
 </body>
 </html>
