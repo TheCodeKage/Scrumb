@@ -1,35 +1,407 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>Scrumb Documentation</title>
+  <title>Scrumb Documentation — Installation & Usage Guide</title>
+  <meta name="description" content="Documentation for installing the Scrumb JetBrains plugin and using the AI project execution engine. Step-by-step setup for IntelliJ, PyCharm, WebStorm, and GoLand." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.scrumb.in/docs" />
 
-<meta name="description" content="Documentation for installing and using the Scrumb AI Scrum Master plugin.">
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Scrumb Documentation — Installation & Usage" />
+  <meta property="og:description" content="Step-by-step guide to installing and using Scrumb's JetBrains plugin." />
+  <meta property="og:url" content="https://www.scrumb.in/docs" />
+  <meta property="og:image" content="https://www.scrumb.in/preview.png" />
+  <meta property="og:site_name" content="Scrumb" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#0a0a08; --bg-2:#0f0f0c; --bg-3:#141410;
+      --border:rgba(255,176,0,0.15); --border-strong:rgba(255,176,0,0.3);
+      --text:#e8e4d4; --text-muted:#6e6a58; --text-dim:#3a3830;
+      --amber:#ffb000; --amber-dim:rgba(255,176,0,0.07);
+      --green:#00ff88; --red:#ff3b3b;
+      --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif; --display:'Bebas Neue',sans-serif;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;overflow-x:hidden;}
+    body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);pointer-events:none;z-index:9999;}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:52px;background:rgba(10,10,8,0.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-family:var(--display);font-size:1.6rem;letter-spacing:0.08em;color:var(--amber);text-decoration:none;}
+    .nav-links{display:flex;gap:0;list-style:none;}
+    .nav-links a{color:var(--text-muted);text-decoration:none;font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em;padding:0 1rem;height:52px;display:flex;align-items:center;border-left:1px solid var(--border);transition:color 0.15s,background 0.15s;}
+    .nav-links a:hover{color:var(--amber);background:var(--amber-dim);}
+    .nav-cta{color:var(--amber) !important;}
+
+    main{position:relative;z-index:1;padding-top:52px;display:grid;grid-template-columns:240px 1fr;min-height:100vh;}
+
+    /* SIDEBAR */
+    .sidebar{border-right:1px solid var(--border);background:var(--bg-2);position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;padding:2rem 0;}
+    .sidebar-section{margin-bottom:0.5rem;}
+    .sidebar-label{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);padding:0.5rem 1.5rem 0.3rem;}
+    .sidebar a{display:block;font-family:var(--mono);font-size:0.74rem;color:var(--text-muted);text-decoration:none;padding:0.45rem 1.5rem;border-left:2px solid transparent;transition:all 0.15s;letter-spacing:0.02em;}
+    .sidebar a:hover{color:var(--amber);background:var(--amber-dim);border-left-color:var(--amber);}
+    .sidebar a.active{color:var(--amber);border-left-color:var(--amber);background:var(--amber-dim);}
+
+    /* CONTENT */
+    .content{padding:3rem 3rem 5rem;max-width:760px;}
+
+    .breadcrumb{font-family:var(--mono);font-size:0.68rem;color:var(--text-muted);margin-bottom:2rem;letter-spacing:0.04em;}
+    .breadcrumb a{color:var(--amber);text-decoration:none;}
+
+    .doc-section{margin-bottom:4rem;padding-bottom:4rem;border-bottom:1px solid var(--border);}
+    .doc-section:last-child{border-bottom:none;}
+
+    .section-marker{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.7rem;}
+    .section-marker::before{content:'// ';opacity:0.5;}
+
+    h1{font-family:var(--display);font-size:clamp(2.5rem,5vw,4.5rem);letter-spacing:0.04em;line-height:0.95;color:var(--text);margin-bottom:1rem;}
+    h2{font-family:var(--display);font-size:clamp(1.6rem,3vw,2.5rem);letter-spacing:0.04em;line-height:1;color:var(--text);margin-bottom:0.8rem;}
+    h3{font-family:var(--mono);font-size:0.85rem;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.6rem;margin-top:1.5rem;}
+
+    p{color:var(--text-muted);font-size:0.92rem;line-height:1.8;margin-bottom:0.9rem;}
+    p strong{color:var(--text);font-weight:500;}
+    a{color:var(--amber);text-decoration:none;}
+    a:hover{text-decoration:underline;}
+
+    /* STEP LIST */
+    .steps{list-style:none;counter-reset:steps;display:flex;flex-direction:column;gap:0;}
+    .steps li{counter-increment:steps;display:grid;grid-template-columns:3rem 1fr;border:1px solid var(--border);border-bottom:none;background:var(--bg-2);}
+    .steps li:last-child{border-bottom:1px solid var(--border);}
+    .steps li::before{content:counter(steps,decimal-leading-zero);font-family:var(--display);font-size:1.5rem;color:var(--amber);padding:1rem;border-right:1px solid var(--border);display:flex;align-items:flex-start;justify-content:center;line-height:1;}
+    .steps li .step-body{padding:1rem 1.2rem;font-size:0.88rem;color:var(--text-muted);line-height:1.7;}
+    .steps li .step-body strong{color:var(--text);}
+    .steps li .step-body code{font-family:var(--mono);font-size:0.8rem;background:var(--bg-3);border:1px solid var(--border);padding:0.1rem 0.35rem;color:var(--amber);}
+
+    /* CODE BLOCK */
+    .code-block{background:var(--bg-3);border:1px solid var(--border);padding:1.2rem 1.5rem;font-family:var(--mono);font-size:0.76rem;color:var(--text-muted);line-height:1.9;margin:1rem 0;overflow-x:auto;}
+    .code-block .c-green{color:var(--green);}
+    .code-block .c-amber{color:var(--amber);}
+    .code-block .c-dim{color:var(--text-dim);}
+    .code-block .c-red{color:var(--red);}
+
+    /* CALLOUTS */
+    .callout{padding:1rem 1.2rem;margin:1.2rem 0;font-size:0.87rem;line-height:1.7;border-left:3px solid var(--amber);background:var(--amber-dim);color:var(--text-muted);}
+    .callout strong{color:var(--amber);}
+    .callout.info{border-left-color:var(--green);background:rgba(0,255,136,0.04);}
+    .callout.info strong{color:var(--green);}
+    .callout.warn{border-left-color:var(--red);background:rgba(255,59,59,0.05);}
+    .callout.warn strong{color:var(--red);}
+
+    /* IDE GRID */
+    .ide-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:1rem 0;}
+    .ide-card{background:var(--bg-2);padding:1.2rem;}
+    .ide-card h4{font-family:var(--mono);font-size:0.78rem;font-weight:600;color:var(--amber);margin-bottom:0.3rem;}
+    .ide-card p{font-size:0.82rem;color:var(--text-muted);margin:0;line-height:1.5;}
+
+    /* MODULE TABLE */
+    .module-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.82rem;}
+    .module-table th{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 0.8rem;border:1px solid var(--border);background:var(--bg-3);color:var(--text-muted);text-align:left;}
+    .module-table td{padding:0.6rem 0.8rem;border:1px solid var(--border);color:var(--text-muted);vertical-align:top;line-height:1.6;}
+    .module-table .mod-name{font-family:var(--mono);color:var(--amber);}
+    .module-table .mod-status-on{color:var(--green);}
+    .module-table .mod-status-off{color:var(--text-dim);}
+
+    footer{border-top:1px solid var(--border);padding:1.4rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;grid-column:1/-1;}
+    .footer-logo{font-family:var(--display);font-size:1.2rem;letter-spacing:0.08em;color:var(--amber);}
+    .footer-links{display:flex;gap:0;list-style:none;}
+    .footer-links a{color:var(--text-dim);text-decoration:none;font-family:var(--mono);font-size:0.68rem;padding:0 0.9rem;border-left:1px solid var(--border);transition:color 0.15s;}
+    .footer-links a:hover{color:var(--text-muted);}
+    .footer-copy{font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);}
+
+    @media(max-width:768px){
+      .nav-links{display:none;}
+      main{grid-template-columns:1fr;}
+      .sidebar{display:none;}
+      .content{padding:2rem 1.5rem 4rem;}
+      .ide-grid{grid-template-columns:1fr;}
+    }
+  </style>
 </head>
-
 <body>
 
-<h1>Scrumb Documentation</h1>
+<nav>
+  <a href="/" class="nav-logo">SCRUMB</a>
+  <ul class="nav-links">
+    <li><a href="/how-it-works">HOW IT WORKS</a></li>
+    <li><a href="/shame-engine">SHAME ENGINE</a></li>
+    <li><a href="/jetbrains-ai-plugin">JETBRAINS PLUGIN</a></li>
+    <li><a href="/faq">FAQ</a></li>
+    <li><a href="/docs" class="nav-cta">DOCS ←</a></li>
+  </ul>
+</nav>
 
-<h2>Installing the Plugin</h2>
+<main>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">GETTING STARTED</div>
+      <a href="#install" class="active">Installation</a>
+      <a href="#requirements">Requirements</a>
+      <a href="#first-run">First Run</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">CORE MODULES</div>
+      <a href="#architect-audit">Architect Audit</a>
+      <a href="#dag">DAG Generator</a>
+      <a href="#panic-mode">Panic Mode</a>
+      <a href="#shame-engine">Shame Engine</a>
+      <a href="#integrity-guard">Integrity Guard</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">REFERENCE</div>
+      <a href="#settings">Settings</a>
+      <a href="#faq-link">FAQ</a>
+    </div>
+  </aside>
 
-<ol>
-<li>Download the plugin zip file</li>
-<li>Open your JetBrains IDE</li>
-<li>Go to Settings → Plugins</li>
-<li>Select Install Plugin from Disk</li>
-<li>Select the zip file</li>
-</ol>
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="breadcrumb"><a href="/">SCRUMB</a> / DOCUMENTATION</div>
 
-<h2>Using Scrumb</h2>
+    <div class="section-marker">DOCS v0.1-alpha</div>
+    <h1>SCRUMB<br>DOCS</h1>
+    <p>Early access documentation for the Scrumb JetBrains plugin and AI project execution engine. This is a living document — updated as features ship.</p>
 
-<p>
-After installation, Scrumb will appear in the IDE interface
-and provide sprint insights and AI suggestions.
-</p>
+    <!-- INSTALLATION -->
+    <div class="doc-section" id="install">
+      <div class="section-marker">GETTING STARTED</div>
+      <h2>INSTALLATION</h2>
+      <p>The Scrumb plugin installs directly into any JetBrains IDE from disk. No marketplace listing yet — this is early access.</p>
 
-<p><a href="/">Return to Homepage</a></p>
+      <h3>Supported IDEs</h3>
+      <div class="ide-grid">
+        <div class="ide-card"><h4>IntelliJ IDEA</h4><p>Java, Kotlin, Scala, Groovy</p></div>
+        <div class="ide-card"><h4>PyCharm</h4><p>Python, Django, Flask, FastAPI</p></div>
+        <div class="ide-card"><h4>WebStorm</h4><p>JavaScript, TypeScript, React, Vue</p></div>
+        <div class="ide-card"><h4>GoLand</h4><p>Go, microservices, CLI tools</p></div>
+      </div>
+
+      <h3>Install Steps</h3>
+      <ol class="steps">
+        <li><div class="step-body"><strong>Download</strong> the plugin zip — <a href="/scrumb-plugin.zip">scrumb-plugin.zip</a></div></li>
+        <li><div class="step-body">Open your <strong>JetBrains IDE</strong></div></li>
+        <li><div class="step-body">Go to <strong>File → Settings</strong> (Windows/Linux) or <strong>JetBrains IDE → Preferences</strong> (macOS)</div></li>
+        <li><div class="step-body">Navigate to the <strong>Plugins</strong> section</div></li>
+        <li><div class="step-body">Click the <strong>⚙ gear icon</strong> in the top-right corner of the Plugins panel</div></li>
+        <li><div class="step-body">Select <strong>Install Plugin from Disk…</strong></div></li>
+        <li><div class="step-body">Select the downloaded <code>scrumb-plugin.zip</code> file</div></li>
+        <li><div class="step-body"><strong>Restart the IDE</strong> when prompted</div></li>
+        <li><div class="step-body">Scrumb appears in the <strong>right sidebar panel</strong> after restart</div></li>
+      </ol>
+
+      <div class="callout info" style="margin-top:1.2rem;">
+        <strong>Note:</strong> If the Scrumb panel doesn't appear after restart, go to View → Tool Windows → Scrumb to manually open it.
+      </div>
+    </div>
+
+    <!-- REQUIREMENTS -->
+    <div class="doc-section" id="requirements">
+      <div class="section-marker">PREREQUISITES</div>
+      <h2>REQUIREMENTS</h2>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:0.4rem;">
+        <li style="font-size:0.88rem;color:var(--text-muted);padding:0.5rem 0.8rem 0.5rem 2rem;background:var(--bg-2);border:1px solid var(--border);position:relative;">
+          <span style="position:absolute;left:0.7rem;color:var(--green);">✓</span>
+          JetBrains IDE version 2023.1 or later
+        </li>
+        <li style="font-size:0.88rem;color:var(--text-muted);padding:0.5rem 0.8rem 0.5rem 2rem;background:var(--bg-2);border:1px solid var(--border);border-top:none;position:relative;">
+          <span style="position:absolute;left:0.7rem;color:var(--green);">✓</span>
+          Internet connection (for AI calls during Architect Audit and Shame Engine)
+        </li>
+        <li style="font-size:0.88rem;color:var(--text-muted);padding:0.5rem 0.8rem 0.5rem 2rem;background:var(--bg-2);border:1px solid var(--border);border-top:none;position:relative;">
+          <span style="position:absolute;left:0.7rem;color:var(--green);">✓</span>
+          No additional accounts or API keys required during early access
+        </li>
+      </ul>
+    </div>
+
+    <!-- FIRST RUN -->
+    <div class="doc-section" id="first-run">
+      <div class="section-marker">FIRST TIME SETUP</div>
+      <h2>FIRST RUN</h2>
+      <p>After installation, open the Scrumb panel from the right sidebar. You'll see the main interface with your project state.</p>
+      <p>To start a new project, click <strong>New Project</strong> and Scrumb will launch the <strong>Architect Audit</strong> — a short technical interview that generates your task dependency graph. The audit takes 3–5 minutes.</p>
+      <div class="callout">
+        <strong>Tip:</strong> Have your team's skill levels ready before starting the Architect Audit. The more accurate the skill matrix, the better the task assignments.
+      </div>
+    </div>
+
+    <!-- ARCHITECT AUDIT -->
+    <div class="doc-section" id="architect-audit">
+      <div class="section-marker">MODULE 01</div>
+      <h2>ARCHITECT AUDIT</h2>
+      <p>The Architect Audit is the entry gate for every Scrumb project. It cannot be skipped. It works by asking you a sequence of <strong>technical multiple-choice questions</strong> about your project, stack, team, and timeline.</p>
+      <p>Questions adapt based on your answers. A Python-only team gets different stack questions than a full-stack team. A 48-hour hackathon gets different scope questions than a 2-week sprint.</p>
+
+      <h3>What it captures</h3>
+      <div class="code-block">
+        <span class="c-dim">// AUDIT OUTPUT SCHEMA</span><br>
+        project.name = "Bus tracking app"<br>
+        project.deadline = "48hrs"<br>
+        project.team = [<br>
+        &nbsp;&nbsp;{ name: "Priya", skills: ["Python", "FastAPI", "SQL"] },<br>
+        &nbsp;&nbsp;{ name: "Rohan", skills: ["React", "TypeScript"] },<br>
+        &nbsp;&nbsp;{ name: "Aditya", skills: ["Python", "ML"] }<br>
+        ]<br>
+        stack.backend = <span class="c-green">"FastAPI"</span> <span class="c-dim">// locked via MCQ</span><br>
+        stack.frontend = <span class="c-green">"React"</span> <span class="c-dim">// locked via MCQ</span><br>
+        mvp.scope = ["auth", "real-time-bus-location", "basic-ui"] <span class="c-dim">// bounded</span><br>
+        mvp.descoped = ["analytics", "admin-panel", "notifications"] <span class="c-dim">// deferred</span>
+      </div>
+
+      <div class="callout warn">
+        <strong>Warning:</strong> Vague project descriptions produce vague task graphs. If your answer to "What does the MVP need to do?" is "a bunch of stuff," the Architect will ask again.
+      </div>
+    </div>
+
+    <!-- DAG -->
+    <div class="doc-section" id="dag">
+      <div class="section-marker">MODULE 02</div>
+      <h2>DAG GENERATOR</h2>
+      <p>After the Architect Audit completes, Scrumb generates a <strong>Directed Acyclic Graph</strong> of all project tasks. Every task in the graph has:</p>
+      <div class="code-block">
+        task {<br>
+        &nbsp;&nbsp;id: <span class="c-green">"backend/auth/jwt-middleware"</span><br>
+        &nbsp;&nbsp;owner: <span class="c-amber">"@Priya"</span><br>
+        &nbsp;&nbsp;estimate: <span class="c-green">"3hrs"</span><br>
+        &nbsp;&nbsp;depends_on: [<span class="c-green">"setup/db-schema"</span>]<br>
+        &nbsp;&nbsp;blocks: [<span class="c-green">"backend/api/user-endpoints"</span>, <span class="c-green">"backend/api/routes"</span>]<br>
+        &nbsp;&nbsp;critical_path: <span class="c-amber">true</span><br>
+        &nbsp;&nbsp;status: <span class="c-red">"BLOCKED"</span> <span class="c-dim">// waiting on dependency</span><br>
+        }
+      </div>
+      <p>Tasks are displayed in the IDE sidebar. Each developer sees only their assigned tasks and the tasks they're blocking or waiting on. The full graph is always accessible from the project view.</p>
+    </div>
+
+    <!-- PANIC MODE -->
+    <div class="doc-section" id="panic-mode">
+      <div class="section-marker">MODULE 03</div>
+      <h2>PANIC MODE</h2>
+      <p>Panic Mode activates automatically when Scrumb detects that remaining task volume cannot be completed before the deadline at current velocity.</p>
+      <p>It analyzes the task tree and separates tasks into two buckets:</p>
+      <div class="code-block">
+        <span class="c-green">CRITICAL (keep)</span>: tasks required for a working, demoable MVP<br>
+        <span class="c-red">NON-CRITICAL (archive)</span>: tasks that improve the product but aren't required for demo<br><br>
+        <span class="c-dim">// Archived tasks are preserved, not deleted. They can be restored post-deadline.</span>
+      </div>
+      <p>Panic Mode can also be triggered manually from the Scrumb panel if the team decides to scope down proactively.</p>
+      <div class="callout">
+        <strong>Tip:</strong> Trigger Panic Mode early if you're behind. Scope decisions made at T-12hrs are always better than scope decisions made at T-2hrs.
+      </div>
+    </div>
+
+    <!-- SHAME ENGINE -->
+    <div class="doc-section" id="shame-engine">
+      <div class="section-marker">MODULE 04</div>
+      <h2>SHAME ENGINE</h2>
+      <p>The Shame Engine monitors task stall times and generates named accountability reports when thresholds are exceeded. It is <strong>disabled by default</strong> and must be explicitly enabled per team.</p>
+      <p>See the <a href="/shame-engine">full Shame Engine documentation</a> for configuration options, example reports, and escalation logic.</p>
+      <div class="callout warn">
+        <strong>Warning:</strong> Enable Shame Engine with team agreement. Activating it unilaterally is a bad idea and possibly a worse look.
+      </div>
+    </div>
+
+    <!-- INTEGRITY GUARD -->
+    <div class="doc-section" id="integrity-guard">
+      <div class="section-marker">MODULE 05</div>
+      <h2>INTEGRITY GUARD</h2>
+      <p>Integrity Guard prevents marking a parent task as complete if any of its sub-tasks remain open. It runs continuously and cannot be disabled.</p>
+      <div class="code-block">
+        <span class="c-dim">// INTEGRITY GUARD — BLOCKED ACTION</span><br>
+        ACTION: mark [ backend/api ] as DONE<br>
+        RESULT: <span class="c-red">BLOCKED</span><br>
+        REASON: 2 sub-tasks still open:<br>
+        &nbsp;&nbsp;<span class="c-red">✗</span> [ backend/api/auth-endpoints ] — IN_PROGRESS<br>
+        &nbsp;&nbsp;<span class="c-red">✗</span> [ backend/api/data-validation ] — NOT_STARTED<br><br>
+        <span class="c-amber">// Complete sub-tasks before marking parent done.</span>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="doc-section" id="settings">
+      <div class="section-marker">REFERENCE</div>
+      <h2>SETTINGS</h2>
+      <table class="module-table">
+        <thead>
+          <tr>
+            <th>SETTING</th>
+            <th>DEFAULT</th>
+            <th>DESCRIPTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mod-name">SHAME_ENGINE</td>
+            <td class="mod-status-off">OFF</td>
+            <td>Enable named stall accountability reports</td>
+          </tr>
+          <tr>
+            <td class="mod-name">SHAME_THRESHOLD</td>
+            <td>48hrs</td>
+            <td>Stall duration before report generates</td>
+          </tr>
+          <tr>
+            <td class="mod-name">PANIC_AUTO</td>
+            <td class="mod-status-on">ON</td>
+            <td>Auto-trigger Panic Mode when velocity math fails</td>
+          </tr>
+          <tr>
+            <td class="mod-name">INTEGRITY_GUARD</td>
+            <td class="mod-status-on">ON (locked)</td>
+            <td>Cannot be disabled</td>
+          </tr>
+          <tr>
+            <td class="mod-name">SHAME_TONE</td>
+            <td>BRUTAL_FUNNY</td>
+            <td>Options: BRUTAL_FUNNY, DIRECT, PROFESSIONAL</td>
+          </tr>
+          <tr>
+            <td class="mod-name">SHAME_DELIVERY</td>
+            <td>TEAM_CHANNEL</td>
+            <td>Options: TEAM_CHANNEL, PRIVATE_DM</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="faq-link">
+      <p>Have questions not covered here? See the <a href="/faq">FAQ →</a></p>
+    </div>
+  </div>
+
+  <footer>
+    <span class="footer-logo">SCRUMB</span>
+    <ul class="footer-links">
+      <li><a href="/">HOME</a></li>
+      <li><a href="/how-it-works">HOW IT WORKS</a></li>
+      <li><a href="/shame-engine">SHAME ENGINE</a></li>
+      <li><a href="/faq">FAQ</a></li>
+    </ul>
+    <span class="footer-copy">© 2026 SCRUMB · DOCS v0.1-alpha</span>
+  </footer>
+</main>
+
+<script>
+  // Highlight active sidebar link on scroll
+  const sections = document.querySelectorAll('.doc-section, [id]');
+  const sidebarLinks = document.querySelectorAll('.sidebar a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (s.id && window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    sidebarLinks.forEach(a => {
+      a.classList.remove('active');
+      if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+    });
+  });
+</script>
 
 </body>
 </html>

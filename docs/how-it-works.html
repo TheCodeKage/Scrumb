@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>How Scrumb Works — AI Project Execution for Developer Teams</title>
+  <meta name="description" content="Scrumb's five-stage execution pipeline turns vague project ideas into shipped MVPs. Architect Audit, DAG generation, Panic Mode, Shame Engine — here's how each stage works." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.scrumb.in/how-it-works" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="How Scrumb Works — AI Project Execution Engine" />
+  <meta property="og:description" content="Five stages. One goal: ship. Architect Audit → DAG Generation → Active Build → Drift Detection → MVP Shipped." />
+  <meta property="og:url" content="https://www.scrumb.in/how-it-works" />
+  <meta property="og:image" content="https://www.scrumb.in/preview.png" />
+  <meta property="og:site_name" content="Scrumb" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="How Scrumb Works | AI Project Execution" />
+  <meta name="twitter:description" content="Five stages. One goal: ship. Here's how Scrumb turns ideas into finished projects." />
+  <meta name="twitter:image" content="https://www.scrumb.in/preview.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#0a0a08; --bg-2:#0f0f0c; --bg-3:#141410;
+      --border:rgba(255,176,0,0.15); --border-strong:rgba(255,176,0,0.35);
+      --text:#e8e4d4; --text-muted:#6e6a58; --text-dim:#3a3830;
+      --amber:#ffb000; --amber-dim:rgba(255,176,0,0.07);
+      --green:#00ff88; --red:#ff3b3b;
+      --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif; --display:'Bebas Neue',sans-serif;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;overflow-x:hidden;}
+    body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);pointer-events:none;z-index:9999;}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:52px;background:rgba(10,10,8,0.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-family:var(--display);font-size:1.6rem;letter-spacing:0.08em;color:var(--amber);text-decoration:none;}
+    .nav-links{display:flex;gap:0;list-style:none;}
+    .nav-links a{color:var(--text-muted);text-decoration:none;font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em;padding:0 1rem;height:52px;display:flex;align-items:center;border-left:1px solid var(--border);transition:color 0.15s,background 0.15s;}
+    .nav-links a:hover{color:var(--amber);background:var(--amber-dim);}
+    .nav-cta{color:var(--amber) !important;}
+
+    main{position:relative;z-index:1;padding-top:52px;}
+
+    .page-hero{max-width:900px;margin:0 auto;padding:5rem 2rem 3rem;border-bottom:1px solid var(--border);}
+    .breadcrumb{font-family:var(--mono);font-size:0.68rem;color:var(--text-muted);margin-bottom:1.5rem;letter-spacing:0.04em;}
+    .breadcrumb a{color:var(--amber);text-decoration:none;}
+    .hero-pre{font-family:var(--mono);font-size:0.7rem;color:var(--green);letter-spacing:0.08em;margin-bottom:1rem;}
+    .hero-pre::before{content:'▶ ';}
+    .page-hero h1{font-family:var(--display);font-size:clamp(3rem,7vw,6rem);letter-spacing:0.04em;line-height:0.95;color:var(--text);margin-bottom:1.2rem;}
+    .page-hero h1 span{color:var(--amber);}
+    .page-hero p{color:var(--text-muted);font-size:0.95rem;max-width:580px;line-height:1.8;border-left:2px solid var(--border-strong);padding-left:1.2rem;}
+
+    /* STAGE BLOCKS */
+    .stages{max-width:900px;margin:0 auto;}
+
+    .stage{display:grid;grid-template-columns:220px 1fr;border-bottom:1px solid var(--border);}
+    .stage:last-child{border-bottom:none;}
+
+    .stage-left{padding:3rem 2rem;border-right:1px solid var(--border);background:var(--bg-2);display:flex;flex-direction:column;justify-content:flex-start;}
+    .stage-num{font-family:var(--display);font-size:5rem;line-height:1;color:var(--text-dim);margin-bottom:0.5rem;}
+    .stage-name{font-family:var(--mono);font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);}
+    .stage-status{display:inline-flex;align-items:center;gap:0.4rem;margin-top:1rem;font-family:var(--mono);font-size:0.62rem;letter-spacing:0.08em;color:var(--green);}
+    .stage-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);}
+
+    .stage-right{padding:3rem 2.5rem;}
+    .stage-right h2{font-family:var(--display);font-size:clamp(1.8rem,3vw,2.8rem);letter-spacing:0.04em;color:var(--text);margin-bottom:1rem;}
+    .stage-right p{color:var(--text-muted);font-size:0.92rem;line-height:1.8;margin-bottom:1rem;}
+    .stage-right p strong{color:var(--text);font-weight:500;}
+
+    .detail-list{list-style:none;display:flex;flex-direction:column;gap:0.4rem;margin:1.2rem 0;}
+    .detail-list li{font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);padding:0.5rem 0.8rem 0.5rem 2rem;background:var(--bg-2);border:1px solid var(--border);position:relative;}
+    .detail-list li::before{content:'→';position:absolute;left:0.6rem;color:var(--amber);}
+
+    .stage-example{background:var(--bg-3);border:1px solid var(--border);padding:1rem 1.2rem;margin-top:1.2rem;font-family:var(--mono);font-size:0.76rem;color:var(--text-muted);line-height:1.8;}
+    .stage-example .label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);display:block;margin-bottom:0.5rem;}
+    .stage-example .ex-green{color:var(--green);}
+    .stage-example .ex-red{color:var(--red);}
+    .stage-example .ex-amber{color:var(--amber);}
+
+    /* CTA */
+    .cta-section{border-top:1px solid var(--border);background:var(--bg-2);padding:4rem 2rem;text-align:center;}
+    .cta-section h2{font-family:var(--display);font-size:clamp(2.5rem,6vw,5rem);letter-spacing:0.04em;color:var(--text);margin-bottom:0.5rem;}
+    .cta-section h2 span{color:var(--amber);}
+    .cta-section p{color:var(--text-muted);font-size:0.9rem;max-width:400px;margin:0.8rem auto 2rem;line-height:1.7;}
+    .btn-primary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.6rem;background:var(--amber);color:var(--bg);font-family:var(--mono);font-size:0.78rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;transition:opacity 0.15s,transform 0.15s;}
+    .btn-primary:hover{opacity:0.85;transform:translateY(-1px);}
+
+    footer{border-top:1px solid var(--border);padding:1.4rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+    .footer-logo{font-family:var(--display);font-size:1.2rem;letter-spacing:0.08em;color:var(--amber);}
+    .footer-links{display:flex;gap:0;list-style:none;}
+    .footer-links a{color:var(--text-dim);text-decoration:none;font-family:var(--mono);font-size:0.68rem;padding:0 0.9rem;border-left:1px solid var(--border);transition:color 0.15s;}
+    .footer-links a:hover{color:var(--text-muted);}
+    .footer-copy{font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);}
+
+    @media(max-width:768px){
+      .nav-links{display:none;}
+      .stage{grid-template-columns:1fr;}
+      .stage-left{border-right:none;border-bottom:1px solid var(--border);padding:1.5rem 2rem;}
+      .stage-num{font-size:3rem;}
+    }
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How Scrumb Works: From Idea to Shipped MVP",
+    "description": "Scrumb's five-stage AI execution pipeline for developer teams: Architect Audit, DAG Generation, Active Build, Drift Detection, MVP Shipped.",
+    "url": "https://www.scrumb.in/how-it-works",
+    "step": [
+      {"@type":"HowToStep","name":"Architect Audit","text":"AI interviews your project idea with technical MCQs to lock in stack, scope, and team capacity."},
+      {"@type":"HowToStep","name":"DAG Generation","text":"AI generates a full task dependency graph with owners auto-assigned based on team skills."},
+      {"@type":"HowToStep","name":"Active Build","text":"Team executes tasks. Integrity Guard enforces honest task completion reporting."},
+      {"@type":"HowToStep","name":"Drift Detection","text":"Velocity slip triggers Panic Mode for scope trimming or Shame Engine for accountability."},
+      {"@type":"HowToStep","name":"MVP Shipped","text":"Project compiles on time. Finished, defensible, and actually submitted."}
+    ]
+  }
+  </script>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">SCRUMB</a>
+  <ul class="nav-links">
+    <li><a href="/how-it-works">HOW IT WORKS</a></li>
+    <li><a href="/shame-engine">SHAME ENGINE</a></li>
+    <li><a href="/jetbrains-ai-plugin">JETBRAINS PLUGIN</a></li>
+    <li><a href="/blog/why-hackathon-projects-fail">BLOG</a></li>
+    <li><a href="/faq">FAQ</a></li>
+    <li><a href="/docs" class="nav-cta">EARLY ACCESS →</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="page-hero">
+    <div class="breadcrumb"><a href="/">SCRUMB</a> / HOW IT WORKS</div>
+    <div class="hero-pre">PIPELINE.explain() — five stages, one output: shipped</div>
+    <h1>THE <span>EXECUTION</span><br>PIPELINE</h1>
+    <p>Scrumb operates as a <strong>state machine for project birth and survival.</strong> Your project cannot advance to the next stage until the current one clears. No shortcuts. No hand-waving. Here's how each stage works.</p>
+  </div>
+
+  <div class="stages">
+
+    <!-- STAGE 01 -->
+    <div class="stage">
+      <div class="stage-left">
+        <div class="stage-num">01</div>
+        <div class="stage-name">ARCHITECT_AUDIT</div>
+        <div class="stage-status">GATE ACTIVE</div>
+      </div>
+      <div class="stage-right">
+        <h2>THE ARCHITECT AUDIT</h2>
+        <p>
+          Before a single task is created, the <strong>Architect Prime AI interrogates your idea.</strong> You describe the project in plain English. Scrumb responds with a series of technical multiple-choice questions designed to surface every assumption your team hasn't articulated yet.
+        </p>
+        <p>
+          Stack choices get locked. Team skill levels get logged. MVP scope gets bounded. The questions are uncomfortable on purpose — because "we'll figure it out" is how projects fail at hour 36 of a 48-hour hackathon.
+        </p>
+        <ul class="detail-list">
+          <li>Tech stack selection locked via MCQ (FastAPI vs Django, React vs Vue, etc.)</li>
+          <li>Team skill matrix recorded — tasks assigned to real capability, not aspiration</li>
+          <li>MVP boundary defined before any architecture decisions are made</li>
+          <li>Scope creep vectors identified and flagged before the build starts</li>
+        </ul>
+        <div class="stage-example">
+          <span class="label">// EXAMPLE AUDIT EXCHANGE</span>
+          ARCHITECT_PRIME: "Your team includes a Python dev and a React dev.<br>
+          &nbsp;&nbsp;For the backend, which of these matches their experience?"<br>
+          &nbsp;&nbsp;<span class="ex-green">A) FastAPI + SQLite (familiar, fast)</span><br>
+          &nbsp;&nbsp;B) Django REST + PostgreSQL (powerful, slower start)<br>
+          &nbsp;&nbsp;C) Express.js (wrong team for this)<br><br>
+          USER: A<br><br>
+          <span class="ex-amber">// Stack locked. Generating task tree for FastAPI architecture...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAGE 02 -->
+    <div class="stage">
+      <div class="stage-left">
+        <div class="stage-num">02</div>
+        <div class="stage-name">DAG_GENERATOR</div>
+        <div class="stage-status">GATE ACTIVE</div>
+      </div>
+      <div class="stage-right">
+        <h2>DAG GENERATION</h2>
+        <p>
+          Based on the Architect Audit, Scrumb generates a <strong>Directed Acyclic Graph</strong> of every task in your project. This is not a flat to-do list. Every task in the DAG knows three things: what it depends on, what depends on it, and who owns it.
+        </p>
+        <p>
+          Owners are auto-assigned based on the skill matrix captured in Stage 01. The critical path — the chain of tasks where any delay cascades — is calculated and highlighted. You see exactly what has to happen first, and why.
+        </p>
+        <ul class="detail-list">
+          <li>Full dependency graph — no task is an island</li>
+          <li>Critical path identified and surfaced prominently</li>
+          <li>Owners assigned based on actual team skills, not just availability</li>
+          <li>Timeline estimated from task complexity + team velocity</li>
+          <li>Integrity Guard pre-armed: parent tasks locked until children complete</li>
+        </ul>
+        <div class="stage-example">
+          <span class="label">// EXAMPLE DAG FRAGMENT</span>
+          <span class="ex-green">[ setup/db-schema ]</span> → <span class="ex-amber">[ backend/user-auth ]</span> → <span class="ex-red">[ backend/api/endpoints ]</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[ frontend/dashboard ] ← BLOCKED<br><br>
+          Owner: <span class="ex-amber">@Rohan</span> (Python) · Est: 3hrs · <span class="ex-red">CRITICAL PATH</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAGE 03 -->
+    <div class="stage">
+      <div class="stage-left">
+        <div class="stage-num">03</div>
+        <div class="stage-name">ACTIVE_BUILD</div>
+        <div class="stage-status">GATE ACTIVE</div>
+      </div>
+      <div class="stage-right">
+        <h2>ACTIVE BUILD</h2>
+        <p>
+          Your team is building. Scrumb surfaces the task tree <strong>directly inside your JetBrains IDE</strong> — no tab switching to check what needs to happen next. Each developer sees their tasks, their blockers, and the downstream impact if they fall behind.
+        </p>
+        <p>
+          The <strong>Integrity Guard</strong> runs continuously during this phase. It is not possible to mark a parent task complete while its sub-tasks are still open. The dashboard always reflects reality.
+        </p>
+        <ul class="detail-list">
+          <li>Task tree visible in JetBrains sidebar — no context switching</li>
+          <li>Each task shows: owner, estimate, dependencies, downstream impact</li>
+          <li>Integrity Guard blocks dishonest task completion</li>
+          <li>Velocity tracked automatically as tasks complete</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- STAGE 04 -->
+    <div class="stage">
+      <div class="stage-left">
+        <div class="stage-num">04</div>
+        <div class="stage-name">DRIFT_DETECTION</div>
+        <div class="stage-status">GATE ACTIVE</div>
+      </div>
+      <div class="stage-right">
+        <h2>DRIFT DETECTION</h2>
+        <p>
+          Scrumb continuously compares actual velocity against the deadline. When the math stops working, two systems activate based on the type of problem detected.
+        </p>
+        <p>
+          <strong>Panic Mode</strong> activates when scope exceeds timeline. It analyzes the remaining task tree, identifies which tasks are critical for a working demo, and archives everything else. The MVP shrinks to what can actually be built.
+        </p>
+        <p>
+          <strong>The Shame Engine</strong> activates when a specific task has been stalled for too long — especially when it's on the critical path. It generates a named accountability report directed at the person responsible. Brutal. Funny. Effective.
+        </p>
+        <ul class="detail-list">
+          <li>Panic Mode: AI-driven scope trim, non-critical tasks archived automatically</li>
+          <li>Shame Engine: named, task-specific accountability reports</li>
+          <li>Both can activate simultaneously if the situation warrants it</li>
+          <li>All drift interventions are logged for post-project retrospective</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- STAGE 05 -->
+    <div class="stage">
+      <div class="stage-left">
+        <div class="stage-num">05</div>
+        <div class="stage-name">MVP_SHIPPED</div>
+        <div class="stage-status">TARGET STATE</div>
+      </div>
+      <div class="stage-right">
+        <h2>MVP SHIPPED</h2>
+        <p>
+          The project compiles. Not necessarily perfect — but <strong>finished, functional, and defensible.</strong> The scope that shipped is the scope that was achievable. Panic Mode trimmed what wasn't. The team can explain every decision because the Architect Audit forced those decisions to be made explicitly.
+        </p>
+        <p>
+          Scrumb generates a post-project summary: what shipped, what was archived, where time was lost, and what the team's real velocity was. This data feeds better estimation on the next project.
+        </p>
+        <ul class="detail-list">
+          <li>Post-project report: shipped scope, archived tasks, velocity data</li>
+          <li>Retrospective insights surfaced automatically — no meeting required</li>
+          <li>Team velocity profile updated for more accurate future estimation</li>
+        </ul>
+        <div class="stage-example">
+          <span class="label">// BUILD COMPLETE</span>
+          Tasks completed: <span class="ex-green">34 / 34</span><br>
+          Tasks archived (Panic Mode): <span class="ex-amber">8</span> (non-critical)<br>
+          Shame Engine activations: <span class="ex-red">2</span><br>
+          Deadline: <span class="ex-green">MET ✓</span><br><br>
+          <span class="ex-amber">// MVP shipped. Project compiles. Well done.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="cta-section">
+  <h2>READY TO <span>COMPILE?</span></h2>
+  <p>Free during early access. Start with the Architect Audit — it has questions your team needs to answer.</p>
+  <a href="/docs" class="btn-primary">→ GET EARLY ACCESS</a>
+</div>
+
+<footer>
+  <span class="footer-logo">SCRUMB</span>
+  <ul class="footer-links">
+    <li><a href="/">HOME</a></li>
+    <li><a href="/shame-engine">SHAME ENGINE</a></li>
+    <li><a href="/jetbrains-ai-plugin">JETBRAINS PLUGIN</a></li>
+    <li><a href="/docs">DOCS</a></li>
+    <li><a href="/faq">FAQ</a></li>
+  </ul>
+  <span class="footer-copy">© 2026 SCRUMB</span>
+</footer>
+
+</body>
+</html>
