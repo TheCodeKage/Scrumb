@@ -13,7 +13,7 @@ from .serializers import TaskSerializer, ProjectSerializer, QuestionSerializer
 
 # Create your views here.
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
+    queryset = Project.objects.all().prefetch_related('tasks__subtasks', 'tasks__depends_on')
     serializer_class = ProjectSerializer
 
     def perform_create(self, serializer):
@@ -68,6 +68,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
         project = self.get_object()
 
         status, velocity, distance, target_cut = calculate_health(project)
+
+        if not velocity: return "N/A (no history yet)"
 
         return Response({
             "project_name": project.name,
