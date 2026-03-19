@@ -1,30 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>Scrumb FAQ</title>
+  <title>FAQ — Scrumb AI Scrum Master | Common Questions Answered</title>
+  <meta name="description" content="Frequently asked questions about Scrumb — the AI-powered Scrum Master for agile teams. Learn about features, the JetBrains plugin, pricing, and early access." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.scrumb.in/faq" />
 
-<meta name="description" content="Frequently asked questions about Scrumb, the AI-powered Scrum Master.">
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="FAQ — Scrumb AI Scrum Master" />
+  <meta property="og:description" content="Common questions about Scrumb — AI sprint planning, blocker detection, JetBrains plugin, and early access." />
+  <meta property="og:url" content="https://www.scrumb.in/faq" />
+  <meta property="og:image" content="https://www.scrumb.in/preview.png" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#06090f; --surface:#0d1117; --border:rgba(99,179,255,0.1); --text:#d4dff5; --text-muted:#6b7fa3; --accent:#4fa3ff; --accent-2:#00e5c3; --radius:12px; }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.6;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(79,163,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,163,255,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(6,9,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:var(--accent);text-decoration:none;}
+    .nav-links{display:flex;gap:1.5rem;list-style:none;}
+    .nav-links a{color:var(--text-muted);text-decoration:none;font-size:0.9rem;font-weight:500;transition:color 0.2s;}
+    .nav-links a:hover{color:var(--text);}
+    .nav-cta{background:var(--accent);color:var(--bg) !important;padding:0.45rem 1.1rem;border-radius:8px;font-weight:600 !important;}
+    main{position:relative;z-index:1;padding-top:5rem;max-width:720px;margin:0 auto;padding-left:2rem;padding-right:2rem;}
+    .page-hero{padding:4rem 0 3rem;text-align:center;}
+    .page-hero h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:0.8rem;}
+    .page-hero p{color:var(--text-muted);font-size:1rem;max-width:500px;margin:0 auto;}
+    .faq-list{display:flex;flex-direction:column;gap:0.6rem;padding-bottom:5rem;}
+    .faq-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+    .faq-q{padding:1.2rem 1.5rem;font-weight:600;font-size:0.95rem;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem;user-select:none;}
+    .faq-q:hover{color:var(--accent);}
+    .faq-arrow{font-size:0.8rem;color:var(--text-muted);transition:transform 0.25s;flex-shrink:0;}
+    .faq-item.open .faq-arrow{transform:rotate(180deg);}
+    .faq-a{max-height:0;overflow:hidden;transition:max-height 0.3s ease,padding 0.3s;}
+    .faq-item.open .faq-a{max-height:400px;}
+    .faq-a-inner{padding:0 1.5rem 1.2rem;font-size:0.9rem;color:var(--text-muted);line-height:1.75;}
+    .faq-a-inner a{color:var(--accent);text-decoration:none;}
+    .faq-a-inner a:hover{text-decoration:underline;}
+    footer{border-top:1px solid var(--border);padding:2rem;text-align:center;max-width:100%;}
+    footer a{color:var(--text-muted);text-decoration:none;margin:0 0.8rem;font-size:0.85rem;}
+    footer a:hover{color:var(--text);}
+    footer p{font-size:0.8rem;color:var(--text-muted);margin-top:1rem;}
+    @media(max-width:600px){.nav-links{display:none;}}
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "What is Scrumb?", "acceptedAnswer": { "@type": "Answer", "text": "Scrumb is an AI-powered Scrum Master that helps agile teams plan sprints, detect blockers, and track progress — directly inside JetBrains IDEs." } },
+      { "@type": "Question", "name": "Is Scrumb free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Scrumb is free during early access. The JetBrains plugin can be downloaded at no cost." } },
+      { "@type": "Question", "name": "Which JetBrains IDEs does Scrumb support?", "acceptedAnswer": { "@type": "Answer", "text": "Scrumb supports IntelliJ IDEA, PyCharm, WebStorm, and GoLand, among other JetBrains IDEs." } },
+      { "@type": "Question", "name": "Who is Scrumb for?", "acceptedAnswer": { "@type": "Answer", "text": "Scrumb is designed for student teams, startups, and small engineering teams working with agile methodologies." } }
+    ]
+  }
+  </script>
 </head>
-
 <body>
 
-<h1>Frequently Asked Questions</h1>
+<nav>
+  <a href="/" class="nav-logo">Scrumb</a>
+  <ul class="nav-links">
+    <li><a href="/ai-scrum-master">AI Scrum Master</a></li>
+    <li><a href="/sprint-planning-ai">Sprint Planning</a></li>
+    <li><a href="/jetbrains-ai-plugin">JetBrains Plugin</a></li>
+    <li><a href="/docs">Docs</a></li>
+    <li><a href="/faq" class="nav-cta">Get Early Access</a></li>
+  </ul>
+</nav>
 
-<h2>What is Scrumb?</h2>
-<p>Scrumb is an AI-powered Scrum Master designed to help agile teams plan sprints and detect blockers.</p>
+<main>
+  <div class="page-hero">
+    <h1>Frequently Asked Questions</h1>
+    <p>Everything you need to know about Scrumb, the JetBrains plugin, and how it helps agile teams.</p>
+  </div>
 
-<h2>Is Scrumb available now?</h2>
-<p>Scrumb is currently in early access.</p>
+  <div class="faq-list">
 
-<h2>Does Scrumb integrate with JetBrains IDEs?</h2>
-<p>Yes, a JetBrains plugin is available in early access.</p>
+    <div class="faq-item open">
+      <div class="faq-q">What is Scrumb? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">
+        Scrumb is an AI-powered Scrum Master designed for agile developer teams. It helps teams plan sprints, detect blockers early, and track progress — all directly inside your JetBrains IDE. It's built for teams that need structure but don't have a dedicated Scrum Master.
+      </div></div>
+    </div>
 
-<h2>Who should use Scrumb?</h2>
-<p>Students, startups, and engineering teams working with agile workflows.</p>
+    <div class="faq-item">
+      <div class="faq-q">Is Scrumb free to use? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">
+        Yes — Scrumb is completely free during early access. Download the <a href="/jetbrains-ai-plugin">JetBrains plugin</a> at no cost. Future pricing plans may be introduced as the product matures, but early access users will always be grandfathered in.
+      </div></div>
+    </div>
 
-<p><a href="/">Return to Homepage</a></p>
+    <div class="faq-item">
+      <div class="faq-q">Which JetBrains IDEs does Scrumb support? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">
+        The plugin works with IntelliJ IDEA, PyCharm, WebStorm, GoLand, and other JetBrains IDEs that support the standard plugin installation from disk. See the <a href="/jetbrains-ai-plugin">JetBrains plugin page</a> for full installation instructions.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Who is Scrumb designed for? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">
+        Scrumb is built for student teams running capstone or hackathon projects, early-stage startups without a dedicated Scrum Master, and small engineering squads that want better sprint visibility without heavy tooling overhead.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">What does an AI Scrum Master actually do? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">
+        Scrumb's AI assists with sprint planning (story breakdowns, timeline estimation, workload balancing), detects blockers before they derail the sprint, and provides continuous progress tracking — all without manual check-ins or status updates. Learn more on the <a href="/ai-scrum-master">AI Scrum Master page</a>.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Does Scrumb integrate with Jira or other project management tools? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">
+        Jira integration is on the roadmap. The current early access plugin operates independently inside your JetBrains IDE. Integrations with popular project management and issue tracking tools will be added as the product grows.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Is Scrumb available on VS Code or other editors? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">
+        Not yet. The current focus is on the JetBrains plugin ecosystem. VS Code and other editors are being considered for future releases based on user demand.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">How is Scrumb different from using ChatGPT for sprint planning? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">
+        ChatGPT is a general-purpose tool — it can help draft sprint goals or decompose stories if you prompt it correctly. Scrumb is purpose-built for agile workflows and lives inside your IDE, meaning it can observe your actual development activity and provide contextual, real-time sprint intelligence rather than one-off responses.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Where can I find documentation for the plugin? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a"><div class="faq-a-inner">
+        See the <a href="/docs">Scrumb Documentation</a> page for installation and usage instructions. The <a href="/jetbrains-ai-plugin">JetBrains plugin page</a> also has a step-by-step installation guide.
+      </div></div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <a href="/">Home</a>
+  <a href="/ai-scrum-master">AI Scrum Master</a>
+  <a href="/sprint-planning-ai">Sprint Planning AI</a>
+  <a href="/jetbrains-ai-plugin">JetBrains Plugin</a>
+  <a href="/docs">Documentation</a>
+  <p>© 2026 Scrumb · AI Scrum Master FAQ</p>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.closest('.faq-item');
+      item.classList.toggle('open');
+    });
+  });
+</script>
 
 </body>
 </html>

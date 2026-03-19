@@ -1,49 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>JetBrains AI Plugin for Scrum Planning | Scrumb</title>
+  <title>JetBrains AI Plugin for Sprint Planning | Scrumb</title>
+  <meta name="description" content="Scrumb's JetBrains plugin brings AI-powered sprint planning and blocker detection directly into IntelliJ, PyCharm, WebStorm, and GoLand. Free early access." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.scrumb.in/jetbrains-ai-plugin" />
 
-<meta name="description" content="Scrumb provides an early-access JetBrains plugin that brings AI-powered sprint assistance directly into your IDE.">
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="JetBrains AI Plugin for Sprint Planning | Scrumb" />
+  <meta property="og:description" content="AI sprint planning and blocker detection inside IntelliJ, PyCharm, WebStorm, and GoLand. Install the Scrumb JetBrains plugin — free early access." />
+  <meta property="og:url" content="https://www.scrumb.in/jetbrains-ai-plugin" />
+  <meta property="og:image" content="https://www.scrumb.in/preview.png" />
+  <meta property="og:site_name" content="Scrumb" />
 
-<link rel="canonical" href="https://www.scrumb.in/jetbrains-ai-plugin">
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="JetBrains AI Plugin for Sprint Planning | Scrumb" />
+  <meta name="twitter:description" content="AI sprint planning inside IntelliJ, PyCharm, WebStorm. Free early access." />
+  <meta name="twitter:image" content="https://www.scrumb.in/preview.png" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#06090f; --surface:#0d1117; --surface-2:#151c27; --border:rgba(99,179,255,0.1); --text:#d4dff5; --text-muted:#6b7fa3; --accent:#4fa3ff; --accent-2:#00e5c3; --accent-glow:rgba(79,163,255,0.18); --radius:12px; }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.6;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(79,163,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,163,255,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(6,9,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:var(--accent);text-decoration:none;}
+    .nav-links{display:flex;gap:1.5rem;list-style:none;}
+    .nav-links a{color:var(--text-muted);text-decoration:none;font-size:0.9rem;font-weight:500;transition:color 0.2s;}
+    .nav-links a:hover{color:var(--text);}
+    .nav-cta{background:var(--accent);color:var(--bg) !important;padding:0.45rem 1.1rem;border-radius:8px;font-weight:600 !important;}
+    main{position:relative;z-index:1;padding-top:5rem;}
+    .page-hero{max-width:850px;margin:0 auto;padding:4rem 2rem 3rem;text-align:center;}
+    .breadcrumb{font-size:0.82rem;color:var(--text-muted);margin-bottom:1.5rem;}
+    .breadcrumb a{color:var(--accent);text-decoration:none;}
+    .page-hero h1{font-family:'Syne',sans-serif;font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:1.2rem;}
+    .page-hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .page-hero p{color:var(--text-muted);font-size:1.05rem;max-width:600px;margin:0 auto 2rem;line-height:1.7;}
+    .btn-primary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.85rem 1.8rem;background:var(--accent);color:var(--bg);border-radius:var(--radius);font-weight:600;font-size:0.95rem;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(79,163,255,0.35);}
+    .content-section{max-width:1000px;margin:0 auto;padding:2rem 2rem 4rem;}
+    .prose{max-width:720px;margin:0 auto;}
+    .prose h2{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;color:var(--text);margin:2.5rem 0 1rem;}
+    .prose p{color:var(--text-muted);font-size:0.95rem;margin-bottom:1rem;line-height:1.75;}
+    .prose ul{margin:1rem 0 1.5rem 0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:0.5rem;}
+    .prose ul li{color:var(--text-muted);font-size:0.92rem;padding:0.6rem 1rem 0.6rem 2.5rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;position:relative;}
+    .prose ul li::before{content:'✓';position:absolute;left:0.8rem;color:var(--accent-2);font-weight:700;}
+
+    .ides-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.8rem;margin:1.5rem 0;}
+    .ide-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem;text-align:center;}
+    .ide-card .icon{font-size:1.8rem;margin-bottom:0.5rem;}
+    .ide-card p{font-size:0.82rem;color:var(--text-muted);}
+    .ide-card h3{font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:0.2rem;}
+
+    .install-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin:1.5rem 0;}
+    .install-box h3{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:1.2rem;}
+    .install-steps{list-style:none;counter-reset:steps;}
+    .install-steps li{counter-increment:steps;display:flex;align-items:flex-start;gap:0.8rem;font-size:0.9rem;color:var(--text-muted);padding:0.7rem 0;border-bottom:1px solid var(--border);}
+    .install-steps li:last-child{border-bottom:none;}
+    .install-steps li::before{content:counter(steps);width:24px;height:24px;border-radius:50%;background:var(--accent-glow);border:1px solid rgba(79,163,255,0.25);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--accent);flex-shrink:0;margin-top:1px;}
+    .install-steps li strong{color:var(--text);}
+
+    .cta-box{background:linear-gradient(135deg,rgba(79,163,255,0.08),rgba(0,229,195,0.05));border:1px solid rgba(79,163,255,0.2);border-radius:16px;padding:2.5rem;text-align:center;margin:3rem 0;}
+    .cta-box h3{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:0.6rem;}
+    .cta-box p{color:var(--text-muted);font-size:0.92rem;margin-bottom:1.5rem;}
+
+    footer{border-top:1px solid var(--border);padding:2rem;text-align:center;margin-top:4rem;}
+    footer a{color:var(--text-muted);text-decoration:none;margin:0 0.8rem;font-size:0.85rem;}
+    footer a:hover{color:var(--text);}
+    footer p{font-size:0.8rem;color:var(--text-muted);margin-top:1rem;}
+    @media(max-width:600px){.nav-links{display:none;}.ides-grid{grid-template-columns:repeat(2,1fr);}}
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Scrumb JetBrains Plugin",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Windows, Mac, Linux",
+    "description": "JetBrains IDE plugin that brings AI-powered sprint planning and blocker detection to IntelliJ, PyCharm, WebStorm, and GoLand.",
+    "url": "https://www.scrumb.in/jetbrains-ai-plugin",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" }
+  }
+  </script>
 </head>
-
 <body>
 
-<h1>Scrumb JetBrains Plugin</h1>
+<nav>
+  <a href="/" class="nav-logo">Scrumb</a>
+  <ul class="nav-links">
+    <li><a href="/ai-scrum-master">AI Scrum Master</a></li>
+    <li><a href="/sprint-planning-ai">Sprint Planning</a></li>
+    <li><a href="/jetbrains-ai-plugin">JetBrains Plugin</a></li>
+    <li><a href="/docs">Docs</a></li>
+    <li><a href="/faq" class="nav-cta">Get Early Access</a></li>
+  </ul>
+</nav>
 
-<p>
-The Scrumb JetBrains plugin integrates AI-powered sprint assistance
-directly into developer workflows.
-</p>
+<main>
+  <div class="page-hero">
+    <div class="breadcrumb"><a href="/">Scrumb</a> → JetBrains Plugin</div>
+    <h1>AI Sprint Planning<br><em>Inside JetBrains</em></h1>
+    <p>The Scrumb plugin brings an AI Scrum Master directly into IntelliJ, PyCharm, WebStorm, and GoLand. No context switching, no extra tools — sprint intelligence where you code.</p>
+    <a href="/scrumb-plugin.zip" download class="btn-primary">↓ Download Plugin (.zip) — Free</a>
+  </div>
 
-<h2>Features</h2>
+  <div class="content-section">
+    <div class="prose">
+      <h2>Supported JetBrains IDEs</h2>
 
-<ul>
-<li>AI sprint insights inside the IDE</li>
-<li>Developer productivity analytics</li>
-<li>Task and sprint tracking</li>
-</ul>
+      <div class="ides-grid">
+        <div class="ide-card">
+          <div class="icon">☕</div>
+          <h3>IntelliJ IDEA</h3>
+          <p>Java, Kotlin, Scala</p>
+        </div>
+        <div class="ide-card">
+          <div class="icon">🐍</div>
+          <h3>PyCharm</h3>
+          <p>Python, Django, Flask</p>
+        </div>
+        <div class="ide-card">
+          <div class="icon">🌐</div>
+          <h3>WebStorm</h3>
+          <p>JS, TypeScript, React</p>
+        </div>
+        <div class="ide-card">
+          <div class="icon">🐹</div>
+          <h3>GoLand</h3>
+          <p>Go, microservices</p>
+        </div>
+      </div>
 
-<h2>Download Early Access</h2>
+      <h2>What the Plugin Does</h2>
+      <ul>
+        <li>Provides AI sprint planning assistance directly inside your IDE panel</li>
+        <li>Surfaces blocker alerts and risk flags without leaving your code editor</li>
+        <li>Tracks sprint progress and velocity in a lightweight sidebar</li>
+        <li>Sends smart reminders when tasks are at risk of missing their deadline</li>
+      </ul>
 
-<a href="/scrumb-plugin.zip">Download Plugin</a>
+      <h2>Installation Guide</h2>
 
-<h2>Installation</h2>
+      <div class="install-box">
+        <h3>Install in Under 2 Minutes</h3>
+        <ol class="install-steps">
+          <li><strong>Download</strong> the plugin .zip file from this page</li>
+          <li>Open your <strong>JetBrains IDE</strong> (IntelliJ, PyCharm, WebStorm, etc.)</li>
+          <li>Go to <strong>File → Settings</strong> (or <strong>Preferences</strong> on macOS)</li>
+          <li>Navigate to <strong>Plugins</strong></li>
+          <li>Click the <strong>⚙ gear icon</strong> in the top right</li>
+          <li>Select <strong>Install Plugin from Disk…</strong></li>
+          <li>Choose the downloaded <strong>scrumb-plugin.zip</strong> file</li>
+          <li><strong>Restart the IDE</strong> when prompted</li>
+          <li>Scrumb will appear in the IDE <strong>right sidebar panel</strong></li>
+        </ol>
+      </div>
 
-<ol>
-<li>Open Settings</li>
-<li>Go to Plugins</li>
-<li>Click Settings</li>
-<li>Select Install Plugin From Disk</li>
-<li>Select the plugin zip file</li>
-</ol>
+      <h2>Why an IDE Plugin?</h2>
+      <p>
+        Most agile tools live in a separate tab — Jira, Linear, Notion. That's fine for project managers, but developers lose flow every time they switch. Scrumb's philosophy is that sprint intelligence should live where the work happens.
+      </p>
+      <p>
+        By operating as a JetBrains plugin, Scrumb can also observe development activity directly, which enables smarter blocker detection and more accurate progress tracking than any external tool can offer.
+      </p>
 
-<p>
-<a href="/">Return to Homepage</a>
-</p>
+      <h2>Is It Free?</h2>
+      <p>
+        Yes — during early access, Scrumb is completely free. The goal right now is to get the plugin into the hands of real teams so we can build features that actually matter.
+      </p>
+
+      <div class="cta-box">
+        <h3>Download the Plugin — Free Early Access</h3>
+        <p>Works with IntelliJ IDEA, PyCharm, WebStorm, GoLand, and other JetBrains IDEs.</p>
+        <a href="/scrumb-plugin.zip" download class="btn-primary">↓ Download scrumb-plugin.zip</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <a href="/">Home</a>
+  <a href="/ai-scrum-master">AI Scrum Master</a>
+  <a href="/sprint-planning-ai">Sprint Planning AI</a>
+  <a href="/docs">Documentation</a>
+  <a href="/faq">FAQ</a>
+  <p>© 2026 Scrumb · JetBrains AI Plugin for Agile Teams</p>
+</footer>
 
 </body>
 </html>

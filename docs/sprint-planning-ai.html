@@ -1,37 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>AI Sprint Planning Tool | Scrumb</title>
+  <title>AI Sprint Planning Tool for Agile Teams | Scrumb</title>
+  <meta name="description" content="Scrumb's AI sprint planning tool helps agile teams break down user stories, estimate timelines accurately, balance workload, and detect risks before the sprint starts." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.scrumb.in/sprint-planning-ai" />
 
-<meta name="description" content="AI sprint planning tool that helps agile teams break down tasks, estimate timelines, and detect risks early.">
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="AI Sprint Planning Tool | Scrumb" />
+  <meta property="og:description" content="Plan better sprints with AI. Scrumb auto-breaks stories, estimates timelines, balances workload, and surfaces risks — all inside your JetBrains IDE." />
+  <meta property="og:url" content="https://www.scrumb.in/sprint-planning-ai" />
+  <meta property="og:image" content="https://www.scrumb.in/preview.png" />
+  <meta property="og:site_name" content="Scrumb" />
 
-<link rel="canonical" href="https://www.scrumb.in/sprint-planning-ai">
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AI Sprint Planning Tool | Scrumb" />
+  <meta name="twitter:description" content="Plan better sprints with AI. Auto-breakdown, estimation, workload balance, and risk detection." />
+  <meta name="twitter:image" content="https://www.scrumb.in/preview.png" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#06090f; --surface:#0d1117; --surface-2:#151c27; --border:rgba(99,179,255,0.1); --text:#d4dff5; --text-muted:#6b7fa3; --accent:#4fa3ff; --accent-2:#00e5c3; --accent-glow:rgba(79,163,255,0.18); --radius:12px; }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.6;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(79,163,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,163,255,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(6,9,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:var(--accent);text-decoration:none;}
+    .nav-links{display:flex;gap:1.5rem;list-style:none;}
+    .nav-links a{color:var(--text-muted);text-decoration:none;font-size:0.9rem;font-weight:500;transition:color 0.2s;}
+    .nav-links a:hover{color:var(--text);}
+    .nav-cta{background:var(--accent);color:var(--bg) !important;padding:0.45rem 1.1rem;border-radius:8px;font-weight:600 !important;}
+    main{position:relative;z-index:1;padding-top:5rem;}
+    .page-hero{max-width:850px;margin:0 auto;padding:4rem 2rem 3rem;text-align:center;}
+    .breadcrumb{font-size:0.82rem;color:var(--text-muted);margin-bottom:1.5rem;}
+    .breadcrumb a{color:var(--accent);text-decoration:none;}
+    .page-hero h1{font-family:'Syne',sans-serif;font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:1.2rem;}
+    .page-hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .page-hero p{color:var(--text-muted);font-size:1.05rem;max-width:600px;margin:0 auto 2rem;line-height:1.7;}
+    .btn-primary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.85rem 1.8rem;background:var(--accent);color:var(--bg);border-radius:var(--radius);font-weight:600;font-size:0.95rem;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(79,163,255,0.35);}
+    .content-section{max-width:1000px;margin:0 auto;padding:2rem 2rem 4rem;}
+    .prose{max-width:720px;margin:0 auto;}
+    .prose h2{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;color:var(--text);margin:2.5rem 0 1rem;}
+    .prose p{color:var(--text-muted);font-size:0.95rem;margin-bottom:1rem;line-height:1.75;}
+    .prose ul{margin:1rem 0 1.5rem 0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:0.5rem;}
+    .prose ul li{color:var(--text-muted);font-size:0.92rem;padding:0.6rem 1rem 0.6rem 2.5rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;position:relative;}
+    .prose ul li::before{content:'✓';position:absolute;left:0.8rem;color:var(--accent-2);font-weight:700;}
+    .features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin:1.5rem 0;}
+    .feature-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;}
+    .feature-card .icon{font-size:1.5rem;margin-bottom:0.6rem;}
+    .feature-card h3{font-weight:600;font-size:0.95rem;color:var(--text);margin-bottom:0.4rem;}
+    .feature-card p{font-size:0.85rem;color:var(--text-muted);line-height:1.6;}
+    .cta-box{background:linear-gradient(135deg,rgba(79,163,255,0.08),rgba(0,229,195,0.05));border:1px solid rgba(79,163,255,0.2);border-radius:16px;padding:2.5rem;text-align:center;margin:3rem 0;}
+    .cta-box h3{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:0.6rem;}
+    .cta-box p{color:var(--text-muted);font-size:0.92rem;margin-bottom:1.5rem;}
+    footer{border-top:1px solid var(--border);padding:2rem;text-align:center;margin-top:4rem;}
+    footer a{color:var(--text-muted);text-decoration:none;margin:0 0.8rem;font-size:0.85rem;}
+    footer a:hover{color:var(--text);}
+    footer p{font-size:0.8rem;color:var(--text-muted);margin-top:1rem;}
+    @media(max-width:600px){.nav-links{display:none;}.features-grid{grid-template-columns:1fr;}}
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "AI Sprint Planning Tool for Agile Teams",
+    "description": "How Scrumb's AI sprint planning tool helps agile teams break down stories, estimate timelines, and detect risks before the sprint starts.",
+    "author": { "@type": "Person", "name": "Naman Agrawal" },
+    "publisher": { "@type": "Organization", "name": "Scrumb", "url": "https://www.scrumb.in" },
+    "mainEntityOfPage": "https://www.scrumb.in/sprint-planning-ai"
+  }
+  </script>
 </head>
-
 <body>
 
-<h1>AI Sprint Planning Tool</h1>
+<nav>
+  <a href="/" class="nav-logo">Scrumb</a>
+  <ul class="nav-links">
+    <li><a href="/ai-scrum-master">AI Scrum Master</a></li>
+    <li><a href="/sprint-planning-ai">Sprint Planning</a></li>
+    <li><a href="/jetbrains-ai-plugin">JetBrains Plugin</a></li>
+    <li><a href="/docs">Docs</a></li>
+    <li><a href="/faq" class="nav-cta">Get Early Access</a></li>
+  </ul>
+</nav>
 
-<p>
-Sprint planning is one of the most critical steps in agile development.
-Scrumb provides an AI-powered sprint planning assistant that helps teams
-set realistic goals and avoid sprint failures.
-</p>
+<main>
+  <div class="page-hero">
+    <div class="breadcrumb"><a href="/">Scrumb</a> → AI Sprint Planning</div>
+    <h1>Stop Guessing.<br><em>Plan Sprints with AI.</em></h1>
+    <p>Sprint planning failures are almost always predictable in hindsight. Scrumb uses AI to surface those risks beforehand — so your team commits to sprints you can actually finish.</p>
+    <a href="/#plugin" class="btn-primary">Try the IDE Plugin →</a>
+  </div>
 
-<h2>Key Features</h2>
+  <div class="content-section">
+    <div class="prose">
+      <h2>Why Sprint Planning Fails</h2>
+      <p>
+        Most sprint failures share the same causes: overcommitment, poorly scoped stories, hidden dependencies, and no visibility into team capacity. Traditional sprint planning relies on gut feel and experience — which works when your team has both, but fails early-stage teams every time.
+      </p>
+      <p>
+        Scrumb's AI sprint planning assistant changes the dynamic. Instead of estimating blindly, you get AI-powered story breakdowns, workload analysis, and risk flags before you lock the sprint.
+      </p>
 
-<ul>
-<li>Automatic story breakdown</li>
-<li>Timeline estimation</li>
-<li>Risk detection</li>
-<li>Sprint workload balancing</li>
-</ul>
+      <h2>Key Features of Scrumb's AI Sprint Planner</h2>
 
-<p>
-<a href="/">Return to Homepage</a>
-</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="icon">🔍</div>
+          <h3>Automatic Story Breakdown</h3>
+          <p>AI decomposes vague epics into actionable user stories with clear acceptance criteria and estimated effort.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">⏱️</div>
+          <h3>Timeline Estimation</h3>
+          <p>Realistic sprint timelines based on story complexity and team velocity — not wishful thinking.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">⚠️</div>
+          <h3>Risk Detection</h3>
+          <p>Flags stories with unclear scope, missing dependencies, or patterns that historically cause delays.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">⚖️</div>
+          <h3>Workload Balancing</h3>
+          <p>Distributes tasks across team members based on capacity to prevent burnout and underuse.</p>
+        </div>
+      </div>
+
+      <h2>How AI Sprint Planning Works in Scrumb</h2>
+      <ul>
+        <li>Describe your sprint goals and backlog items inside your JetBrains IDE</li>
+        <li>Scrumb's AI breaks stories into sub-tasks with effort estimates</li>
+        <li>Risk flags surface any stories with unclear scope or missing context</li>
+        <li>Workload view shows per-developer capacity and distribution</li>
+        <li>Sprint health score gives a single at-a-glance signal for sprint viability</li>
+      </ul>
+
+      <h2>Who Benefits Most from AI Sprint Planning?</h2>
+      <p>
+        Teams that lack a dedicated Scrum Master benefit the most. Student teams working on capstone projects, early-stage startups, and small engineering squads often skip formal planning because it feels like overhead. Scrumb makes planning fast enough that there's no excuse to skip it.
+      </p>
+      <p>
+        Experienced teams also benefit — AI catches the subtle risks that even veteran Scrum Masters miss when they're context-switching between multiple teams.
+      </p>
+
+      <h2>AI Sprint Planning vs. Manual Planning</h2>
+      <ul>
+        <li>AI planning takes minutes; manual planning meetings can run 2–4 hours</li>
+        <li>AI identifies scope creep risk before it's committed to the sprint</li>
+        <li>AI estimates improve over time as it learns your team's velocity patterns</li>
+        <li>Manual planning depends on team experience that early-stage teams don't yet have</li>
+      </ul>
+
+      <div class="cta-box">
+        <h3>Add AI Sprint Planning to Your IDE</h3>
+        <p>Download the Scrumb JetBrains plugin — free during early access — and start planning smarter sprints today.</p>
+        <a href="/#plugin" class="btn-primary">Get the JetBrains Plugin →</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <a href="/">Home</a>
+  <a href="/ai-scrum-master">AI Scrum Master</a>
+  <a href="/jetbrains-ai-plugin">JetBrains Plugin</a>
+  <a href="/agile-ai-tool">Agile AI Tool</a>
+  <a href="/docs">Docs</a>
+  <a href="/faq">FAQ</a>
+  <p>© 2026 Scrumb · AI Sprint Planning for Agile Teams</p>
+</footer>
 
 </body>
 </html>
