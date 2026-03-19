@@ -31,6 +31,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def generate_plan(self, request, pk=None):
         project = self.get_object()
 
+        if project.tasks.exists(): return Response({"error": "Plan has already been generated"}, status=400)
+
         # Ensure every question has exactly one 'is_selected=True' option
         if project.questions.filter(options__is_selected=True).distinct().count() < project.questions.count():
             return Response({"error": "You haven't answered all the Architect's questions yet."}, status=400)
@@ -102,7 +104,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 
 class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Task.objects.all()
+    queryset = Task.objects.all().prefetch_related('subtasks', 'depends_on')
     serializer_class = TaskSerializer
     http_method_names = ['get', 'patch', 'delete', 'head', 'options']
 
@@ -131,6 +133,11 @@ class QuestionViewSet(viewsets.GenericViewSet, viewsets.mixins.ListModelMixin, v
     def perform_update(self, serializer):
         selected_option_id = self.request.data.get('selected_option_id')
         question = self.get_object()
+
+        try:
+            selected_option_id = int(selected_option_id)
+        except (ValueError, TypeError):
+            raise serializers.ValidationError("Invalid Option ID for this question.")
 
         if selected_option_id:
             with transaction.atomic():
