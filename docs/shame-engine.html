@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>The Shame Engine — AI Accountability for Developer Teams | Scrumb</title>
+  <meta name="description" content="Scrumb's Shame Engine analyzes stalled tasks, identifies who's blocking progress, and generates brutal accountability reports by name. Opt-in. Effective. Sometimes uncomfortable." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.scrumb.in/shame-engine" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="The Shame Engine — AI Accountability for Dev Teams | Scrumb" />
+  <meta property="og:description" content="When someone hasn't touched their critical-path task in 48 hours, Scrumb stops being polite. Meet the Shame Engine." />
+  <meta property="og:url" content="https://www.scrumb.in/shame-engine" />
+  <meta property="og:image" content="https://www.scrumb.in/preview.png" />
+  <meta property="og:site_name" content="Scrumb" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="The Shame Engine | Scrumb" />
+  <meta name="twitter:description" content="When someone hasn't touched their critical-path task in 48 hours, Scrumb stops being polite." />
+  <meta name="twitter:image" content="https://www.scrumb.in/preview.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#0a0a08; --bg-2:#0f0f0c; --bg-3:#0d0808;
+      --border:rgba(255,176,0,0.15); --border-red:rgba(255,59,59,0.2);
+      --text:#e8e4d4; --text-muted:#6e6a58; --text-dim:#3a3830;
+      --amber:#ffb000; --amber-dim:rgba(255,176,0,0.07);
+      --green:#00ff88; --red:#ff3b3b; --red-dim:rgba(255,59,59,0.06);
+      --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif; --display:'Bebas Neue',sans-serif;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;overflow-x:hidden;}
+    body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);pointer-events:none;z-index:9999;}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:52px;background:rgba(10,10,8,0.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-family:var(--display);font-size:1.6rem;letter-spacing:0.08em;color:var(--amber);text-decoration:none;}
+    .nav-links{display:flex;gap:0;list-style:none;}
+    .nav-links a{color:var(--text-muted);text-decoration:none;font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em;padding:0 1rem;height:52px;display:flex;align-items:center;border-left:1px solid var(--border);transition:color 0.15s,background 0.15s;}
+    .nav-links a:hover{color:var(--amber);background:var(--amber-dim);}
+    .nav-cta{color:var(--amber) !important;}
+
+    main{position:relative;z-index:1;padding-top:52px;}
+
+    /* HERO — red-tinted for this page */
+    .page-hero{background:linear-gradient(180deg,var(--bg-3),var(--bg));border-bottom:1px solid var(--border-red);padding:5rem 2rem 4rem;text-align:center;}
+    .breadcrumb{font-family:var(--mono);font-size:0.68rem;color:var(--text-muted);margin-bottom:1.5rem;letter-spacing:0.04em;}
+    .breadcrumb a{color:var(--amber);text-decoration:none;}
+    .system-badge{display:inline-flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);border:1px solid var(--border-red);padding:0.3rem 0.8rem;margin-bottom:1.5rem;}
+    .system-badge::before{content:'⚠';font-size:0.7rem;}
+    .page-hero h1{font-family:var(--display);font-size:clamp(4rem,10vw,9rem);letter-spacing:0.04em;line-height:0.9;color:var(--red);margin-bottom:0.5rem;}
+    .page-hero h1 span{color:var(--text);}
+    .page-hero .subtitle{font-family:var(--display);font-size:clamp(1.4rem,3vw,2.5rem);letter-spacing:0.08em;color:var(--text-muted);margin-bottom:2rem;}
+    .page-hero p{color:var(--text-muted);font-size:0.95rem;max-width:560px;margin:0 auto;line-height:1.8;}
+
+    /* LIVE DEMO */
+    .demo-section{max-width:900px;margin:0 auto;padding:4rem 2rem;}
+    .section-marker{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--red);margin-bottom:1rem;}
+    .section-marker::before{content:'// ';opacity:0.5;}
+    h2{font-family:var(--display);font-size:clamp(2rem,4vw,3.5rem);letter-spacing:0.05em;color:var(--text);line-height:1;margin-bottom:1rem;}
+    .section-sub{color:var(--text-muted);font-size:0.9rem;max-width:520px;line-height:1.8;margin-bottom:2rem;}
+
+    .report-window{background:var(--bg-2);border:1px solid var(--border-red);}
+    .report-titlebar{background:var(--bg-3);padding:0.65rem 1rem;display:flex;align-items:center;gap:0.45rem;border-bottom:1px solid var(--border-red);}
+    .dot-red{width:9px;height:9px;border-radius:50%;background:var(--red);opacity:0.7;}
+    .dot-dim{width:9px;height:9px;border-radius:50%;background:var(--text-dim);}
+    .report-title{font-family:var(--mono);font-size:0.68rem;color:var(--red);margin-left:0.6rem;letter-spacing:0.04em;}
+
+    .report-body{padding:1.5rem 2rem;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);line-height:2;}
+    .r-comment{color:var(--text-dim);}
+    .r-handle{color:var(--amber);}
+    .r-red{color:var(--red);}
+    .r-green{color:var(--green);}
+    .r-amber{color:var(--amber);}
+    .r-divider{border:none;border-top:1px solid var(--border-red);margin:1rem 0;}
+
+    /* SCENARIOS */
+    .scenarios{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border-red);border:1px solid var(--border-red);margin-top:3rem;}
+    .scenario{background:var(--bg-2);padding:1.8rem;}
+    .scenario-type{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);margin-bottom:0.5rem;}
+    .scenario h3{font-family:var(--display);font-size:1.5rem;letter-spacing:0.04em;color:var(--text);margin-bottom:0.7rem;}
+    .scenario p{font-size:0.85rem;color:var(--text-muted);line-height:1.7;}
+
+    /* HOW IT WORKS */
+    .mechanics{max-width:900px;margin:0 auto;padding:0 2rem 4rem;}
+    .mechanic-list{list-style:none;display:flex;flex-direction:column;gap:0;}
+    .mechanic-item{display:grid;grid-template-columns:3rem 1fr;border:1px solid var(--border-red);border-bottom:none;background:var(--bg-2);}
+    .mechanic-item:last-child{border-bottom:1px solid var(--border-red);}
+    .mechanic-num{padding:1.2rem;border-right:1px solid var(--border-red);font-family:var(--display);font-size:1.8rem;color:var(--red);line-height:1;display:flex;align-items:flex-start;justify-content:center;}
+    .mechanic-text{padding:1.2rem 1.5rem;}
+    .mechanic-text h4{font-family:var(--mono);font-size:0.8rem;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem;}
+    .mechanic-text p{font-size:0.85rem;color:var(--text-muted);line-height:1.7;}
+
+    /* SETTINGS */
+    .settings-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:3rem;}
+    .setting-card{background:var(--bg-2);padding:1.5rem;}
+    .setting-key{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.4rem;}
+    .setting-val{font-family:var(--mono);font-size:0.85rem;color:var(--green);margin-bottom:0.5rem;}
+    .setting-val.off{color:var(--red);}
+    .setting-desc{font-size:0.82rem;color:var(--text-muted);line-height:1.6;}
+
+    /* CTA */
+    .cta-section{border-top:1px solid var(--border-red);background:linear-gradient(135deg,rgba(255,59,59,0.05),var(--bg-2));padding:4rem 2rem;text-align:center;}
+    .cta-section h2{font-family:var(--display);font-size:clamp(2.5rem,6vw,5rem);letter-spacing:0.04em;color:var(--text);margin-bottom:0.5rem;}
+    .cta-section h2 span{color:var(--red);}
+    .cta-section p{color:var(--text-muted);font-size:0.9rem;max-width:400px;margin:0.8rem auto 2rem;line-height:1.7;}
+    .btn-primary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.6rem;background:var(--amber);color:var(--bg);font-family:var(--mono);font-size:0.78rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;transition:opacity 0.15s,transform 0.15s;}
+    .btn-primary:hover{opacity:0.85;transform:translateY(-1px);}
+
+    footer{border-top:1px solid var(--border);padding:1.4rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+    .footer-logo{font-family:var(--display);font-size:1.2rem;letter-spacing:0.08em;color:var(--amber);}
+    .footer-links{display:flex;gap:0;list-style:none;}
+    .footer-links a{color:var(--text-dim);text-decoration:none;font-family:var(--mono);font-size:0.68rem;padding:0 0.9rem;border-left:1px solid var(--border);transition:color 0.15s;}
+    .footer-links a:hover{color:var(--text-muted);}
+    .footer-copy{font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);}
+
+    @media(max-width:768px){
+      .nav-links{display:none;}
+      .scenarios{grid-template-columns:1fr;}
+      .settings-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">SCRUMB</a>
+  <ul class="nav-links">
+    <li><a href="/how-it-works">HOW IT WORKS</a></li>
+    <li><a href="/shame-engine">SHAME ENGINE</a></li>
+    <li><a href="/jetbrains-ai-plugin">JETBRAINS PLUGIN</a></li>
+    <li><a href="/blog/why-hackathon-projects-fail">BLOG</a></li>
+    <li><a href="/faq">FAQ</a></li>
+    <li><a href="/docs" class="nav-cta">EARLY ACCESS →</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="page-hero">
+    <div class="breadcrumb"><a href="/">SCRUMB</a> / SHAME ENGINE</div>
+    <div class="system-badge">SYSTEM MODULE — SHAME_ENGINE v1.0</div>
+    <h1>THE <span>SHAME</span><br>ENGINE</h1>
+    <p class="subtitle">Annoying by design. Effective by necessity.</p>
+    <p>Small teams run on social accountability. When a critical-path task hasn't moved in 48 hours, the polite approach has already failed. Scrumb's Shame Engine generates named, task-specific accountability reports to restore momentum — before the deadline becomes a casualty.</p>
+  </div>
+
+  <!-- LIVE REPORT DEMO -->
+  <div class="demo-section">
+    <div class="section-marker">LIVE EXAMPLE</div>
+    <h2>A REAL SHAME REPORT</h2>
+    <p class="section-sub">This is what a Shame Engine output looks like. The person's name, the task, the stall duration, the downstream impact, and a recommendation that doesn't leave room for excuses.</p>
+
+    <div class="report-window">
+      <div class="report-titlebar">
+        <div class="dot-red"></div><div class="dot-dim"></div><div class="dot-dim"></div>
+        <span class="report-title">⚠ SCRUMB — AUTO-GENERATED SHAME REPORT — CONFIDENTIAL</span>
+      </div>
+      <div class="report-body">
+        <span class="r-comment">// GENERATED: T-MINUS 36HRS TO SUBMISSION DEADLINE</span><br>
+        <span class="r-comment">// TRIGGER: CRITICAL PATH TASK STALLED > 48HRS</span><br>
+        <hr class="r-divider">
+
+        RECIPIENT: <span class="r-handle">@Rohan</span><br>
+        TASK: <span class="r-green">[ backend/auth/jwt-middleware ]</span><br>
+        STATUS: <span class="r-red">STALLED — 52 HOURS, 14 MINUTES</span><br>
+        CRITICALITY: <span class="r-red">CRITICAL PATH — blocking 4 downstream tasks</span><br>
+        <hr class="r-divider">
+
+        OBSERVED ACTIVITY:<br>
+        &nbsp;&nbsp;IDE sessions since task assignment: <span class="r-amber">11</span><br>
+        &nbsp;&nbsp;Git commits pushed: <span class="r-red">0</span><br>
+        &nbsp;&nbsp;Files modified in assigned module: <span class="r-red">0</span><br>
+        &nbsp;&nbsp;Estimated YouTube consumption: <span class="r-amber">non-zero</span><br>
+        <hr class="r-divider">
+
+        DOWNSTREAM IMPACT IF NOT RESOLVED TODAY:<br>
+        &nbsp;&nbsp;<span class="r-red">✗</span> [ frontend/dashboard ] — cannot start<br>
+        &nbsp;&nbsp;<span class="r-red">✗</span> [ backend/api/user-endpoints ] — cannot start<br>
+        &nbsp;&nbsp;<span class="r-red">✗</span> [ integration/tests ] — cannot start<br>
+        &nbsp;&nbsp;<span class="r-red">✗</span> [ deployment/staging ] — cannot start<br>
+        <hr class="r-divider">
+
+        <span class="r-amber">// ARCHITECT_PRIME ASSESSMENT:</span><br>
+        The jwt-middleware module requires approximately 40 lines of code.<br>
+        You have opened your IDE 11 times since being assigned this task.<br>
+        The function signature is in the project spec document you helped write.<br><br>
+
+        <span class="r-amber">// RECOMMENDATION:</span><br>
+        Close the system design video. It will still be there after the deadline.<br>
+        Open <span class="r-green">src/auth/middleware.py</span>. Write the function.<br>
+        You have done harder things this week. This is not the hard part.<br><br>
+
+        <span class="r-green">// The sprint survives if this task merges before 6pm. It's 10am.</span>
+      </div>
+    </div>
+
+    <div class="scenarios">
+      <div class="scenario">
+        <div class="scenario-type">SCENARIO A</div>
+        <h3>THE GHOST</h3>
+        <p>Team member assigned a task. Has not updated it, responded to pings, or committed any code. Deadline is approaching. The Shame Engine drafts a report with full stall metrics and downstream impact. Delivered to the team channel.</p>
+      </div>
+      <div class="scenario">
+        <div class="scenario-type">SCENARIO B</div>
+        <h3>THE SCOPE CREEP</h3>
+        <p>Someone marked their core task "done" and started building an unrequested feature. Integrity Guard fires first, blocking the premature completion. Shame Engine notes the distraction in the activity log and flags it in the next report.</p>
+      </div>
+      <div class="scenario">
+        <div class="scenario-type">SCENARIO C</div>
+        <h3>THE OPTIMIST</h3>
+        <p>Team member estimated 2 hours. It's been 9. They insist they're "almost done." The Shame Engine doesn't argue — it just updates the downstream impact calculation and shares it with the team so everyone can see the math.</p>
+      </div>
+      <div class="scenario">
+        <div class="scenario-type">SCENARIO D</div>
+        <h3>THE LEGITIMATE BLOCKER</h3>
+        <p>Task is stalled because it depends on someone else's unfinished work. The Shame Engine correctly identifies the root blocker and redirects the report to the upstream owner. The stalled developer is cleared. The actual problem is surfaced.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MECHANICS -->
+  <div class="mechanics">
+    <div class="section-marker">HOW IT WORKS</div>
+    <h2>THE MECHANICS</h2>
+    <p class="section-sub">The Shame Engine isn't random. It follows a specific detection and escalation logic.</p>
+
+    <ul class="mechanic-list">
+      <li class="mechanic-item">
+        <div class="mechanic-num">1</div>
+        <div class="mechanic-text">
+          <h4>STALL DETECTION</h4>
+          <p>Scrumb monitors task status against elapsed time. When a task — especially one on the critical path — exceeds its stall threshold without a status update or commit, the Shame Engine begins composing a report.</p>
+        </div>
+      </li>
+      <li class="mechanic-item">
+        <div class="mechanic-num">2</div>
+        <div class="mechanic-text">
+          <h4>ROOT CAUSE ANALYSIS</h4>
+          <p>Before generating the report, Scrumb checks whether the stall is caused by a legitimate upstream dependency. If so, the report is redirected to the actual blocker. Innocent parties are not shamed.</p>
+        </div>
+      </li>
+      <li class="mechanic-item">
+        <div class="mechanic-num">3</div>
+        <div class="mechanic-text">
+          <h4>IMPACT CALCULATION</h4>
+          <p>The report includes a live downstream impact assessment: how many tasks are blocked, and what the cascade looks like if the stall continues through the deadline.</p>
+        </div>
+      </li>
+      <li class="mechanic-item">
+        <div class="mechanic-num">4</div>
+        <div class="mechanic-text">
+          <h4>REPORT GENERATION</h4>
+          <p>The AI generates a specific, named, task-level accountability message in plain English. It is designed to be direct, factual, and — critically — a little funny. Nobody ignores it.</p>
+        </div>
+      </li>
+      <li class="mechanic-item">
+        <div class="mechanic-num">5</div>
+        <div class="mechanic-text">
+          <h4>DELIVERY & RESOLUTION</h4>
+          <p>The report is delivered to the team channel or IDE. Once the task resumes and a commit is pushed, the Shame Engine marks the incident resolved and stops escalating.</p>
+        </div>
+      </li>
+    </ul>
+
+    <div class="section-marker" style="margin-top:3rem;">CONFIGURATION</div>
+    <h2>IT'S CONFIGURABLE</h2>
+    <p class="section-sub">The Shame Engine is opt-in per team and tunable per sprint. Adjust the thresholds, tone, and delivery method.</p>
+
+    <div class="settings-grid">
+      <div class="setting-card">
+        <div class="setting-key">SHAME_ENGINE</div>
+        <div class="setting-val">ENABLED</div>
+        <div class="setting-desc">Toggle the entire module on or off per team. Off by default — teams activate it intentionally.</div>
+      </div>
+      <div class="setting-card">
+        <div class="setting-key">STALL_THRESHOLD</div>
+        <div class="setting-val">48 HRS (default)</div>
+        <div class="setting-desc">How long a task must stall before a report is generated. Adjustable per sprint urgency.</div>
+      </div>
+      <div class="setting-card">
+        <div class="setting-key">CRITICAL_PATH_ONLY</div>
+        <div class="setting-val">OFF (default)</div>
+        <div class="setting-desc">When on, only tasks on the critical path trigger shame reports. Useful for less aggressive teams.</div>
+      </div>
+      <div class="setting-card">
+        <div class="setting-key">TONE</div>
+        <div class="setting-val">BRUTAL_FUNNY</div>
+        <div class="setting-desc">Report tone. Options: BRUTAL_FUNNY (default), DIRECT, PROFESSIONAL. All are honest.</div>
+      </div>
+      <div class="setting-card">
+        <div class="setting-key">DELIVERY</div>
+        <div class="setting-val">TEAM_CHANNEL</div>
+        <div class="setting-desc">Where the report is sent. Team channel (maximum social pressure) or private DM (gentler).</div>
+      </div>
+      <div class="setting-card">
+        <div class="setting-key">SELF_SHAME</div>
+        <div class="setting-val">ENABLED</div>
+        <div class="setting-desc">When on, team members can trigger a shame report on themselves as a forcing function.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="cta-section">
+  <h2>YOUR TEAM IS <span>STALLING.</span></h2>
+  <p>You know which task. You know whose it is. Scrumb just says it out loud.</p>
+  <a href="/docs" class="btn-primary">→ GET EARLY ACCESS</a>
+</div>
+
+<footer>
+  <span class="footer-logo">SCRUMB</span>
+  <ul class="footer-links">
+    <li><a href="/">HOME</a></li>
+    <li><a href="/how-it-works">HOW IT WORKS</a></li>
+    <li><a href="/jetbrains-ai-plugin">JETBRAINS PLUGIN</a></li>
+    <li><a href="/docs">DOCS</a></li>
+    <li><a href="/faq">FAQ</a></li>
+  </ul>
+  <span class="footer-copy">© 2026 SCRUMB · SHAME_ENGINE v1.0</span>
+</footer>
+
+</body>
+</html>
