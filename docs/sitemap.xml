@@ -2,7 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://www.scrumb.in/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://www.scrumb.in/how-it-works</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://www.scrumb.in/contacts</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://www.scrumb.in/shame-engine</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://www.scrumb.in/jetbrains-ai-plugin</loc><priority>0.85</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://www.scrumb.in/ai-scrum-master</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
@@ -13,4 +12,5 @@
   <url><loc>https://www.scrumb.in/blog/why-hackathon-projects-fail</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://www.scrumb.in/blog/ai-project-management-for-developers</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://www.scrumb.in/blog/ai-scrum-master-future</loc><priority>0.75</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://www.scrumb.in/contacts</loc><priority>0.75</priority><changefreq>monthly</changefreq></url>
 </urlset>
