@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contacts — Scrumb Team</title>
+  <meta name="description" content="Meet the Scrumb team: Gopal Agrawal, Naman Agrawal, and Sehal Varshney — building the AI project execution engine."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://www.scrumb.in/contacts"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+:root{--bg:#0a0a08;--bg-2:#0f0f0c;--bg-3:#141410;--border:rgba(255,176,0,0.15);--border-strong:rgba(255,176,0,0.35);--text:#e8e4d4;--text-muted:#6e6a58;--text-dim:#3a3830;--amber:#ffb000;--amber-dim:rgba(255,176,0,0.07);--green:#00ff88;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--display:'Bebas Neue',sans-serif;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.022) 2px,rgba(0,0,0,0.022) 4px);pointer-events:none;z-index:9999;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:52px;background:rgba(10,10,8,0.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:var(--display);font-size:1.6rem;letter-spacing:0.08em;color:var(--amber);text-decoration:none;display:flex;align-items:center;gap:0.5rem;}
+.nav-tag{font-family:var(--mono);font-size:0.58rem;color:var(--text-dim);letter-spacing:0.05em;}
+.nav-links{display:flex;gap:0;list-style:none;}
+.nav-links a{color:var(--text-muted);text-decoration:none;font-family:var(--mono);font-size:0.68rem;letter-spacing:0.04em;padding:0 0.85rem;height:52px;display:flex;align-items:center;border-left:1px solid var(--border);transition:color 0.15s,background 0.15s;white-space:nowrap;}
+.nav-links a:hover,.nav-links a.active{color:var(--amber);background:var(--amber-dim);}
+.site-footer{border-top:1px solid var(--border);padding:1.8rem 2rem;background:var(--bg-2);}
+.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:auto repeat(4,1fr);gap:2rem;align-items:start;}
+.footer-logo-wrap .footer-logo{font-family:var(--display);font-size:1.4rem;letter-spacing:0.08em;color:var(--amber);display:block;margin-bottom:0.4rem;}
+.footer-logo-wrap p{font-family:var(--mono);font-size:0.62rem;color:var(--text-dim);line-height:1.6;max-width:160px;}
+.footer-col h4{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.7rem;}
+.footer-col a{display:block;font-family:var(--mono);font-size:0.68rem;color:var(--text-dim);text-decoration:none;padding:0.18rem 0;transition:color 0.15s;}
+.footer-col a:hover{color:var(--amber);}
+.footer-bottom{max-width:1100px;margin:1.2rem auto 0;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;}
+.footer-copy{font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);}
+.page-wrap{max-width:1100px;margin:0 auto;padding:0 2rem;}
+.breadcrumb{font-family:var(--mono);font-size:0.66rem;color:var(--text-muted);margin-bottom:1.5rem;letter-spacing:0.04em;}
+.breadcrumb a{color:var(--amber);text-decoration:none;}
+section.content-section{max-width:1100px;margin:0 auto;padding:4rem 2rem;}
+h1.section-h{font-family:var(--display);font-size:clamp(2.5rem,4.5vw,4rem);letter-spacing:0.05em;color:var(--text);line-height:1;margin-bottom:1rem;}
+h2.section-h{font-family:var(--display);font-size:clamp(2rem,4.5vw,3.8rem);letter-spacing:0.05em;color:var(--text);line-height:1;margin-bottom:1rem;}
+.section-sub{color:var(--text-muted);font-size:0.9rem;max-width:520px;line-height:1.8;margin-bottom:2.5rem;}
+.section-marker{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.8rem;}
+.section-marker::before{content:'// ';opacity:0.45;}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:2rem;margin-top:3rem;}
+.team-card{background:var(--bg-2);border:1px solid var(--border);padding:2.2rem;transition:all 0.2s;}
+.team-card:hover{border-color:var(--border-strong);background:rgba(255,176,0,0.02);}
+.team-card-header{display:flex;align-items:flex-start;margin-bottom:1.5rem;}
+.team-avatar{width:80px;height:80px;background:linear-gradient(135deg,var(--amber),rgba(255,176,0,0.4));border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:2.2rem;color:var(--bg);margin-right:1.5rem;flex-shrink:0;}
+.team-meta{flex:1;}
+.team-name{font-family:var(--mono);font-size:0.9rem;font-weight:600;color:var(--amber);letter-spacing:0.04em;margin-bottom:0.3rem;}
+.team-role{font-family:var(--mono);font-size:0.68rem;color:var(--text-dim);letter-spacing:0.04em;text-transform:uppercase;}
+.team-desc{color:var(--text-muted);font-size:0.87rem;line-height:1.7;margin-bottom:1.5rem;}
+.team-links{display:flex;gap:0.8rem;flex-wrap:wrap;}
+.social-link{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--bg-3);border:1px solid var(--border);text-decoration:none;color:var(--text-muted);transition:all 0.15s;font-family:var(--mono);font-size:0.75rem;}
+.social-link:hover{background:var(--amber);color:var(--bg);border-color:var(--amber);}
+.nav-cta{color:var(--amber)!important;border-left:1px solid var(--border-strong)!important;}
+@media(max-width:900px){.nav-links{display:none;}.team-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html" class="nav-logo">SCRUMB<span class="nav-tag"> v0.1-alpha</span></a>
+    <ul class="nav-links"><li><a href="index.html">HOME</a></li><li><a href="how-it-works.html">HOW IT WORKS</a></li><li><a href="contacts.html" class="active">CONTACTS</a></li><li><a href="shame-engine.html">SHAME ENGINE</a></li><li><a href="jetbrains-ai-plugin.html">PLUGIN</a></li><li><a href="blog/why-hackathon-projects-fail.html">BLOG</a></li><li><a href="faq.html">FAQ</a></li><li><a href="docs.html" class="nav-cta">DOCS</a></li></ul>
+  </nav>
+
+  <!-- Main Content -->
+  <section class="content-section" style="padding-top:6rem;">
+    <div class="page-wrap">
+      <div class="breadcrumb">
+        <a href="index.html">home</a> / contacts
+      </div>
+
+      <h1 class="section-h">MEET THE <span style="color:var(--amber);">TEAM</span></h1>
+      <p class="section-sub">The trio building Scrumb—an AI execution engine that turns chaos into precision. Built for developers, by developers.</p>
+
+      <!-- Team Grid -->
+      <div class="team-grid">
+        <!-- Gopal Agrawal -->
+        <div class="team-card">
+          <div class="team-card-header">
+            <div class="team-avatar">GA</div>
+            <div class="team-meta">
+              <div class="team-name">Gopal Agrawal</div>
+              <div class="team-role">Developer</div>
+            </div>
+          </div>
+          <p class="team-desc">Full-stack developer passionate about AI-driven project management and building tools that actually work.</p>
+          <div class="team-links">
+            <a href="4347gopalgoyal@gmail.com" class="social-link" title="Email">✉</a>
+            <a href="https://github.com/Gopalagrawal-12" class="social-link" title="GitHub">GH</a>
+            <a href="https://linkedin.com/in/gopal-agrawal-41b868312" class="social-link" title="LinkedIn">in</a>
+          </div>
+        </div>
+
+        <!-- Naman Agrawal -->
+        <div class="team-card">
+          <div class="team-card-header">
+            <div class="team-avatar">NA</div>
+            <div class="team-meta">
+              <div class="team-name">Naman Agrawal</div>
+              <div class="team-role">Developer</div>
+            </div>
+          </div>
+          <p class="team-desc">Backend architect and AI integrator. Focuses on scalable systems and making Scrumb's execution engine bulletproof.</p>
+          <div class="team-links">
+            <a href="nam.agr96@gmail.com" class="social-link" title="Email">✉</a>
+            <a href="https://github.com/TheCodeKage" class="social-link" title="GitHub">GH</a>
+            <a href="https://linkedin.com/in/naman-agrawal-305938325" class="social-link" title="LinkedIn">in</a>
+          </div>
+        </div>
+
+        <!-- Sehal Varshney -->
+        <div class="team-card">
+          <div class="team-card-header">
+            <div class="team-avatar">SV</div>
+            <div class="team-meta">
+              <div class="team-name">Sehal Varshney</div>
+              <div class="team-role">Developer</div>
+            </div>
+          </div>
+          <p class="team-desc">JetBrains IDE integration specialist. Building the plugin ecosystem that brings Scrumb directly into your dev workflow.</p>
+          <div class="team-links">
+            <a href="varshneysehal@gmail.com" class="social-link" title="Email">✉</a>
+            <a href="https://github.com/sehalvarshney" class="social-link" title="GitHub">GH</a>
+            <a href="https://linkedin.com/in/sehal-varshney-a495b2325" class="social-link" title="LinkedIn">in</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo-wrap">
+        <span class="footer-logo">SCRUMB</span>
+        <p>The guaranteed-finish engine for dev teams.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="how-it-works.html">How it Works</a>
+        <a href="shame-engine.html">Shame Engine</a>
+        <a href="contacts.html">Team</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="docs.html">Documentation</a>
+        <a href="blog/why-hackathon-projects-fail.html">Blog</a>
+        <a href="faq.html">FAQ</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <a href="#">GitHub</a>
+        <a href="#">Twitter</a>
+        <a href="#">Discord</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 Scrumb. Built with precision.</p>
+    </div>
+  </footer>
+</body>
+</html>
