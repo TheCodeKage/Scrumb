@@ -33,6 +33,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .nav-links{display:flex;gap:0;list-style:none;}
 .nav-links a{color:var(--text-muted);text-decoration:none;font-family:var(--mono);font-size:0.68rem;letter-spacing:0.04em;padding:0 0.85rem;height:52px;display:flex;align-items:center;border-left:1px solid var(--border);transition:color 0.15s,background 0.15s;white-space:nowrap;}
 .nav-links a:hover,.nav-links a.active{color:var(--amber);background:var(--amber-dim);}
+.nav-dropdown{position:relative;}
+.nav-dropdown>.nav-dropdown-toggle::after{content:" ▼";font-size:0.52rem;}
+.nav-dropdown-menu{display:none;position:absolute;top:100%;left:0;list-style:none;margin:0;padding:0;min-width:260px;background:var(--bg-2);border:1px solid var(--border);z-index:1000;}
+.nav-dropdown:hover .nav-dropdown-menu{display:block;}
+.nav-dropdown-menu li a{display:block;height:auto;padding:0.6rem 0.9rem;border-left:none;border-top:1px solid var(--border);font-size:0.64rem;}
+.nav-dropdown-menu li:first-child a{border-top:none;}
 .nav-cta{color:var(--amber)!important;border-left:1px solid var(--border-strong)!important;}
 .site-footer{border-top:1px solid var(--border);padding:1.8rem 2rem;background:var(--bg-2);}
 .footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:auto repeat(4,1fr);gap:2rem;align-items:start;}
@@ -98,7 +104,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <body>
 <nav>
   <a href="/" class="nav-logo">SCRUMB<span class="nav-tag"> v0.1-alpha</span></a>
-  <ul class="nav-links"><li><a href="/">HOME</a></li><li><a href="/how-it-works">HOW IT WORKS</a></li><li><a href="/shame-engine">SHAME ENGINE</a></li><li><a href="/jetbrains-ai-plugin">PLUGIN</a></li><li><a href="/blog/why-hackathon-projects-fail" class="active">BLOG</a></li><li><a href="/faq">FAQ</a></li><li><a href="/docs" class="nav-cta">DOCS</a></li></ul>
+  <ul class="nav-links"><li><a href="/">HOME</a></li><li><a href="/how-it-works">HOW IT WORKS</a></li><li><a href="/contacts">CONTACTS</a></li><li><a href="/shame-engine">SHAME ENGINE</a></li><li><a href="/jetbrains-ai-plugin">PLUGIN</a></li><li class="nav-dropdown"><a href="/blog/why-hackathon-projects-fail" class="nav-dropdown-toggle active">BLOG</a><ul class="nav-dropdown-menu"><li><a href="/blog/why-hackathon-projects-fail">Why Hackathon Projects Fail</a></li><li><a href="/blog/ai-project-management-for-developers">AI Project Management for Developers</a></li><li><a href="/blog/ai-scrum-master-future">The Future of AI Scrum Masters</a></li></ul></li><li><a href="/faq">FAQ</a></li><li><a href="/docs" class="nav-cta">DOCS</a></li></ul>
 </nav><main class="inner-main">
   <div class="article-hero">
     <div class="breadcrumb"><a href="/">SCRUMB</a> / <a href="/blog/why-hackathon-projects-fail">BLOG</a> / WHY HACKATHON PROJECTS FAIL</div>
