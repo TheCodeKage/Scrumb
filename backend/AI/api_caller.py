@@ -39,10 +39,14 @@ def get_ai_response(prompt: str, in_json=True):
 
 
 def check_description(project: Project):
+    team_data = {}
+    for member in project.team.members.all():
+        team_data[member.user.username] = [skill.name for skill in member.skills.all()]
+
     prompt = f"""
     You are the "Architect Prime". We are starting a project: {project.name}.
     DESCRIPTION: {project.description}
-    TEAM: {json.dumps(project.team)}
+    TEAM: {team_data}
 
     TASK: We need to build a high-precision Task DAG. To do this, we need to finalize the Technical Blueprint. 
 
@@ -75,7 +79,9 @@ def check_description(project: Project):
 
 
 def generate_tasks(project: Project):
-    team_data = project.team
+    team_data = {}
+    for member in project.team.members.all():
+        team_data[member.user.username] = [skill.name for skill in member.skills.all()]
     # --- NEW: Get the MCQ results ---
     user_choices = get_selected_constraints(project)
 
@@ -84,7 +90,7 @@ def generate_tasks(project: Project):
         GOAL: {project.description}
         DEADLINE: {project.guarantee_date} (Current Date: {timezone.now().date()})
 
-        TEAM RESOURCES: {json.dumps(team_data)}
+        TEAM RESOURCES: {team_data}
 
         STRICT TECHNICAL CONSTRAINTS (User Selected):
         {json.dumps(user_choices)}
@@ -147,7 +153,8 @@ def get_panic_recommendations(project: Project, target_cut: float):
     4. If a task is protected, skip it and move to the next lowest importance.
     
     OUTPUT FORMAT:
-    ["id1", "id2"]
+    List of task IDs to archive.
+    ["1", "2"]
     """
 
     return get_ai_response(prompt)

@@ -6,6 +6,7 @@ from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
 
+from Users.models import Developer
 from projects.models import TaskHistory, Task, Project, ArchitectQuestion, Option
 
 
@@ -103,7 +104,7 @@ def save_tasks(data: Iterable, project: Project):
                 importance=task_data['importance'],
                 phase_label=task_data.get('phase_label', 'Development'),
                 status='to-do',
-                owner=task_data['owner'],
+                owner=Developer.objects.get(user__username=task_data['owner'], teams=project.team),
                 slug=task_data['slug']  # Ensure you added 'slug' to your Task Model
             )
 
@@ -145,6 +146,7 @@ def cut_tasks(tasks_to_cut: Iterable, project: Project):
 
     for task_id in tasks_to_cut:
         try:
+            print(f"Archiving task with ID: {task_id}")
             task = project.tasks.get(id=task_id)
             task.archive_recursive(reason="Panic Mode: Automated scope reduction.")
         except Task.DoesNotExist:
