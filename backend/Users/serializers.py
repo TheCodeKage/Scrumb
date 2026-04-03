@@ -1,5 +1,7 @@
 from rest_framework.serializers import ModelSerializer, CharField
 from .models import Skill, Developer, Team, Membership, Invitation
+from dj_rest_auth.serializers import PasswordResetSerializer as Base
+from django.conf import settings
 
 
 class SkillSerializer(ModelSerializer):
@@ -40,3 +42,14 @@ class InvitationSerializer(ModelSerializer):
     class Meta:
         model = Invitation
         fields = ('id', 'team', 'developer', 'initiated_by', 'status', 'created_at', 'updated_at')
+
+
+class PasswordResetSerializer(Base):
+    def get_email_options(self):
+        return {
+            'extra_email_context': {
+                'frontend_url': settings.FRONTEND_URL,
+            },
+            'domain_override': settings.FRONTEND_URL.replace('https://', '').replace('http://', ''),
+            'use_https': settings.FRONTEND_URL.startswith('https'),
+        }

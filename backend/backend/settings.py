@@ -177,11 +177,24 @@ SIMPLE_JWT = {
 
 REST_AUTH = {
     'USE_JWT': True,
+    'PASSWORD_RESET_SERIALIZER': 'Users.serializers.PasswordResetSerializer',
 }
 
 AUTHENTICATION_BACKENDS.append("allauth.account.auth_backends.AuthenticationBackend")
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 ACCOUNT_LOGIN_METHOD = {'username'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
-ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+PASSWORD_RESET_CONFIRM_URL = "reset/{uid}/{token}"
