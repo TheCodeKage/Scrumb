@@ -1,35 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agile AI Tool for Developer Teams | Scrumb</title>
+  <meta name="description" content="Scrumb is an agile AI tool that goes beyond task lists &#x2014; DAG-based planning, automated scope management with Panic Mode, and AI accountability via the Shame Engine. Built for small dev teams."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://www.scrumb.in/agile-ai-tool"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Agile AI Tool for Developer Teams | Scrumb"/>
+  <meta property="og:description" content="Scrumb is an agile AI tool that goes beyond task lists &#x2014; DAG-based planning, automated scope management with Panic Mode, and AI accountability via the Shame Engine. Built for small dev teams."/>
+  <meta property="og:url" content="https://www.scrumb.in/agile-ai-tool"/>
+  <meta property="og:image" content="https://www.scrumb.in/preview.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:site_name" content="Scrumb"/>
+  <meta property="og:locale" content="en_IN"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Agile AI Tool for Developer Teams | Scrumb"/>
+  <meta name="twitter:description" content="Scrumb is an agile AI tool that goes beyond task lists &#x2014; DAG-based planning, automated scope management with Panic Mode, and AI accountability via the Shame Engine. Built for small dev teams."/>
+  <meta name="twitter:image" content="https://www.scrumb.in/preview.png"/>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+:root{--bg:#0a0a08;--bg-2:#0f0f0c;--bg-3:#141410;--border:rgba(255,176,0,0.15);--border-strong:rgba(255,176,0,0.35);--border-red:rgba(255,59,59,0.2);--text:#e8e4d4;--text-muted:#6e6a58;--text-dim:#3a3830;--amber:#ffb000;--amber-dim:rgba(255,176,0,0.07);--green:#00ff88;--red:#ff3b3b;--red-dim:rgba(255,59,59,0.06);--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--display:'Bebas Neue',sans-serif;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.022) 2px,rgba(0,0,0,0.022) 4px);pointer-events:none;z-index:9999;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:52px;background:rgba(10,10,8,0.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:var(--display);font-size:1.6rem;letter-spacing:0.08em;color:var(--amber);text-decoration:none;display:flex;align-items:center;gap:0.5rem;}
+.nav-tag{font-family:var(--mono);font-size:0.58rem;color:var(--text-dim);letter-spacing:0.05em;}
+.nav-links{display:flex;gap:0;list-style:none;}
+.nav-links a{color:var(--text-muted);text-decoration:none;font-family:var(--mono);font-size:0.68rem;letter-spacing:0.04em;padding:0 0.85rem;height:52px;display:flex;align-items:center;border-left:1px solid var(--border);transition:color 0.15s,background 0.15s;white-space:nowrap;}
+.nav-links a:hover,.nav-links a.active{color:var(--amber);background:var(--amber-dim);}
+.nav-dropdown{position:relative;}
+.nav-dropdown>.nav-dropdown-toggle::after{content:" ▼";font-size:0.52rem;}
+.nav-dropdown-menu{display:none;position:absolute;top:100%;left:0;list-style:none;margin:0;padding:0;min-width:260px;background:var(--bg-2);border:1px solid var(--border);z-index:1000;}
+.nav-dropdown:hover .nav-dropdown-menu{display:block;}
+.nav-dropdown-menu li a{display:block;height:auto;padding:0.6rem 0.9rem;border-left:none;border-top:1px solid var(--border);font-size:0.64rem;}
+.nav-dropdown-menu li:first-child a{border-top:none;}
+.nav-cta{color:var(--amber)!important;border-left:1px solid var(--border-strong)!important;}
+.site-footer{border-top:1px solid var(--border);padding:1.8rem 2rem;background:var(--bg-2);}
+.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:auto repeat(4,1fr);gap:2rem;align-items:start;}
+.footer-logo-wrap .footer-logo{font-family:var(--display);font-size:1.4rem;letter-spacing:0.08em;color:var(--amber);display:block;margin-bottom:0.4rem;}
+.footer-logo-wrap p{font-family:var(--mono);font-size:0.62rem;color:var(--text-dim);line-height:1.6;max-width:160px;}
+.footer-col h4{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.7rem;}
+.footer-col a{display:block;font-family:var(--mono);font-size:0.68rem;color:var(--text-dim);text-decoration:none;padding:0.18rem 0;transition:color 0.15s;}
+.footer-col a:hover{color:var(--amber);}
+.footer-bottom{max-width:1100px;margin:1.2rem auto 0;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;}
+.footer-copy{font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);}
+.btn-primary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.72rem 1.6rem;background:var(--amber);color:var(--bg);font-family:var(--mono);font-size:0.76rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;transition:opacity 0.15s,transform 0.15s;border:none;cursor:pointer;}
+.btn-primary:hover{opacity:0.85;transform:translateY(-1px);}
+.btn-secondary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.72rem 1.6rem;background:transparent;color:var(--text-muted);font-family:var(--mono);font-size:0.76rem;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;border:1px solid var(--border);transition:border-color 0.15s,color 0.15s;}
+.btn-secondary:hover{border-color:var(--border-strong);color:var(--text);}
+.section-marker{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.8rem;}
+.section-marker::before{content:'// ';opacity:0.45;}
+.breadcrumb{font-family:var(--mono);font-size:0.66rem;color:var(--text-muted);margin-bottom:1.5rem;letter-spacing:0.04em;}
+.breadcrumb a{color:var(--amber);text-decoration:none;}
+.page-wrap{max-width:1100px;margin:0 auto;padding:0 2rem;}
+.blink{animation:blink 1.1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@media(max-width:900px){.nav-links{display:none;}.footer-inner{grid-template-columns:1fr 1fr;}}
+@media(max-width:500px){.footer-inner{grid-template-columns:1fr;}}
 
-<title>AI Tools for Agile Teams | Scrumb</title>
+.inner-main{position:relative;z-index:1;padding-top:52px;}
+.inner-hero{max-width:900px;margin:0 auto;padding:4rem 2rem 3rem;border-bottom:1px solid var(--border);}
+.inner-hero h1{font-family:var(--display);font-size:clamp(2.8rem,6vw,5.5rem);letter-spacing:0.04em;line-height:0.95;color:var(--text);margin-bottom:1rem;}
+.inner-hero h1 span{color:var(--amber);}
+.inner-hero p{color:var(--text-muted);font-size:0.95rem;max-width:580px;line-height:1.8;border-left:2px solid var(--border-strong);padding-left:1.2rem;}
+.prose-wrap{max-width:760px;margin:0 auto;padding:3rem 2rem 5rem;}
+.prose-wrap h2{font-family:var(--display);font-size:clamp(1.8rem,3.5vw,3rem);letter-spacing:0.04em;color:var(--text);margin:3rem 0 0.8rem;line-height:1;}
+.prose-wrap h3{font-family:var(--mono);font-size:0.82rem;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:0.06em;margin:1.8rem 0 0.6rem;}
+.prose-wrap p{color:var(--text-muted);font-size:0.92rem;line-height:1.85;margin-bottom:1rem;}
+.prose-wrap p strong{color:var(--text);font-weight:500;}
+.prose-wrap a{color:var(--amber);}
+.prose-wrap ul{list-style:none;display:flex;flex-direction:column;gap:0.4rem;margin:0.8rem 0 1.4rem;}
+.prose-wrap ul li{color:var(--text-muted);font-size:0.9rem;padding:0.55rem 1rem 0.55rem 2.2rem;background:var(--bg-2);border:1px solid var(--border);position:relative;line-height:1.6;}
+.prose-wrap ul li::before{content:'\2192';position:absolute;left:0.7rem;color:var(--amber);}
+.prose-wrap blockquote{border-left:3px solid var(--amber);padding:1rem 1.4rem;background:var(--bg-2);margin:1.8rem 0;}
+.prose-wrap blockquote p{color:var(--text);font-style:italic;margin:0;}
+.callout{padding:1rem 1.2rem;margin:1.2rem 0;font-size:0.87rem;line-height:1.7;border-left:3px solid var(--amber);background:var(--amber-dim);color:var(--text-muted);}
+.callout strong{color:var(--amber);}
+.callout.warn{border-left-color:var(--red);background:var(--red-dim);}
+.callout.warn strong{color:var(--red);}
+.callout.ok{border-left-color:var(--green);background:rgba(0,255,136,0.05);}
+.callout.ok strong{color:var(--green);}
+.cta-box{background:linear-gradient(135deg,rgba(255,176,0,0.07),rgba(0,255,136,0.03));border:1px solid var(--border-strong);padding:2rem;margin:3rem 0;text-align:center;}
+.cta-box h3{font-family:var(--display);font-size:1.8rem;letter-spacing:0.05em;color:var(--text);margin-bottom:0.5rem;}
+.cta-box p{color:var(--text-muted);font-size:0.88rem;margin-bottom:1.2rem;line-height:1.7;}
+.code-block{background:var(--bg-3);border:1px solid var(--border);padding:1.2rem 1.5rem;font-family:var(--mono);font-size:0.76rem;color:var(--text-muted);line-height:1.9;margin:1rem 0;overflow-x:auto;}
+.c-green{color:var(--green);}.c-amber{color:var(--amber);}.c-red{color:var(--red);}.c-dim{color:var(--text-dim);}
+.compare-table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:0.83rem;}
+.compare-table th{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 0.8rem;border:1px solid var(--border);background:var(--bg-3);color:var(--text-muted);text-align:left;}
+.compare-table td{padding:0.6rem 0.8rem;border:1px solid var(--border);color:var(--text-muted);vertical-align:top;line-height:1.6;}
+.compare-table tr:nth-child(even) td{background:var(--bg-2);}
+.good{color:var(--green);}.bad{color:var(--red);}
 
-<meta name="description" content="Scrumb is an AI tool designed for agile teams to improve sprint planning, detect blockers, and track project progress.">
-
-<link rel="canonical" href="https://www.scrumb.in/agile-ai-tool">
-
+.related-links{margin:3rem 0;padding-top:2rem;border-top:1px solid var(--border);}
+.related-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.8rem;margin-top:1rem;}
+.related-card{display:flex;flex-direction:column;gap:0.3rem;padding:1rem 1.2rem;background:var(--bg-2);border:1px solid var(--border);text-decoration:none;transition:border-color 0.15s,background 0.15s;}
+.related-card:hover{border-color:var(--border-strong);background:var(--amber-dim);}
+.rc-label{font-family:var(--mono);font-size:0.72rem;font-weight:600;color:var(--amber);letter-spacing:0.05em;}
+.rc-desc{font-size:0.82rem;color:var(--text-muted);}
+@media(max-width:600px){.related-grid{grid-template-columns:1fr;}}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Agile AI Tool for Developer Teams","description":"Scrumb is an agile AI execution engine with DAG-based planning, Panic Mode scope management, and Shame Engine accountability.","url":"https://www.scrumb.in/agile-ai-tool"}</script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
-
 <body>
+<nav>
+  <a href="/" class="nav-logo">SCRUMB<span class="nav-tag"> v0.1-alpha</span></a>
+  <ul class="nav-links"><li><a href="/">HOME</a></li><li><a href="/how-it-works">HOW IT WORKS</a></li><li><a href="/contacts">CONTACTS</a></li><li><a href="/shame-engine">SHAME ENGINE</a></li><li><a href="/jetbrains-ai-plugin">PLUGIN</a></li><li class="nav-dropdown"><a href="/blog/why-hackathon-projects-fail" class="nav-dropdown-toggle">BLOG</a><ul class="nav-dropdown-menu"><li><a href="/blog/why-hackathon-projects-fail">Why Hackathon Projects Fail</a></li><li><a href="/blog/ai-project-management-for-developers">AI Project Management for Developers</a></li><li><a href="/blog/ai-scrum-master-future">The Future of AI Scrum Masters</a></li></ul></li><li><a href="/faq">FAQ</a></li><li><a href="/docs" class="nav-cta">DOCS</a></li></ul>
+</nav><main class="inner-main"><div class="inner-hero" style="max-width:900px;margin:0 auto;padding:4rem 2rem 3rem;border-bottom:1px solid var(--border);"><div class="breadcrumb"><a href="/">SCRUMB</a> / AGILE AI TOOL</div><h1 style="font-family:var(--display);font-size:clamp(2.8rem,6vw,5.5rem);letter-spacing:0.04em;line-height:0.95;color:var(--text);margin-bottom:1rem;">AGILE AI <span style="color:var(--amber)">EXECUTION</span></h1><p style="color:var(--text-muted);font-size:0.95rem;max-width:580px;line-height:1.8;border-left:2px solid var(--border-strong);padding-left:1.2rem;">Not a to-do list with AI sprinkled on top. Scrumb is an AI-driven project execution engine that enforces architectural integrity, manages scope under pressure, and holds your team accountable.</p></div><div class="prose-wrap"><div class="section-marker">OVERVIEW</div>
+<h2>THE DIFFERENCE BETWEEN AN AI TOOL AND AN EXECUTION ENGINE</h2>
+<p>Most "AI agile tools" are wrappers &#x2014; they add AI to an existing to-do list or sprint board. They can suggest tasks, summarize standups, and draft retrospective notes. What they cannot do is <strong>enforce architectural integrity, automatically trim scope under deadline pressure, or hold individual developers accountable by name.</strong></p>
+<p>Scrumb is built differently. It's not a tool you consult &#x2014; it's a system that runs your project with you.</p>
 
-<h1>AI Tools for Agile Teams</h1>
-
-<p>
-AI is transforming agile development. Tools like Scrumb help teams
-make better sprint decisions and prevent project delays.
-</p>
-
-<h2>Benefits of AI in Agile</h2>
-
+<h2>WHAT MAKES SCRUMB AN AGILE AI TOOL</h2>
 <ul>
-<li>Better sprint planning</li>
-<li>Automated progress tracking</li>
-<li>Early risk detection</li>
+  <li><strong>Architect Audit:</strong> AI interviews lock your stack and scope before any tasks are created &#x2014; eliminating the vague descriptions that cause project drift</li>
+  <li><strong>DAG-based task planning:</strong> Dependency graph instead of a flat list, so the AI understands which tasks are on the critical path</li>
+  <li><strong>Panic Mode:</strong> When deadline math fails, the AI automatically archives non-critical work &#x2014; no manual triage at 2am</li>
+  <li><strong>Shame Engine:</strong> AI-generated accountability reports when tasks stall on the critical path <a href="/shame-engine">&#x2192; see examples</a></li>
+  <li><strong>IDE integration:</strong> All of this surfaces inside your <a href="/jetbrains-ai-plugin">JetBrains IDE</a>, not in a separate tab</li>
 </ul>
 
-<p>
-<a href="/">Return to Homepage</a>
-</p>
+<h2>WHO IT'S FOR</h2>
+<p>Scrumb is designed for <strong>2&#x2013;5 person developer teams</strong> who need to move from concept to shipped code without the overhead of traditional agile tooling. That means hackathon teams, student capstone groups, early-stage startups, and small engineering squads.</p>
+<p>It is explicitly <em>not</em> designed for enterprise teams with dedicated project managers, Scrum Masters, and established agile processes. Those teams already have the structure. Scrumb is for teams that need it but don't have it yet.</p>
 
+<div class="related-links">
+  <div class="section-marker">RELATED</div>
+  <div class="related-grid">
+    <a href="/how-it-works" class="related-card"><span class="rc-label">HOW IT WORKS</span><span class="rc-desc">The five-stage execution pipeline explained</span></a>
+    <a href="/shame-engine" class="related-card"><span class="rc-label">SHAME ENGINE</span><span class="rc-desc">AI accountability for stalled tasks</span></a>
+    <a href="/jetbrains-ai-plugin" class="related-card"><span class="rc-label">JETBRAINS PLUGIN</span><span class="rc-desc">Task tree inside your IDE</span></a>
+    <a href="/blog/why-hackathon-projects-fail" class="related-card"><span class="rc-label">BLOG</span><span class="rc-desc">Why hackathon projects fail</span></a>
+  </div>
+</div>
+<div class="cta-box"><h3>TRY SCRUMB &#x2014; FREE EARLY ACCESS</h3><p>AI project execution for small dev teams. No setup overhead. No Scrum Master required.</p><a href="/docs" class="btn-primary">&#x2192; GET EARLY ACCESS</a></div></div></main><footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-logo-wrap">
+      <span class="footer-logo">SCRUMB</span>
+      <p>The compiler for your project. Made in India &#x1F1EE;&#x1F1F3;</p>
+    </div>
+    <div class="footer-col">
+      <h4>PRODUCT</h4>
+      <a href="/">Home</a>
+      <a href="/how-it-works">How It Works</a>
+      <a href="/shame-engine">Shame Engine</a>
+      <a href="/jetbrains-ai-plugin">JetBrains Plugin</a>
+    </div>
+    <div class="footer-col">
+      <h4>FEATURES</h4>
+      <a href="/agile-ai-tool">Agile AI Tool</a>
+      <a href="/ai-scrum-master">AI Scrum Master</a>
+      <a href="/sprint-planning-ai">Sprint Planning AI</a>
+    </div>
+    <div class="footer-col">
+      <h4>BLOG</h4>
+      <a href="/blog/why-hackathon-projects-fail">Why Hackathons Fail</a>
+      <a href="/blog/ai-project-management-for-developers">AI Project Management</a>
+      <a href="/blog/ai-scrum-master-future">Future of AI Scrum</a>
+    </div>
+    <div class="footer-col">
+      <h4>SUPPORT</h4>
+      <a href="/docs">Documentation</a>
+      <a href="/faq">FAQ</a>
+      <a href="/contacts">Contact Us</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">&#169; 2026 SCRUMB &#xB7; AI Project Execution Engine</span>
+    <span class="footer-copy">Early access &#x2014; free to use</span>
+  </div>
+</footer>
 </body>
 </html>

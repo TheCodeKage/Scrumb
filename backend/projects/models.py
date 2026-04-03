@@ -1,5 +1,8 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Sum
+
+from Users.models import Team, Developer
 
 
 # Create your models here.
@@ -11,7 +14,7 @@ class Project(models.Model):
     created_on = models.DateField(auto_now=True)
 
     guarantee_date = models.DateField()
-    team = models.JSONField()
+    team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, related_name='projects')
 
     is_detailed = models.BooleanField(default=False)
 
@@ -46,7 +49,7 @@ class Task(models.Model):
 
     parent_task = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True, related_name='subtasks')
     depends_on = models.ManyToManyField("self", blank=True, related_name='blocked_tasks', symmetrical=False)
-    owner = models.CharField(max_length=100,blank=True,null=True)
+    owner = models.ForeignKey(Developer, on_delete=models.SET_NULL, blank=True, null=True, related_name='owned_tasks')
 
     updated_on = models.DateTimeField(auto_now=True)
 

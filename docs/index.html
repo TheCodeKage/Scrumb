@@ -1,843 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Scrumb — The AI Project Execution Engine for Developer Teams</title>
-  <meta name="description" content="Scrumb turns vague ideas into precision action plans. AI-powered task architecture, deadline enforcement, and a Shame Engine that keeps your team accountable. Built for hackathon teams, student devs, and early-stage startups." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.scrumb.in/" />
-
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Scrumb — The AI Project Execution Engine" />
-  <meta property="og:description" content="Turns vague ideas into precision task trees. Shames slackers. Enforces deadlines. Built for small dev teams that need to ship." />
-  <meta property="og:url" content="https://www.scrumb.in/" />
-  <meta property="og:image" content="https://www.scrumb.in/preview.png" />
-  <meta property="og:site_name" content="Scrumb" />
-  <meta property="og:locale" content="en_IN" />
-
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Scrumb — The AI Project Execution Engine" />
-  <meta name="twitter:description" content="Turns vague ideas into precision task trees. Shames slackers. Enforces deadlines." />
-  <meta name="twitter:image" content="https://www.scrumb.in/preview.png" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
+  <meta name="description" content="Scrumb turns vague ideas into precision action plans. AI task architecture, deadline enforcement, and a Shame Engine that keeps your team accountable. Built for hackathon teams, student devs, and startups."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://www.scrumb.in/"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Scrumb — The AI Project Execution Engine for Developer Teams"/>
+  <meta property="og:description" content="Scrumb turns vague ideas into precision action plans. AI task architecture, deadline enforcement, and a Shame Engine that keeps your team accountable. Built for hackathon teams, student devs, and startups."/>
+  <meta property="og:url" content="https://www.scrumb.in/"/>
+  <meta property="og:image" content="https://www.scrumb.in/preview.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:site_name" content="Scrumb"/>
+  <meta property="og:locale" content="en_IN"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Scrumb — The AI Project Execution Engine for Developer Teams"/>
+  <meta name="twitter:description" content="Scrumb turns vague ideas into precision action plans. AI task architecture, deadline enforcement, and a Shame Engine that keeps your team accountable. Built for hackathon teams, student devs, and startups."/>
+  <meta name="twitter:image" content="https://www.scrumb.in/preview.png"/>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Scrumb","applicationCategory":"DeveloperApplication","operatingSystem":"Windows, Mac, Linux","description":"AI-driven project execution platform: Architect Audit MCQ interviews, DAG task generation, Panic Mode scope trimming, and a Shame Engine for deadline accountability.","url":"https://www.scrumb.in","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"},"author":{"@type":"Person","name":"Naman Agrawal"}}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #0a0a08;
-      --bg-2: #0f0f0c;
-      --bg-3: #141410;
-      --border: rgba(255,176,0,0.15);
-      --border-strong: rgba(255,176,0,0.35);
-      --text: #e8e4d4;
-      --text-muted: #6e6a58;
-      --text-dim: #3a3830;
-      --amber: #ffb000;
-      --amber-dim: rgba(255,176,0,0.07);
-      --green: #00ff88;
-      --red: #ff3b3b;
-      --mono: 'IBM Plex Mono', monospace;
-      --sans: 'IBM Plex Sans', sans-serif;
-      --display: 'Bebas Neue', sans-serif;
-    }
-
-    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 16px;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);
-      pointer-events: none;
-      z-index: 9999;
-    }
-
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 2rem;
-      height: 52px;
-      background: rgba(10,10,8,0.96);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .nav-logo {
-      font-family: var(--display);
-      font-size: 1.6rem;
-      letter-spacing: 0.08em;
-      color: var(--amber);
-      text-decoration: none;
-    }
-
-    .nav-tag {
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      color: var(--text-muted);
-      letter-spacing: 0.05em;
-      margin-left: 0.4rem;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 0;
-      list-style: none;
-    }
-
-    .nav-links a {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      letter-spacing: 0.04em;
-      padding: 0 1rem;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      border-left: 1px solid var(--border);
-      transition: color 0.15s, background 0.15s;
-    }
-
-    .nav-links a:hover { color: var(--amber); background: var(--amber-dim); }
-    .nav-links .nav-cta { color: var(--amber); }
-
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 6rem 2rem 4rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .hero-pre {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--green);
-      letter-spacing: 0.08em;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .hero-pre::before { content: '▶'; font-size: 0.6rem; }
-
-    .blink { animation: blink 1.1s step-end infinite; }
-    @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
-
-    h1 {
-      font-family: var(--display);
-      font-size: clamp(4rem,10vw,9rem);
-      letter-spacing: 0.04em;
-      line-height: 0.9;
-      margin-bottom: 0;
-      color: var(--text);
-    }
-
-    h1 .word-amber { color: var(--amber); }
-
-    .hero-subtitle {
-      font-family: var(--display);
-      font-size: clamp(1.4rem,3vw,2.6rem);
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      margin: 1.2rem 0 2.5rem;
-    }
-
-    .hero-desc {
-      max-width: 620px;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      line-height: 1.8;
-      margin-bottom: 2.5rem;
-      border-left: 2px solid var(--border-strong);
-      padding-left: 1.2rem;
-    }
-
-    .hero-desc strong { color: var(--text); font-weight: 500; }
-
-    .hero-actions {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.6rem;
-      background: var(--amber);
-      color: var(--bg);
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: opacity 0.15s, transform 0.15s;
-    }
-
-    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
-
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.6rem;
-      background: transparent;
-      color: var(--text-muted);
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      text-decoration: none;
-      border: 1px solid var(--border);
-      transition: border-color 0.15s, color 0.15s;
-    }
-
-    .btn-secondary:hover { border-color: var(--border-strong); color: var(--text); }
-
-    .status-strip {
-      display: flex;
-      margin-top: 4rem;
-      border: 1px solid var(--border);
-    }
-
-    .status-item {
-      flex: 1;
-      padding: 1.2rem 1.5rem;
-      border-right: 1px solid var(--border);
-      font-family: var(--mono);
-    }
-
-    .status-item:last-child { border-right: none; }
-
-    .status-key {
-      font-size: 0.62rem;
-      color: var(--text-dim);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 0.4rem;
-    }
-
-    .status-val { font-size: 0.95rem; font-weight: 600; color: var(--amber); }
-    .status-val.green { color: var(--green); }
-
-    section {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 5rem 2rem;
-    }
-
-    .section-marker {
-      font-family: var(--mono);
-      font-size: 0.62rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--amber);
-      margin-bottom: 1rem;
-    }
-
-    .section-marker::before { content: '// '; opacity: 0.5; }
-
-    h2 {
-      font-family: var(--display);
-      font-size: clamp(2rem,4.5vw,3.8rem);
-      letter-spacing: 0.05em;
-      color: var(--text);
-      line-height: 1;
-      margin-bottom: 1rem;
-    }
-
-    .section-sub {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      max-width: 520px;
-      line-height: 1.8;
-      margin-bottom: 3rem;
-    }
-
-    /* FEATURES TERMINAL */
-    .features-terminal {
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-    }
-
-    .terminal-bar {
-      background: var(--bg-3);
-      padding: 0.65rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--text-dim); }
-
-    .terminal-title {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      color: var(--text-muted);
-      margin-left: 0.6rem;
-    }
-
-    .feature-list { list-style: none; }
-
-    .feature-row {
-      display: grid;
-      grid-template-columns: 2.2rem 200px 1fr;
-      border-bottom: 1px solid var(--border);
-      padding: 1.2rem 1.5rem;
-      align-items: start;
-      transition: background 0.15s;
-    }
-
-    .feature-row:last-child { border-bottom: none; }
-    .feature-row:hover { background: var(--amber-dim); }
-
-    .feature-row .idx {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      color: var(--text-dim);
-      padding-top: 2px;
-    }
-
-    .feature-row .name {
-      font-family: var(--mono);
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--amber);
-      padding-right: 1.5rem;
-    }
-
-    .feature-row .desc {
-      font-size: 0.87rem;
-      color: var(--text-muted);
-      line-height: 1.7;
-    }
-
-    .feature-row .desc strong { color: var(--text); font-weight: 500; }
-
-    /* PIPELINE */
-    .pipeline {
-      display: flex;
-    }
-
-    .pipe-step {
-      flex: 1;
-      padding: 1.8rem 1.4rem;
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-      border-right: none;
-      position: relative;
-    }
-
-    .pipe-step:last-child { border-right: 1px solid var(--border); }
-
-    .pipe-connector {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      background: var(--bg);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-      font-family: var(--mono);
-      font-size: 0.9rem;
-      color: var(--amber);
-    }
-
-    .pipe-num {
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      color: var(--text-dim);
-      letter-spacing: 0.08em;
-      margin-bottom: 0.7rem;
-    }
-
-    .pipe-step h3 {
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--amber);
-      margin-bottom: 0.5rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .pipe-step p {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      line-height: 1.65;
-    }
-
-    /* SHAME CALLOUT */
-    .shame-callout {
-      background: linear-gradient(135deg, rgba(255,59,59,0.05), rgba(255,176,0,0.03));
-      border: 1px solid rgba(255,59,59,0.22);
-      padding: 2.5rem;
-      position: relative;
-    }
-
-    .shame-callout::before {
-      content: '⚠ SHAME_ENGINE — ACTIVE';
-      position: absolute;
-      top: 0.8rem; right: 1.2rem;
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      letter-spacing: 0.1em;
-      color: var(--red);
-      opacity: 0.55;
-    }
-
-    .shame-callout h3 {
-      font-family: var(--display);
-      font-size: clamp(2rem, 4vw, 3.5rem);
-      letter-spacing: 0.05em;
-      color: var(--red);
-      margin-bottom: 0.8rem;
-    }
-
-    .shame-callout > p {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      max-width: 520px;
-      line-height: 1.75;
-      margin-bottom: 1.5rem;
-    }
-
-    .shame-output {
-      background: var(--bg);
-      border: 1px solid rgba(255,59,59,0.18);
-      padding: 1.2rem 1.5rem;
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      line-height: 1.9;
-      margin: 1.2rem 0;
-    }
-
-    .shame-output .handle { color: var(--amber); }
-    .shame-output .label-red { color: var(--red); }
-    .shame-output .label-green { color: var(--green); }
-    .shame-output .comment { color: var(--text-dim); }
-
-    .shame-callout .shame-footer {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      max-width: 520px;
-      line-height: 1.7;
-    }
-
-    .shame-callout .shame-footer strong { color: var(--text); font-weight: 500; }
-
-    /* AUDIENCE */
-    .audience-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      border: 1px solid var(--border);
-    }
-
-    .audience-card {
-      padding: 2rem;
-      border-right: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .audience-card:last-child { border-right: none; }
-
-    .audience-card::before {
-      content: attr(data-num);
-      position: absolute;
-      top: 1rem; right: 1rem;
-      font-family: var(--display);
-      font-size: 4rem;
-      color: var(--text-dim);
-      line-height: 1;
-    }
-
-    .audience-role {
-      font-family: var(--mono);
-      font-size: 0.62rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--amber);
-      margin-bottom: 0.5rem;
-    }
-
-    .audience-card h3 {
-      font-family: var(--display);
-      font-size: 1.7rem;
-      letter-spacing: 0.04em;
-      color: var(--text);
-      margin-bottom: 0.8rem;
-    }
-
-    .audience-card p {
-      font-size: 0.84rem;
-      color: var(--text-muted);
-      line-height: 1.7;
-    }
-
-    /* PLUGIN */
-    .plugin-block {
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .plugin-left {
-      padding: 2.5rem;
-      border-right: 1px solid var(--border);
-    }
-
-    .plugin-right { padding: 2.5rem; }
-
-    .plugin-left h2 { font-size: 2.8rem; margin-bottom: 0.8rem; }
-    .plugin-left p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.75; margin-bottom: 1.5rem; }
-
-    .install-steps { list-style: none; counter-reset: steps; }
-
-    .install-steps li {
-      counter-increment: steps;
-      display: flex;
-      align-items: baseline;
-      gap: 0.8rem;
-      font-family: var(--mono);
-      font-size: 0.77rem;
-      color: var(--text-muted);
-      padding: 0.55rem 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .install-steps li:last-child { border-bottom: none; }
-
-    .install-steps li::before {
-      content: counter(steps, decimal-leading-zero);
-      color: var(--amber);
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-
-    .install-steps li strong { color: var(--text); }
-
-    /* CTA */
-    .cta-section {
-      border-top: 1px solid var(--border);
-      background: var(--bg-2);
-      padding: 5rem 2rem;
-      text-align: center;
-    }
-
-    .cta-section h2 {
-      font-size: clamp(3rem,7vw,6.5rem);
-      margin-bottom: 0.3rem;
-    }
-
-    .cta-section h2 span { color: var(--amber); }
-
-    .cta-section p {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      max-width: 420px;
-      margin: 1rem auto 2rem;
-      line-height: 1.7;
-    }
-
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 1.4rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .footer-logo {
-      font-family: var(--display);
-      font-size: 1.2rem;
-      letter-spacing: 0.08em;
-      color: var(--amber);
-    }
-
-    .footer-links { display: flex; gap: 0; list-style: none; }
-
-    .footer-links a {
-      color: var(--text-dim);
-      text-decoration: none;
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      padding: 0 0.9rem;
-      border-left: 1px solid var(--border);
-      transition: color 0.15s;
-    }
-
-    .footer-links a:hover { color: var(--text-muted); }
-
-    .footer-copy {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      color: var(--text-dim);
-    }
-
-    @media (max-width: 900px) {
-      .nav-links { display: none; }
-      .feature-row { grid-template-columns: 1.8rem 1fr; }
-      .feature-row .desc { grid-column: 2; }
-      .pipeline { flex-direction: column; }
-      .pipe-connector { display: none; }
-      .pipe-step { border-right: 1px solid var(--border); border-bottom: none; }
-      .pipe-step:last-child { border-bottom: 1px solid var(--border); }
-      .audience-grid { grid-template-columns: 1fr; }
-      .audience-card { border-right: none; border-bottom: 1px solid var(--border); }
-      .audience-card:last-child { border-bottom: none; }
-      .plugin-block { grid-template-columns: 1fr; }
-      .plugin-left { border-right: none; border-bottom: 1px solid var(--border); }
-      .status-strip { flex-wrap: wrap; }
-      .status-item { border-bottom: 1px solid var(--border); min-width: 50%; }
-    }
-  </style>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Scrumb",
-    "applicationCategory": "DeveloperApplication",
-    "operatingSystem": "Windows, Mac, Linux",
-    "description": "AI-driven project execution platform that turns vague ideas into precision task trees. Features Architect Audit MCQ interviews, DAG task generation, Panic Mode scope trimming, and a Shame Engine for deadline accountability.",
-    "url": "https://www.scrumb.in",
-    "applicationSubCategory": "Project Management",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR", "description": "Free early access" },
-    "author": { "@type": "Person", "name": "Naman Agrawal" },
-    "audience": { "@type": "Audience", "audienceType": "Developers, Hackathon Teams, Students, Startup Founders" }
-  }
-  </script>
+:root{--bg:#0a0a08;--bg-2:#0f0f0c;--bg-3:#141410;--border:rgba(255,176,0,0.15);--border-strong:rgba(255,176,0,0.35);--border-red:rgba(255,59,59,0.2);--text:#e8e4d4;--text-muted:#6e6a58;--text-dim:#3a3830;--amber:#ffb000;--amber-dim:rgba(255,176,0,0.07);--green:#00ff88;--red:#ff3b3b;--red-dim:rgba(255,59,59,0.06);--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--display:'Bebas Neue',sans-serif;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.022) 2px,rgba(0,0,0,0.022) 4px);pointer-events:none;z-index:9999;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:52px;background:rgba(10,10,8,0.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:var(--display);font-size:1.6rem;letter-spacing:0.08em;color:var(--amber);text-decoration:none;display:flex;align-items:center;gap:0.5rem;}
+.nav-tag{font-family:var(--mono);font-size:0.58rem;color:var(--text-dim);letter-spacing:0.05em;}
+.nav-links{display:flex;gap:0;list-style:none;}
+.nav-links a{color:var(--text-muted);text-decoration:none;font-family:var(--mono);font-size:0.68rem;letter-spacing:0.04em;padding:0 0.85rem;height:52px;display:flex;align-items:center;border-left:1px solid var(--border);transition:color 0.15s,background 0.15s;white-space:nowrap;}
+.nav-links a:hover,.nav-links a.active{color:var(--amber);background:var(--amber-dim);}
+.nav-dropdown{position:relative;}
+.nav-dropdown>.nav-dropdown-toggle::after{content:" ▼";font-size:0.52rem;}
+.nav-dropdown-menu{display:none;position:absolute;top:100%;left:0;list-style:none;margin:0;padding:0;min-width:260px;background:var(--bg-2);border:1px solid var(--border);z-index:1000;}
+.nav-dropdown:hover .nav-dropdown-menu{display:block;}
+.nav-dropdown-menu li a{display:block;height:auto;padding:0.6rem 0.9rem;border-left:none;border-top:1px solid var(--border);font-size:0.64rem;}
+.nav-dropdown-menu li:first-child a{border-top:none;}
+.nav-cta{color:var(--amber)!important;border-left:1px solid var(--border-strong)!important;}
+.site-footer{border-top:1px solid var(--border);padding:1.8rem 2rem;background:var(--bg-2);}
+.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:auto repeat(4,1fr);gap:2rem;align-items:start;}
+.footer-logo-wrap .footer-logo{font-family:var(--display);font-size:1.4rem;letter-spacing:0.08em;color:var(--amber);display:block;margin-bottom:0.4rem;}
+.footer-logo-wrap p{font-family:var(--mono);font-size:0.62rem;color:var(--text-dim);line-height:1.6;max-width:160px;}
+.footer-col h4{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.7rem;}
+.footer-col a{display:block;font-family:var(--mono);font-size:0.68rem;color:var(--text-dim);text-decoration:none;padding:0.18rem 0;transition:color 0.15s;}
+.footer-col a:hover{color:var(--amber);}
+.footer-bottom{max-width:1100px;margin:1.2rem auto 0;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;}
+.footer-copy{font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);}
+.btn-primary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.72rem 1.6rem;background:var(--amber);color:var(--bg);font-family:var(--mono);font-size:0.76rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;transition:opacity 0.15s,transform 0.15s;border:none;cursor:pointer;}
+.btn-primary:hover{opacity:0.85;transform:translateY(-1px);}
+.btn-secondary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.72rem 1.6rem;background:transparent;color:var(--text-muted);font-family:var(--mono);font-size:0.76rem;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;border:1px solid var(--border);transition:border-color 0.15s,color 0.15s;}
+.btn-secondary:hover{border-color:var(--border-strong);color:var(--text);}
+.section-marker{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.8rem;}
+.section-marker::before{content:'// ';opacity:0.45;}
+.breadcrumb{font-family:var(--mono);font-size:0.66rem;color:var(--text-muted);margin-bottom:1.5rem;letter-spacing:0.04em;}
+.breadcrumb a{color:var(--amber);text-decoration:none;}
+.page-wrap{max-width:1100px;margin:0 auto;padding:0 2rem;}
+.blink{animation:blink 1.1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@media(max-width:900px){.nav-links{display:none;}.footer-inner{grid-template-columns:1fr 1fr;}}
+@media(max-width:500px){.footer-inner{grid-template-columns:1fr;}}
+
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:6rem 2rem 4rem;max-width:1100px;margin:0 auto;}
+.hero-pre{font-family:var(--mono);font-size:0.72rem;color:var(--green);letter-spacing:0.08em;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.6rem;}
+.hero-pre::before{content:'&#x25B6;';font-size:0.6rem;}
+h1.hero-title{font-family:var(--display);font-size:clamp(4rem,10vw,9rem);letter-spacing:0.04em;line-height:0.9;color:var(--text);}
+h1.hero-title .word-amber{color:var(--amber);}
+.hero-subtitle{font-family:var(--display);font-size:clamp(1.4rem,3vw,2.6rem);letter-spacing:0.1em;color:var(--text-muted);margin:1.2rem 0 2.5rem;}
+.hero-desc{max-width:620px;color:var(--text-muted);font-size:0.95rem;line-height:1.8;margin-bottom:2.5rem;border-left:2px solid var(--border-strong);padding-left:1.2rem;}
+.hero-desc strong{color:var(--text);font-weight:500;}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;}
+.status-strip{display:flex;margin-top:4rem;border:1px solid var(--border);}
+.status-item{flex:1;padding:1.1rem 1.4rem;border-right:1px solid var(--border);font-family:var(--mono);}
+.status-item:last-child{border-right:none;}
+.status-key{font-size:0.6rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.3rem;}
+.status-val{font-size:0.9rem;font-weight:600;color:var(--amber);}
+.status-val.green{color:var(--green);}
+section.content-section{max-width:1100px;margin:0 auto;padding:4rem 2rem;}
+h2.section-h{font-family:var(--display);font-size:clamp(2rem,4.5vw,3.8rem);letter-spacing:0.05em;color:var(--text);line-height:1;margin-bottom:1rem;}
+.section-sub{color:var(--text-muted);font-size:0.9rem;max-width:520px;line-height:1.8;margin-bottom:2.5rem;}
+.features-terminal{background:var(--bg-2);border:1px solid var(--border);}
+.terminal-bar{background:var(--bg-3);padding:0.65rem 1rem;display:flex;align-items:center;gap:0.45rem;border-bottom:1px solid var(--border);}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--text-dim);}
+.terminal-title{font-family:var(--mono);font-size:0.68rem;color:var(--text-muted);margin-left:0.6rem;}
+.feature-list{list-style:none;}
+.feature-row{display:grid;grid-template-columns:2.2rem 180px 1fr;border-bottom:1px solid var(--border);padding:1.1rem 1.5rem;align-items:start;transition:background 0.15s;}
+.feature-row:last-child{border-bottom:none;}
+.feature-row:hover{background:var(--amber-dim);}
+.feature-row .idx{font-family:var(--mono);font-size:0.68rem;color:var(--text-dim);padding-top:2px;}
+.feature-row .fname{font-family:var(--mono);font-size:0.82rem;font-weight:600;color:var(--amber);padding-right:1.5rem;}
+.feature-row .fdesc{font-size:0.87rem;color:var(--text-muted);line-height:1.7;}
+.feature-row .fdesc strong{color:var(--text);font-weight:500;}
+.pipeline{display:flex;}
+.pipe-step{flex:1;padding:1.8rem 1.4rem;background:var(--bg-2);border:1px solid var(--border);border-right:none;}
+.pipe-step:last-child{border-right:1px solid var(--border);}
+.pipe-conn{display:flex;align-items:center;justify-content:center;width:28px;background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border);flex-shrink:0;font-family:var(--mono);font-size:0.9rem;color:var(--amber);}
+.pipe-num{font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);letter-spacing:0.08em;margin-bottom:0.7rem;}
+.pipe-step h3{font-family:var(--mono);font-size:0.78rem;font-weight:600;color:var(--amber);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.04em;}
+.pipe-step p{font-size:0.82rem;color:var(--text-muted);line-height:1.65;}
+.shame-callout{background:linear-gradient(135deg,rgba(255,59,59,0.05),rgba(255,176,0,0.03));border:1px solid rgba(255,59,59,0.22);padding:2.5rem;position:relative;}
+.shame-callout::before{content:'SHAME_ENGINE ACTIVE';position:absolute;top:0.8rem;right:1.2rem;font-family:var(--mono);font-size:0.58rem;letter-spacing:0.1em;color:var(--red);opacity:0.5;}
+.shame-callout h3{font-family:var(--display);font-size:clamp(2rem,4vw,3.5rem);letter-spacing:0.05em;color:var(--red);margin-bottom:0.8rem;}
+.shame-callout>p{font-size:0.9rem;color:var(--text-muted);max-width:520px;line-height:1.75;margin-bottom:1.2rem;}
+.shame-output{background:var(--bg);border:1px solid rgba(255,59,59,0.18);padding:1.2rem 1.5rem;font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);line-height:1.9;margin:0.8rem 0 1.2rem;}
+.s-dim{color:var(--text-dim);}.s-amber{color:var(--amber);}.s-red{color:var(--red);}.s-green{color:var(--green);}
+.audience-grid{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--border);}
+.audience-card{padding:2rem;border-right:1px solid var(--border);position:relative;overflow:hidden;}
+.audience-card:last-child{border-right:none;}
+.audience-card::before{content:attr(data-num);position:absolute;top:1rem;right:1rem;font-family:var(--display);font-size:4rem;color:var(--text-dim);line-height:1;}
+.audience-role{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--amber);margin-bottom:0.5rem;}
+.audience-card h3{font-family:var(--display);font-size:1.7rem;letter-spacing:0.04em;color:var(--text);margin-bottom:0.8rem;}
+.audience-card p{font-size:0.84rem;color:var(--text-muted);line-height:1.7;}
+.plugin-block{background:var(--bg-2);border:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;}
+.plugin-left{padding:2.5rem;border-right:1px solid var(--border);}
+.plugin-right{padding:2.5rem;}
+.plugin-left h2{font-family:var(--display);font-size:2.8rem;letter-spacing:0.04em;margin-bottom:0.8rem;}
+.plugin-left p{font-size:0.88rem;color:var(--text-muted);line-height:1.75;margin-bottom:1.5rem;}
+.install-steps{list-style:none;counter-reset:steps;}
+.install-steps li{counter-increment:steps;display:flex;align-items:baseline;gap:0.8rem;font-family:var(--mono);font-size:0.77rem;color:var(--text-muted);padding:0.55rem 0;border-bottom:1px solid var(--border);}
+.install-steps li:last-child{border-bottom:none;}
+.install-steps li::before{content:counter(steps,decimal-leading-zero);color:var(--amber);font-weight:600;flex-shrink:0;}
+.install-steps li strong{color:var(--text);}
+.cta-section{border-top:1px solid var(--border);background:var(--bg-2);padding:5rem 2rem;text-align:center;}
+.cta-section h2{font-family:var(--display);font-size:clamp(3rem,7vw,6.5rem);letter-spacing:0.04em;margin-bottom:0.3rem;}
+.cta-section h2 span{color:var(--amber);}
+.cta-section p{color:var(--text-muted);font-size:0.9rem;max-width:420px;margin:1rem auto 2rem;line-height:1.7;}
+@media(max-width:900px){
+  .feature-row{grid-template-columns:1.8rem 1fr;}.feature-row .fdesc{grid-column:2;}
+  .pipeline{flex-direction:column;}.pipe-conn{display:none;}
+  .pipe-step{border-right:1px solid var(--border);border-bottom:none;}.pipe-step:last-child{border-bottom:1px solid var(--border);}
+  .audience-grid{grid-template-columns:1fr;}.audience-card{border-right:none;border-bottom:1px solid var(--border);}.audience-card:last-child{border-bottom:none;}
+  .plugin-block{grid-template-columns:1fr;}.plugin-left{border-right:none;border-bottom:1px solid var(--border);}
+  .status-strip{flex-wrap:wrap;}.status-item{border-bottom:1px solid var(--border);min-width:50%;}
+}
+</style>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
 <body>
-
 <nav>
-  <a href="/" class="nav-logo">SCRUMB<span class="nav-tag"> v0.1-alpha</span></a>
-  <ul class="nav-links">
-    <li><a href="/how-it-works">HOW IT WORKS</a></li>
-    <li><a href="/shame-engine">SHAME ENGINE</a></li>
-    <li><a href="/jetbrains-ai-plugin">JETBRAINS PLUGIN</a></li>
-    <li><a href="/blog/ai-project-management-for-developers">BLOG</a></li>
-    <li><a href="/faq">FAQ</a></li>
-    <li><a href="/docs" class="nav-cta">GET EARLY ACCESS →</a></li>
-  </ul>
-</nav>
+  <a href="index.html" class="nav-logo">SCRUMB<span class="nav-tag"> v0.1-alpha</span></a>
+  <ul class="nav-links"><li><a href="/" class="active">HOME</a></li><li><a href="/how-it-works">HOW IT WORKS</a></li><li><a href="/contacts">CONTACTS</a></li><li><a href="/shame-engine">SHAME ENGINE</a></li><li><a href="/jetbrains-ai-plugin">PLUGIN</a></li><li class="nav-dropdown"><a href="/blog/why-hackathon-projects-fail" class="nav-dropdown-toggle">BLOG</a><ul class="nav-dropdown-menu"><li><a href="/blog/why-hackathon-projects-fail">Why Hackathon Projects Fail</a></li><li><a href="/blog/ai-project-management-for-developers">AI Project Management for Developers</a></li><li><a href="/blog/ai-scrum-master-future">The Future of AI Scrum Masters</a></li></ul></li><li><a href="/faq">FAQ</a></li><li><a href="/docs" class="nav-cta">DOCS</a></li></ul>
 
+
+</nav>
 <main>
   <div class="hero">
-    <div class="hero-pre">ARCHITECT_PRIME.init() — execution engine ready <span class="blink">█</span></div>
-
-    <h1>THE <span class="word-amber">COMPILER</span></h1>
-    <h1>FOR YOUR</h1>
-    <h1>PROJECT</h1>
-
+    <div class="hero-pre">ARCHITECT_PRIME.init() &#x2014; execution engine ready <span class="blink">&#x2588;</span></div>
+    <h1 class="hero-title">THE <span class="word-amber">COMPILER</span><br>FOR YOUR<br>PROJECT</h1>
     <div class="hero-subtitle">Stop Drifting. Start Shipping.</div>
-
-    <p class="hero-desc">
-      Scrumb is an <strong>AI project execution engine</strong> for small dev teams. It interrogates your idea, generates a precision dependency graph, and — when you start slacking — <strong>shames you back to work.</strong> Built for hackathon teams, student devs, and startups with a deadline and no excuses.
-    </p>
-
+    <p class="hero-desc">Scrumb is an <strong>AI project execution engine</strong> for small dev teams. It interrogates your idea, generates a precision dependency graph, and &#x2014; when you start slacking &#x2014; <strong>shames you back to work.</strong> Built for hackathon teams, student devs, and startups with a deadline and no excuses.</p>
     <div class="hero-actions">
-      <a href="/docs" class="btn-primary">→ GET EARLY ACCESS</a>
+      <a href="/docs" class="btn-primary">&#x2192; GET EARLY ACCESS</a>
       <a href="/how-it-works" class="btn-secondary">SEE HOW IT WORKS</a>
     </div>
-
     <div class="status-strip">
-      <div class="status-item">
-        <div class="status-key">SYSTEM</div>
-        <div class="status-val">ARCHITECT_PRIME</div>
-      </div>
-      <div class="status-item">
-        <div class="status-key">PLANNING_ENGINE</div>
-        <div class="status-val green">ONLINE</div>
-      </div>
-      <div class="status-item">
-        <div class="status-key">SHAME_ENGINE</div>
-        <div class="status-val">STANDING BY</div>
-      </div>
-      <div class="status-item">
-        <div class="status-key">PRICE</div>
-        <div class="status-val">FREE (EARLY ACCESS)</div>
-      </div>
+      <div class="status-item"><div class="status-key">SYSTEM</div><div class="status-val">ARCHITECT_PRIME</div></div>
+      <div class="status-item"><div class="status-key">PLANNING_ENGINE</div><div class="status-val green">ONLINE</div></div>
+      <div class="status-item"><div class="status-key">SHAME_ENGINE</div><div class="status-val">STANDING BY</div></div>
+      <div class="status-item"><div class="status-key">PRICE</div><div class="status-val">FREE (EARLY ACCESS)</div></div>
     </div>
   </div>
 
-  <!-- FEATURES -->
-  <section>
+  <section class="content-section">
     <div class="section-marker">CORE MODULES</div>
-    <h2>FIVE SYSTEMS. ONE GOAL: SHIP.</h2>
-    <p class="section-sub">Scrumb operates as a state machine for project birth and survival. These are the modules it runs.</p>
-
+    <h2 class="section-h">FIVE SYSTEMS. ONE GOAL: SHIP.</h2>
+    <p class="section-sub">Scrumb operates as a state machine for project birth and survival. <a href="/how-it-works" style="color:var(--amber)">See the full pipeline &#x2192;</a></p>
     <div class="features-terminal">
-      <div class="terminal-bar">
-        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-        <span class="terminal-title">scrumb — module.list —all</span>
-      </div>
+      <div class="terminal-bar"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span class="terminal-title">scrumb &#x2014; module.list &#x2014;all</span></div>
       <ul class="feature-list">
-        <li class="feature-row">
-          <span class="idx">01</span>
-          <span class="name">ARCHITECT_AUDIT</span>
-          <span class="desc">No vague descriptions. Scrumb fires a <strong>technical MCQ interview</strong> at your idea — locking in tech stack, team skills, and scope before any tasks are created. "Build a bus app" doesn't compile here.</span>
-        </li>
-        <li class="feature-row">
-          <span class="idx">02</span>
-          <span class="name">DAG_GENERATOR</span>
-          <span class="desc">Outputs a <strong>Directed Acyclic Graph</strong> of tasks. Every task knows its parent, its assigned owner (matched to team skills), and its hard dependencies. No flat to-do lists. Real architecture.</span>
-        </li>
-        <li class="feature-row">
-          <span class="idx">03</span>
-          <span class="name">PANIC_MODE</span>
-          <span class="desc">When deadline math fails, Scrumb automatically <strong>archives non-critical tasks</strong> to guarantee a working MVP ships on time. Scope is trimmed by the AI — not discovered missing at 2am on submission day.</span>
-        </li>
-        <li class="feature-row">
-          <span class="idx">04</span>
-          <span class="name">SHAME_ENGINE</span>
-          <span class="desc">Analyzes stalled tasks. Identifies blockers by name. Generates <strong>brutal but funny accountability reports</strong> to restore momentum. Annoying by design. Effective by necessity.</span>
-        </li>
-        <li class="feature-row">
-          <span class="idx">05</span>
-          <span class="name">INTEGRITY_GUARD</span>
-          <span class="desc"><strong>Cheating detector.</strong> Blocks marking a parent task "Done" if sub-tasks are still open. Your dashboard reflects reality — not the story you tell yourself at 11pm.</span>
-        </li>
+        <li class="feature-row"><span class="idx">01</span><span class="fname">ARCHITECT_AUDIT</span><span class="fdesc">Technical MCQ interview locks in your stack, scope, and team skills before any tasks are created. &#x201C;Build a bus app&#x201D; doesn&#x2019;t compile here.</span></li>
+        <li class="feature-row"><span class="idx">02</span><span class="fname">DAG_GENERATOR</span><span class="fdesc">Outputs a <strong>Directed Acyclic Graph</strong> of tasks &#x2014; every task knows its parent, owner, and hard dependencies. Real architecture, not a flat list.</span></li>
+        <li class="feature-row"><span class="idx">03</span><span class="fname">PANIC_MODE</span><span class="fdesc">When deadline math fails, Scrumb <strong>archives non-critical tasks</strong> automatically. Scope trimmed by AI, not discovered missing at 2am on submission day.</span></li>
+        <li class="feature-row"><span class="idx">04</span><span class="fname"><a href="/shame-engine" style="color:var(--amber);text-decoration:none;">SHAME_ENGINE</a></span><span class="fdesc">Analyzes stalled tasks. Identifies blockers by name. Generates <strong>brutal but funny accountability reports</strong> to restore momentum. <a href="/shame-engine" style="color:var(--amber)">See examples &#x2192;</a></span></li>
+        <li class="feature-row"><span class="idx">05</span><span class="fname">INTEGRITY_GUARD</span><span class="fdesc"><strong>Cheating detector.</strong> Blocks marking a parent task &#x201C;Done&#x201D; if sub-tasks are open. Your dashboard reflects reality.</span></li>
       </ul>
     </div>
   </section>
 
-  <!-- PIPELINE -->
-  <section>
+  <section class="content-section" style="padding-top:0;">
     <div class="section-marker">EXECUTION PIPELINE</div>
-    <h2>FROM IDEA TO SHIPPED</h2>
-    <p class="section-sub">A five-stage state machine. Your project can't move forward until each gate clears.</p>
-
+    <h2 class="section-h">FROM IDEA TO SHIPPED</h2>
+    <p class="section-sub">Five stages. Your project can&#x2019;t advance until each gate clears. <a href="/how-it-works" style="color:var(--amber)">Full breakdown &#x2192;</a></p>
     <div class="pipeline">
-      <div class="pipe-step">
-        <div class="pipe-num">STAGE_01</div>
-        <h3>ARCHITECT AUDIT</h3>
-        <p>AI interviews your idea with technical MCQs. Stack, scope, and team capacity locked before any tasks exist.</p>
-      </div>
-      <div class="pipe-connector">→</div>
-      <div class="pipe-step">
-        <div class="pipe-num">STAGE_02</div>
-        <h3>DAG GENERATION</h3>
-        <p>Full dependency graph generated. Owners auto-assigned. Blockers mapped. Timeline calculated.</p>
-      </div>
-      <div class="pipe-connector">→</div>
-      <div class="pipe-step">
-        <div class="pipe-num">STAGE_03</div>
-        <h3>ACTIVE BUILD</h3>
-        <p>Team executes. Integrity Guard enforces honest task reporting. No faking completion.</p>
-      </div>
-      <div class="pipe-connector">→</div>
-      <div class="pipe-step">
-        <div class="pipe-num">STAGE_04</div>
-        <h3>DRIFT DETECTION</h3>
-        <p>Velocity slip triggers Panic Mode (scope trim) or Shame Engine (team accountability). Both, if needed.</p>
-      </div>
-      <div class="pipe-connector">→</div>
-      <div class="pipe-step">
-        <div class="pipe-num">STAGE_05</div>
-        <h3>MVP SHIPPED</h3>
-        <p>Project compiles. On time. Not perfect — but finished, defensible, and actually submitted.</p>
-      </div>
+      <div class="pipe-step"><div class="pipe-num">STAGE_01</div><h3>ARCHITECT AUDIT</h3><p>Stack, scope, team capacity locked before any tasks exist.</p></div>
+      <div class="pipe-conn">&#x2192;</div>
+      <div class="pipe-step"><div class="pipe-num">STAGE_02</div><h3>DAG GENERATION</h3><p>Full dependency graph. Owners auto-assigned. Timeline calculated.</p></div>
+      <div class="pipe-conn">&#x2192;</div>
+      <div class="pipe-step"><div class="pipe-num">STAGE_03</div><h3>ACTIVE BUILD</h3><p>Team executes. Integrity Guard enforces honest reporting.</p></div>
+      <div class="pipe-conn">&#x2192;</div>
+      <div class="pipe-step"><div class="pipe-num">STAGE_04</div><h3>DRIFT DETECTION</h3><p>Panic Mode trims scope. Shame Engine restores momentum.</p></div>
+      <div class="pipe-conn">&#x2192;</div>
+      <div class="pipe-step"><div class="pipe-num">STAGE_05</div><h3>MVP SHIPPED</h3><p>Finished, defensible, and actually submitted.</p></div>
     </div>
   </section>
 
-  <!-- SHAME ENGINE -->
-  <section>
+  <section class="content-section" style="padding-top:0;">
     <div class="shame-callout">
       <h3>THE SHAME ENGINE</h3>
-      <p>When someone hasn't touched their task in 48 hours and the deadline is Friday, Scrumb stops being polite. It generates an accountability report. By name.</p>
-
+      <p>When someone hasn&#x2019;t touched their critical-path task in 48 hours and the deadline is Friday, Scrumb stops being polite.</p>
       <div class="shame-output">
-        <span class="comment">// AUTO-GENERATED — SCRUMB SHAME REPORT — T-MINUS 36HRS</span><br><br>
-        <span class="handle">@Rohan</span> — task status: <span class="label-red">STALLED (52 HRS)</span><br>
-        Assigned: <span class="label-green">[ backend/auth/jwt-middleware ]</span><br>
-        Impact: <span class="label-red">BLOCKING 4 downstream tasks. Sprint is dead if this doesn't merge today.</span><br><br>
-        IDE activity detected: 11 sessions since Monday.<br>
-        Commits pushed: <span class="label-red">0</span><br>
-        YouTube watch time estimate: non-zero.<br><br>
-        <span style="color:var(--amber)">// RECOMMENDATION: Close the system design video.<br>
-        // Open the file. Write the function. It is 40 lines.<br>
-        // You have done harder things. Do this one.</span>
+        <span class="s-dim">// SCRUMB SHAME REPORT &#x2014; T-MINUS 36HRS</span><br><br>
+        <span class="s-amber">@Rohan</span> &#x2014; <span class="s-red">STALLED 52 HRS</span> &#x2014; <span class="s-green">[ backend/auth/jwt-middleware ]</span><br>
+        Impact: <span class="s-red">BLOCKING 4 downstream tasks</span><br>
+        IDE sessions: 11 &#x2014; Commits pushed: <span class="s-red">0</span><br><br>
+        <span class="s-amber">// Close the system design video. Write the function. It is 40 lines.</span>
       </div>
-
-      <p class="shame-footer">Opt-in per team. Togglable per sprint. <strong>Ruthlessly effective</strong> at eliminating drift in small dev teams where social accountability is the only real enforcement mechanism.</p>
+      <a href="/shame-engine" class="btn-secondary">&#x2192; READ THE FULL SHAME ENGINE DOCS</a>
     </div>
   </section>
 
-  <!-- AUDIENCE -->
-  <section>
+  <section class="content-section" style="padding-top:0;">
     <div class="section-marker">TARGET USERS</div>
-    <h2>WHO SCRUMB IS FOR</h2>
-    <p class="section-sub">Not enterprise. Not process consultants. 2–5 people. A real deadline. A real project that needs to actually ship.</p>
-
+    <h2 class="section-h">BUILT FOR TEAMS THAT SHIP</h2>
+    <p class="section-sub">Not enterprise. Not process consultants. 2&#x2013;5 people with a real deadline.</p>
     <div class="audience-grid">
       <div class="audience-card" data-num="01">
-        <div class="audience-role">LEAD DEV</div>
-        <h3>THE ARCHITECT</h3>
-        <p>Needs to delegate without writing 50 Jira tickets. Gets a full dependency graph with owners pre-assigned to team skills. Opens IDE, sees exactly what to build next.</p>
+        <div class="audience-role">LEAD DEV</div><h3>THE ARCHITECT</h3>
+        <p>Gets a full dependency graph with owners pre-assigned. Opens IDE, sees exactly what to build next.</p>
       </div>
       <div class="audience-card" data-num="02">
-        <div class="audience-role">FOUNDER / HUSTLER</div>
-        <h3>THE VISIONARY</h3>
-        <p>Has the idea but needs a technical sanity check. Scrumb's Architect Audit validates the stack against actual team capability before any code is written. No more "we'll figure it out."</p>
+        <div class="audience-role">FOUNDER / HUSTLER</div><h3>THE VISIONARY</h3>
+        <p>The Architect Audit validates your stack against team capability before any code is written.</p>
       </div>
       <div class="audience-card" data-num="03">
-        <div class="audience-role">HACKATHON / STUDENT</div>
-        <h3>THE EXECUTOR</h3>
-        <p>48-hour deadline. No project manager. No Scrum Master. Just a team that needs a system telling everyone exactly what to build next and who's blocking who. That's Scrumb.</p>
+        <div class="audience-role">HACKATHON / STUDENT</div><h3>THE EXECUTOR</h3>
+        <p>48-hour deadline. No PM. Scrumb tells everyone exactly what to build next and who&#x2019;s blocking who.</p>
       </div>
     </div>
   </section>
 
-  <!-- PLUGIN -->
-  <section>
+  <section class="content-section" style="padding-top:0;">
     <div class="plugin-block">
       <div class="plugin-left">
         <div class="section-marker">JETBRAINS PLUGIN</div>
         <h2>YOUR TASK TREE IN YOUR IDE</h2>
-        <p>The Scrumb plugin surfaces your dependency graph directly inside IntelliJ, PyCharm, WebStorm, and GoLand. See exactly what to build next — and who's blocking you — without leaving the editor.</p>
-        <a href="/scrumb-plugin.zip" download class="btn-primary">↓ DOWNLOAD PLUGIN (.ZIP)</a>
+        <p>The Scrumb plugin surfaces your dependency graph directly inside IntelliJ, PyCharm, WebStorm, and GoLand. See what to build next without leaving the editor. <a href="/jetbrains-ai-plugin" style="color:var(--amber)">Full plugin page &#x2192;</a></p>
+        <a href="/scrumb-plugin.zip" download class="btn-primary">&#x2193; DOWNLOAD PLUGIN (.ZIP)</a>
       </div>
       <div class="plugin-right">
-        <p style="font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;color:var(--amber);text-transform:uppercase;margin-bottom:1rem;">INSTALL INSTRUCTIONS</p>
+        <p style="font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;color:var(--amber);text-transform:uppercase;margin-bottom:1rem;">INSTALL INSTRUCTIONS</p>
         <ol class="install-steps">
-          <li>Download <strong>scrumb-plugin.zip</strong> above</li>
-          <li>Open your <strong>JetBrains IDE</strong> (IntelliJ, PyCharm, etc.)</li>
-          <li>Go to <strong>Settings → Plugins</strong></li>
-          <li>Click the <strong>⚙ gear icon</strong></li>
+          <li>Download <strong>scrumb-plugin.zip</strong></li>
+          <li>Open your <strong>JetBrains IDE</strong></li>
+          <li>Go to <strong>Settings &#x2192; Plugins</strong></li>
+          <li>Click the <strong>&#x2699; gear icon</strong></li>
           <li>Select <strong>Install Plugin from Disk</strong></li>
-          <li>Choose the downloaded <strong>.zip file</strong></li>
-          <li><strong>Restart the IDE</strong> when prompted</li>
+          <li>Choose the <strong>.zip file</strong></li>
+          <li><strong>Restart the IDE</strong></li>
         </ol>
       </div>
     </div>
@@ -845,24 +259,46 @@
 </main>
 
 <div class="cta-section">
-  <h2>STOP <span>DRIFTING.</span></h2>
-  <h2>START <span>SHIPPING.</span></h2>
-  <p>Free during early access. The Architect is waiting for your idea. It has questions. It will not accept "a bus app."</p>
-  <a href="/docs" class="btn-primary">→ REQUEST EARLY ACCESS</a>
+  <h2>STOP <span>DRIFTING.</span><br>START <span>SHIPPING.</span></h2>
+  <p>Free during early access. The Architect has questions. It will not accept &#x201C;a bus app.&#x201D;</p>
+  <a href="/docs" class="btn-primary">&#x2192; REQUEST EARLY ACCESS</a>
 </div>
-
-<footer>
-  <span class="footer-logo">SCRUMB</span>
-  <ul class="footer-links">
-    <li><a href="/how-it-works">HOW IT WORKS</a></li>
-    <li><a href="/shame-engine">SHAME ENGINE</a></li>
-    <li><a href="/jetbrains-ai-plugin">JETBRAINS PLUGIN</a></li>
-    <li><a href="/docs">DOCS</a></li>
-    <li><a href="/faq">FAQ</a></li>
-    <li><a href="/blog/ai-project-management-for-developers">BLOG</a></li>
-  </ul>
-  <span class="footer-copy">© 2026 SCRUMB · MADE IN INDIA 🇮🇳</span>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-logo-wrap">
+      <span class="footer-logo">SCRUMB</span>
+      <p>The compiler for your project. Made in India &#x1F1EE;&#x1F1F3;</p>
+    </div>
+    <div class="footer-col">
+      <h4>PRODUCT</h4>
+      <a href="/">Home</a>
+      <a href="/how-it-works">How It Works</a>
+      <a href="/shame-engine">Shame Engine</a>
+      <a href="/jetbrains-ai-plugin">JetBrains Plugin</a>
+    </div>
+    <div class="footer-col">
+      <h4>FEATURES</h4>
+      <a href="/agile-ai-tool">Agile AI Tool</a>
+      <a href="/ai-scrum-master">AI Scrum Master</a>
+      <a href="/sprint-planning-ai">Sprint Planning AI</a>
+    </div>
+    <div class="footer-col">
+      <h4>BLOG</h4>
+      <a href="/blog/why-hackathon-projects-fail">Why Hackathons Fail</a>
+      <a href="/blog/ai-project-management-for-developers">AI Project Management</a>
+      <a href="/blog/ai-scrum-master-future">Future of AI Scrum</a>
+    </div>
+    <div class="footer-col">
+      <h4>SUPPORT</h4>
+      <a href="/docs">Documentation</a>
+      <a href="/faq">FAQ</a>
+      <a href="/contacts">Contact Us</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">&#169; 2026 SCRUMB &#xB7; AI Project Execution Engine</span>
+    <span class="footer-copy">Early access &#x2014; free to use</span>
+  </div>
 </footer>
-
 </body>
 </html>

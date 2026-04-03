@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background -->
+  <rect width="32" height="32" fill="#0a0a08"/>
+  <!-- Amber "S" lettermark -->
+  <text
+    x="16"
+    y="23"
+    font-family="'Bebas Neue', 'Arial Black', sans-serif"
+    font-size="24"
+    font-weight="700"
+    fill="#ffb000"
+    text-anchor="middle"
+    letter-spacing="0"
+  >S</text>
+</svg>

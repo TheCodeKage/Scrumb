@@ -5,21 +5,42 @@ from rest_framework import viewsets, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
+from Users.models import Team, Membership
+from AI.api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
+from mixins import ActionPermissionMixin
 from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut, get_team_shame_data, add_questions
 from .models import Project, Task, ArchitectQuestion
+from .permissions import IsTeamLeader
 from .serializers import TaskSerializer, ProjectSerializer, QuestionSerializer
 
 
 # Create your views here.
-class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
+class ProjectViewSet(ActionPermissionMixin, viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
 
+    permission_map = {
+        'generate_plan': [IsTeamLeader],
+        'panic_mode': [IsTeamLeader],
+        'destroy': [IsTeamLeader],
+    }
+
+    def get_queryset(self):
+        return Project.objects.filter(team__members=self.request.user.developer).prefetch_related('tasks__subtasks', 'tasks__depends_on')
+
     def perform_create(self, serializer):
+        team_id = self.request.data.get('team_id')
+
+        if not team_id:
+            raise serializers.ValidationError({"team_id": "This field is required."})
+        if not Team.objects.filter(id=team_id, members=self.request.user.developer, members__memberships__role=Membership.Role.LEADER).exists():
+            raise serializers.ValidationError({"team_id": "Invalid team ID."})
+
+        team = Team.objects.get(id=team_id)
+
         # 1. Save the project first
-        project = serializer.save()
+        project = serializer.save(team=team)
         audit_data = check_description(project)
+
 
         if audit_data.get("is_detailed"):
             project.is_detailed = True
@@ -27,9 +48,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
         else:
             add_questions(project, audit_data.get("questions", []))
 
+        project.save()
+
+
+
+
     @action(detail=True, methods=['post'])
     def generate_plan(self, request, pk=None):
         project = self.get_object()
+
+        if project.tasks.exists(): return Response({"error": "Plan has already been generated"}, status=400)
 
         # Ensure every question has exactly one 'is_selected=True' option
         if project.questions.filter(options__is_selected=True).distinct().count() < project.questions.count():
@@ -45,7 +73,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def panic_mode(self, request, pk=None):
-        if not request.data.get('target_cut'): print("Hell0")
         project = self.get_object()
         count_old, count_new, imp_old, imp_new = (
             cut_tasks(
@@ -66,6 +93,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
         project = self.get_object()
 
         status, velocity, distance, target_cut = calculate_health(project)
+
+        if not velocity: return "N/A (no history yet)"
 
         return Response({
             "project_name": project.name,
@@ -102,12 +131,18 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 
 class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Task.objects.all()
     serializer_class = TaskSerializer
     http_method_names = ['get', 'patch', 'delete', 'head', 'options']
 
+    def get_queryset(self):
+        return Task.objects.filter(project__team__members=self.request.user.developer).prefetch_related('subtasks', 'depends_on')
+
     def perform_update(self, serializer):
         instance = self.get_object()
+
+        developer = self.request.user.developer
+        if developer != instance.owner:
+            raise serializers.ValidationError({"error": "You are not the owner of this task."})
         new_status = serializer.validated_data.get('status')
 
         # The Cheating Detector
@@ -125,12 +160,22 @@ class TaskViewSet(viewsets.ModelViewSet):
 
 
 class QuestionViewSet(viewsets.GenericViewSet, viewsets.mixins.ListModelMixin, viewsets.mixins.UpdateModelMixin):
-    queryset = ArchitectQuestion.objects.all()
     serializer_class = QuestionSerializer
+
+    def get_queryset(self):
+        return ArchitectQuestion.objects.filter(project__team__members=self.request.user.developer).prefetch_related('options')
 
     def perform_update(self, serializer):
         selected_option_id = self.request.data.get('selected_option_id')
-        question = self.get_object()
+        question: ArchitectQuestion = self.get_object()
+
+        if not question.project.team.is_leader(self.request.user.developer):
+            return Response({"error": "Only the team leader can answer the Architect's questions."}, status=403)
+
+        try:
+            selected_option_id = int(selected_option_id)
+        except (ValueError, TypeError):
+            raise serializers.ValidationError("Invalid Option ID for this question.")
 
         if selected_option_id:
             with transaction.atomic():

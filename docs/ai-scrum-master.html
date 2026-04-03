@@ -1,207 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>AI Scrum Master for Agile Teams | Scrumb</title>
-  <meta name="description" content="Scrumb is an AI Scrum Master that automates sprint planning, detects blockers early, and tracks agile team progress in real time — inside your JetBrains IDE." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.scrumb.in/ai-scrum-master" />
-
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="AI Scrum Master for Agile Teams | Scrumb" />
-  <meta property="og:description" content="Scrumb's AI Scrum Master automates sprint planning, identifies blockers before they derail your sprint, and gives real-time agile insights inside your IDE." />
-  <meta property="og:url" content="https://www.scrumb.in/ai-scrum-master" />
-  <meta property="og:image" content="https://www.scrumb.in/preview.png" />
-  <meta property="og:site_name" content="Scrumb" />
-
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AI Scrum Master for Agile Teams | Scrumb" />
-  <meta name="twitter:description" content="AI-powered sprint planning, blocker detection, and agile progress tracking inside your JetBrains IDE." />
-  <meta name="twitter:image" content="https://www.scrumb.in/preview.png" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Scrum Master for Developer Teams | Scrumb</title> 
+  <meta name="description" content="Scrumb acts as an AI Scrum Master: Architect Audit sprint planning, DAG-based task tracking, Panic Mode scope management, and Shame Engine accountability. Built for teams without a dedicated Scrum Master."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://www.scrumb.in/ai-scrum-master"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="AI Scrum Master for Developer Teams | Scrumb"/>
+  <meta property="og:description" content="Scrumb acts as an AI Scrum Master: Architect Audit sprint planning, DAG-based task tracking, Panic Mode scope management, and Shame Engine accountability. Built for teams without a dedicated Scrum Master."/>
+  <meta property="og:url" content="https://www.scrumb.in/ai-scrum-master"/>
+  <meta property="og:image" content="https://www.scrumb.in/preview.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:site_name" content="Scrumb"/>
+  <meta property="og:locale" content="en_IN"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="AI Scrum Master for Developer Teams | Scrumb"/>
+  <meta name="twitter:description" content="Scrumb acts as an AI Scrum Master: Architect Audit sprint planning, DAG-based task tracking, Panic Mode scope management, and Shame Engine accountability. Built for teams without a dedicated Scrum Master."/>
+  <meta name="twitter:image" content="https://www.scrumb.in/preview.png"/>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #06090f;
-      --surface: #0d1117;
-      --surface-2: #151c27;
-      --border: rgba(99,179,255,0.1);
-      --text: #d4dff5;
-      --text-muted: #6b7fa3;
-      --accent: #4fa3ff;
-      --accent-2: #00e5c3;
-      --accent-glow: rgba(79,163,255,0.18);
-      --radius: 12px;
-    }
+:root{--bg:#0a0a08;--bg-2:#0f0f0c;--bg-3:#141410;--border:rgba(255,176,0,0.15);--border-strong:rgba(255,176,0,0.35);--border-red:rgba(255,59,59,0.2);--text:#e8e4d4;--text-muted:#6e6a58;--text-dim:#3a3830;--amber:#ffb000;--amber-dim:rgba(255,176,0,0.07);--green:#00ff88;--red:#ff3b3b;--red-dim:rgba(255,59,59,0.06);--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--display:'Bebas Neue',sans-serif;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.022) 2px,rgba(0,0,0,0.022) 4px);pointer-events:none;z-index:9999;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:52px;background:rgba(10,10,8,0.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:var(--display);font-size:1.6rem;letter-spacing:0.08em;color:var(--amber);text-decoration:none;display:flex;align-items:center;gap:0.5rem;}
+.nav-tag{font-family:var(--mono);font-size:0.58rem;color:var(--text-dim);letter-spacing:0.05em;}
+.nav-links{display:flex;gap:0;list-style:none;}
+.nav-links a{color:var(--text-muted);text-decoration:none;font-family:var(--mono);font-size:0.68rem;letter-spacing:0.04em;padding:0 0.85rem;height:52px;display:flex;align-items:center;border-left:1px solid var(--border);transition:color 0.15s,background 0.15s;white-space:nowrap;}
+.nav-links a:hover,.nav-links a.active{color:var(--amber);background:var(--amber-dim);}
+.nav-dropdown{position:relative;}
+.nav-dropdown>.nav-dropdown-toggle::after{content:" ▼";font-size:0.52rem;}
+.nav-dropdown-menu{display:none;position:absolute;top:100%;left:0;list-style:none;margin:0;padding:0;min-width:260px;background:var(--bg-2);border:1px solid var(--border);z-index:1000;}
+.nav-dropdown:hover .nav-dropdown-menu{display:block;}
+.nav-dropdown-menu li a{display:block;height:auto;padding:0.6rem 0.9rem;border-left:none;border-top:1px solid var(--border);font-size:0.64rem;}
+.nav-dropdown-menu li:first-child a{border-top:none;}
+.nav-cta{color:var(--amber)!important;border-left:1px solid var(--border-strong)!important;}
+.site-footer{border-top:1px solid var(--border);padding:1.8rem 2rem;background:var(--bg-2);}
+.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:auto repeat(4,1fr);gap:2rem;align-items:start;}
+.footer-logo-wrap .footer-logo{font-family:var(--display);font-size:1.4rem;letter-spacing:0.08em;color:var(--amber);display:block;margin-bottom:0.4rem;}
+.footer-logo-wrap p{font-family:var(--mono);font-size:0.62rem;color:var(--text-dim);line-height:1.6;max-width:160px;}
+.footer-col h4{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.7rem;}
+.footer-col a{display:block;font-family:var(--mono);font-size:0.68rem;color:var(--text-dim);text-decoration:none;padding:0.18rem 0;transition:color 0.15s;}
+.footer-col a:hover{color:var(--amber);}
+.footer-bottom{max-width:1100px;margin:1.2rem auto 0;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;}
+.footer-copy{font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);}
+.btn-primary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.72rem 1.6rem;background:var(--amber);color:var(--bg);font-family:var(--mono);font-size:0.76rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;transition:opacity 0.15s,transform 0.15s;border:none;cursor:pointer;}
+.btn-primary:hover{opacity:0.85;transform:translateY(-1px);}
+.btn-secondary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.72rem 1.6rem;background:transparent;color:var(--text-muted);font-family:var(--mono);font-size:0.76rem;letter-spacing:0.07em;text-transform:uppercase;text-decoration:none;border:1px solid var(--border);transition:border-color 0.15s,color 0.15s;}
+.btn-secondary:hover{border-color:var(--border-strong);color:var(--text);}
+.section-marker{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--amber);margin-bottom:0.8rem;}
+.section-marker::before{content:'// ';opacity:0.45;}
+.breadcrumb{font-family:var(--mono);font-size:0.66rem;color:var(--text-muted);margin-bottom:1.5rem;letter-spacing:0.04em;}
+.breadcrumb a{color:var(--amber);text-decoration:none;}
+.page-wrap{max-width:1100px;margin:0 auto;padding:0 2rem;}
+.blink{animation:blink 1.1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@media(max-width:900px){.nav-links{display:none;}.footer-inner{grid-template-columns:1fr 1fr;}}
+@media(max-width:500px){.footer-inner{grid-template-columns:1fr;}}
 
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; line-height: 1.6; overflow-x: hidden; }
-    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(79,163,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(79,163,255,0.04) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; z-index: 0; }
+.inner-main{position:relative;z-index:1;padding-top:52px;}
+.inner-hero{max-width:900px;margin:0 auto;padding:4rem 2rem 3rem;border-bottom:1px solid var(--border);}
+.inner-hero h1{font-family:var(--display);font-size:clamp(2.8rem,6vw,5.5rem);letter-spacing:0.04em;line-height:0.95;color:var(--text);margin-bottom:1rem;}
+.inner-hero h1 span{color:var(--amber);}
+.inner-hero p{color:var(--text-muted);font-size:0.95rem;max-width:580px;line-height:1.8;border-left:2px solid var(--border-strong);padding-left:1.2rem;}
+.prose-wrap{max-width:760px;margin:0 auto;padding:3rem 2rem 5rem;}
+.prose-wrap h2{font-family:var(--display);font-size:clamp(1.8rem,3.5vw,3rem);letter-spacing:0.04em;color:var(--text);margin:3rem 0 0.8rem;line-height:1;}
+.prose-wrap h3{font-family:var(--mono);font-size:0.82rem;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:0.06em;margin:1.8rem 0 0.6rem;}
+.prose-wrap p{color:var(--text-muted);font-size:0.92rem;line-height:1.85;margin-bottom:1rem;}
+.prose-wrap p strong{color:var(--text);font-weight:500;}
+.prose-wrap a{color:var(--amber);}
+.prose-wrap ul{list-style:none;display:flex;flex-direction:column;gap:0.4rem;margin:0.8rem 0 1.4rem;}
+.prose-wrap ul li{color:var(--text-muted);font-size:0.9rem;padding:0.55rem 1rem 0.55rem 2.2rem;background:var(--bg-2);border:1px solid var(--border);position:relative;line-height:1.6;}
+.prose-wrap ul li::before{content:'\2192';position:absolute;left:0.7rem;color:var(--amber);}
+.prose-wrap blockquote{border-left:3px solid var(--amber);padding:1rem 1.4rem;background:var(--bg-2);margin:1.8rem 0;}
+.prose-wrap blockquote p{color:var(--text);font-style:italic;margin:0;}
+.callout{padding:1rem 1.2rem;margin:1.2rem 0;font-size:0.87rem;line-height:1.7;border-left:3px solid var(--amber);background:var(--amber-dim);color:var(--text-muted);}
+.callout strong{color:var(--amber);}
+.callout.warn{border-left-color:var(--red);background:var(--red-dim);}
+.callout.warn strong{color:var(--red);}
+.callout.ok{border-left-color:var(--green);background:rgba(0,255,136,0.05);}
+.callout.ok strong{color:var(--green);}
+.cta-box{background:linear-gradient(135deg,rgba(255,176,0,0.07),rgba(0,255,136,0.03));border:1px solid var(--border-strong);padding:2rem;margin:3rem 0;text-align:center;}
+.cta-box h3{font-family:var(--display);font-size:1.8rem;letter-spacing:0.05em;color:var(--text);margin-bottom:0.5rem;}
+.cta-box p{color:var(--text-muted);font-size:0.88rem;margin-bottom:1.2rem;line-height:1.7;}
+.code-block{background:var(--bg-3);border:1px solid var(--border);padding:1.2rem 1.5rem;font-family:var(--mono);font-size:0.76rem;color:var(--text-muted);line-height:1.9;margin:1rem 0;overflow-x:auto;}
+.c-green{color:var(--green);}.c-amber{color:var(--amber);}.c-red{color:var(--red);}.c-dim{color:var(--text-dim);}
+.compare-table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:0.83rem;}
+.compare-table th{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.6rem 0.8rem;border:1px solid var(--border);background:var(--bg-3);color:var(--text-muted);text-align:left;}
+.compare-table td{padding:0.6rem 0.8rem;border:1px solid var(--border);color:var(--text-muted);vertical-align:top;line-height:1.6;}
+.compare-table tr:nth-child(even) td{background:var(--bg-2);}
+.good{color:var(--green);}.bad{color:var(--red);}
 
-    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; background: rgba(6,9,15,0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
-    .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--accent); text-decoration: none; }
-    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
-    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--text); }
-    .nav-cta { background: var(--accent); color: var(--bg) !important; padding: 0.45rem 1.1rem; border-radius: 8px; font-weight: 600 !important; }
-
-    main { position: relative; z-index: 1; padding-top: 5rem; }
-
-    .page-hero { max-width: 850px; margin: 0 auto; padding: 4rem 2rem 3rem; text-align: center; }
-    .breadcrumb { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.5rem; }
-    .breadcrumb a { color: var(--accent); text-decoration: none; }
-    .page-hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 1.2rem; }
-    .page-hero h1 em { font-style: normal; background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .page-hero p { color: var(--text-muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto 2rem; line-height: 1.7; }
-
-    .content-section { max-width: 1000px; margin: 0 auto; padding: 2rem 2rem 4rem; }
-
-    .prose { max-width: 720px; margin: 0 auto; }
-    .prose h2 { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); margin: 2.5rem 0 1rem; }
-    .prose p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.75; }
-    .prose ul { margin: 1rem 0 1.5rem 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
-    .prose ul li { color: var(--text-muted); font-size: 0.92rem; padding: 0.6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding-left: 2.5rem; position: relative; }
-    .prose ul li::before { content: '✓'; position: absolute; left: 0.8rem; color: var(--accent-2); font-weight: 700; }
-
-    .cta-box { background: linear-gradient(135deg, rgba(79,163,255,0.08), rgba(0,229,195,0.05)); border: 1px solid rgba(79,163,255,0.2); border-radius: 16px; padding: 2.5rem; text-align: center; margin: 3rem 0; }
-    .cta-box h3 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: 0.6rem; }
-    .cta-box p { color: var(--text-muted); font-size: 0.92rem; margin-bottom: 1.5rem; }
-
-    .btn-primary { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.85rem 1.8rem; background: var(--accent); color: var(--bg); border-radius: var(--radius); font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(79,163,255,0.35); }
-
-    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin: 1.5rem 0; }
-    .compare-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
-    .compare-card h4 { font-weight: 600; font-size: 0.9rem; margin-bottom: 1rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.78rem; }
-    .compare-card.scrumb h4 { color: var(--accent); }
-    .compare-card ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
-    .compare-card ul li { font-size: 0.85rem; color: var(--text-muted); padding: 0.3rem 0; border-bottom: 1px solid var(--border); }
-    .compare-card ul li:last-child { border-bottom: none; }
-    .compare-card.scrumb ul li { color: var(--text); }
-
-    footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; margin-top: 4rem; }
-    footer a { color: var(--text-muted); text-decoration: none; margin: 0 0.8rem; font-size: 0.85rem; }
-    footer a:hover { color: var(--text); }
-    footer p { font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem; }
-
-    @media (max-width: 600px) { .nav-links { display: none; } .compare-grid { grid-template-columns: 1fr; } }
-  </style>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": "AI Scrum Master for Agile Teams",
-    "description": "How Scrumb's AI Scrum Master helps agile teams plan sprints, detect blockers, and track progress automatically.",
-    "author": { "@type": "Person", "name": "Naman Agrawal" },
-    "publisher": { "@type": "Organization", "name": "Scrumb", "url": "https://www.scrumb.in" },
-    "mainEntityOfPage": "https://www.scrumb.in/ai-scrum-master"
-  }
-  </script>
+.related-links{margin:3rem 0;padding-top:2rem;border-top:1px solid var(--border);}
+.related-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.8rem;margin-top:1rem;}
+.related-card{display:flex;flex-direction:column;gap:0.3rem;padding:1rem 1.2rem;background:var(--bg-2);border:1px solid var(--border);text-decoration:none;transition:border-color 0.15s,background 0.15s;}
+.related-card:hover{border-color:var(--border-strong);background:var(--amber-dim);}
+.rc-label{font-family:var(--mono);font-size:0.72rem;font-weight:600;color:var(--amber);letter-spacing:0.05em;}
+.rc-desc{font-size:0.82rem;color:var(--text-muted);}
+@media(max-width:600px){.related-grid{grid-template-columns:1fr;}}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"AI Scrum Master for Developer Teams","description":"Scrumb acts as an AI Scrum Master with Architect Audit planning, DAG task tracking, Panic Mode, and Shame Engine accountability.","url":"https://www.scrumb.in/ai-scrum-master"}</script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
 <body>
-
 <nav>
-  <a href="/" class="nav-logo">Scrumb</a>
-  <ul class="nav-links">
-    <li><a href="/ai-scrum-master">AI Scrum Master</a></li>
-    <li><a href="/sprint-planning-ai">Sprint Planning</a></li>
-    <li><a href="/jetbrains-ai-plugin">JetBrains Plugin</a></li>
-    <li><a href="/docs">Docs</a></li>
-    <li><a href="/faq" class="nav-cta">Get Early Access</a></li>
-  </ul>
-</nav>
+  <a href="/" class="nav-logo">SCRUMB<span class="nav-tag"> v0.1-alpha</span></a>
+  <ul class="nav-links"><li><a href="/">HOME</a></li><li><a href="/how-it-works">HOW IT WORKS</a></li><li><a href="/contacts">CONTACTS</a></li><li><a href="/shame-engine">SHAME ENGINE</a></li><li><a href="/jetbrains-ai-plugin">PLUGIN</a></li><li class="nav-dropdown"><a href="/blog/why-hackathon-projects-fail" class="nav-dropdown-toggle">BLOG</a><ul class="nav-dropdown-menu"><li><a href="/blog/why-hackathon-projects-fail">Why Hackathon Projects Fail</a></li><li><a href="/blog/ai-project-management-for-developers">AI Project Management for Developers</a></li><li><a href="/blog/ai-scrum-master-future">The Future of AI Scrum Masters</a></li></ul></li><li><a href="/faq">FAQ</a></li><li><a href="/docs" class="nav-cta">DOCS</a></li></ul>
+</nav><main class="inner-main"><div class="inner-hero" style="max-width:900px;margin:0 auto;padding:4rem 2rem 3rem;border-bottom:1px solid var(--border);"><div class="breadcrumb"><a href="/">SCRUMB</a> / AI SCRUM MASTER</div><h1 style="font-family:var(--display);font-size:clamp(2.8rem,6vw,5.5rem);letter-spacing:0.04em;line-height:0.95;color:var(--text);margin-bottom:1rem;">AI <span style="color:var(--amber)">SCRUM MASTER</span></h1><p style="color:var(--text-muted);font-size:0.95rem;max-width:580px;line-height:1.8;border-left:2px solid var(--border-strong);padding-left:1.2rem;">Scrumb acts as an AI Scrum Master for teams that don&#x2019;t have one. It handles the computational parts of scrum &#x2014; planning, dependency tracking, blocker detection, scope management &#x2014; so your team can focus on building.</p></div><div class="prose-wrap"><div class="section-marker">OVERVIEW</div>
+<h2>WHAT IS AN AI SCRUM MASTER?</h2>
+<p>A traditional Scrum Master manually tracks progress, facilitates ceremonies, and identifies blockers in stand-ups. This works &#x2014; but it's slow, reactive, and requires a dedicated person. Most small teams don't have one.</p>
+<p>Scrumb acts as an AI Scrum Master by doing the parts of the role that are <strong>fundamentally computational:</strong> dependency tracking, velocity measurement, blocker identification, and scope management under deadline pressure.</p>
 
-<main>
-  <div class="page-hero">
-    <div class="breadcrumb"><a href="/">Scrumb</a> → AI Scrum Master</div>
-    <h1>The <em>AI Scrum Master</em> Built for Real Developer Teams</h1>
-    <p>Scrumb automates the repetitive parts of scrum — sprint planning, blocker tracking, progress updates — so your team can focus on what matters: shipping.</p>
-    <a href="/#plugin" class="btn-primary">Get the JetBrains Plugin →</a>
+<h2>HOW SCRUMB'S AI SCRUM MASTER DIFFERS</h2>
+<table class="compare-table">
+  <thead><tr><th>FUNCTION</th><th>TRADITIONAL</th><th class="c-amber">SCRUMB AI</th></tr></thead>
+  <tbody>
+    <tr><td>Sprint planning</td><td>Manual, meeting-driven</td><td class="good">Architect Audit &#x2014; AI interview</td></tr>
+    <tr><td>Task assignment</td><td>Manual, based on gut feel</td><td class="good">Auto-assigned by skill matrix</td></tr>
+    <tr><td>Blocker detection</td><td>Discovered in stand-ups</td><td class="good">Continuous, real-time</td></tr>
+    <tr><td>Scope management</td><td>Retrospective discussion</td><td class="good">Panic Mode &#x2014; automated trim</td></tr>
+    <tr><td>Accountability</td><td>Social pressure in meetings</td><td class="good"><a href="/shame-engine">Shame Engine</a> &#x2014; named reports</td></tr>
+    <tr><td>Where it lives</td><td>Separate meeting / tool</td><td class="good"><a href="/jetbrains-ai-plugin">Inside your IDE</a></td></tr>
+  </tbody>
+</table>
+
+<h2>WHO BENEFITS MOST</h2>
+<ul>
+  <li>Student teams running capstone projects or hackathons without agile experience</li>
+  <li>Startups that need structure but can't justify a full-time Scrum Master</li>
+  <li>Small engineering squads where the lead dev is also playing Scrum Master</li>
+  <li>Any team where "we'll figure out the process as we go" has already failed</li>
+</ul>
+
+<blockquote><p>"The best Scrum Master is the one who makes the team not need a Scrum Master. Scrumb is the compiler that enforces the rules so no human has to."</p></blockquote>
+
+<div class="related-links">
+  <div class="section-marker">RELATED</div>
+  <div class="related-grid">
+    <a href="/how-it-works" class="related-card"><span class="rc-label">HOW IT WORKS</span><span class="rc-desc">The five-stage execution pipeline explained</span></a>
+    <a href="/shame-engine" class="related-card"><span class="rc-label">SHAME ENGINE</span><span class="rc-desc">AI accountability for stalled tasks</span></a>
+    <a href="/jetbrains-ai-plugin" class="related-card"><span class="rc-label">JETBRAINS PLUGIN</span><span class="rc-desc">Task tree inside your IDE</span></a>
+    <a href="/blog/why-hackathon-projects-fail" class="related-card"><span class="rc-label">BLOG</span><span class="rc-desc">Why hackathon projects fail</span></a>
   </div>
-
-  <div class="content-section">
-    <div class="prose">
-      <h2>What Is an AI Scrum Master?</h2>
-      <p>
-        A traditional Scrum Master manually tracks team progress, facilitates ceremonies, and identifies blockers during stand-ups and retrospectives. This works — but it's slow, manual, and requires constant attention.
-      </p>
-      <p>
-        An AI Scrum Master like Scrumb continuously analyzes your team's development activity in real time, surfacing risks and insights <em>before</em> they become problems. Instead of discovering a blocker in Friday's retrospective, you know about it on Tuesday.
-      </p>
-
-      <h2>What Does Scrumb's AI Scrum Master Do?</h2>
-      <ul>
-        <li>Assists with sprint planning using AI-generated story breakdowns and timelines</li>
-        <li>Detects development blockers and risks before they impact sprint delivery</li>
-        <li>Tracks individual and team progress automatically, without manual check-ins</li>
-        <li>Provides velocity insights to improve future sprint accuracy</li>
-        <li>Operates directly inside your JetBrains IDE — no tab switching</li>
-      </ul>
-
-      <h2>AI Scrum Master vs. Traditional Scrum Master</h2>
-
-      <div class="compare-grid">
-        <div class="compare-card">
-          <h4>Traditional Scrum Master</h4>
-          <ul>
-            <li>Manual progress tracking</li>
-            <li>Blockers discovered in stand-ups</li>
-            <li>Relies on team self-reporting</li>
-            <li>Insights come after retrospectives</li>
-            <li>Separate from dev environment</li>
-          </ul>
-        </div>
-        <div class="compare-card scrumb">
-          <h4>Scrumb AI Scrum Master</h4>
-          <ul>
-            <li>Automated continuous tracking</li>
-            <li>Blockers flagged proactively</li>
-            <li>Analyzes dev activity directly</li>
-            <li>Real-time sprint health insights</li>
-            <li>Lives inside your JetBrains IDE</li>
-          </ul>
-        </div>
-      </div>
-
-      <h2>Why Teams Use Scrumb</h2>
-      <p>
-        Most agile teams — especially student groups, early-stage startups, and small engineering teams — don't have a dedicated Scrum Master. Meetings get skipped, blockers pile up unnoticed, and sprints fail not because the team can't execute, but because no one had visibility.
-      </p>
-      <p>
-        Scrumb fills that gap. It's an AI co-pilot for your agile workflow, running in the background and surfacing the information your team needs to stay on track.
-      </p>
-
-      <h2>Who Should Use an AI Scrum Master?</h2>
-      <ul>
-        <li>Student teams running capstone projects or hackathons with agile methodology</li>
-        <li>Startups that can't afford or don't yet need a full-time Scrum Master</li>
-        <li>Engineering teams looking to reduce sprint failure rates</li>
-        <li>Developers who want to self-manage with structured agile tooling</li>
-      </ul>
-
-      <div class="cta-box">
-        <h3>Try the JetBrains Plugin — Free Early Access</h3>
-        <p>Scrumb is actively being built. Download the early demo and bring AI sprint assistance directly into your IDE.</p>
-        <a href="/#plugin" class="btn-primary">Download the Plugin →</a>
-      </div>
+</div>
+<div class="cta-box"><h3>TRY THE AI SCRUM MASTER</h3><p>Free during early access. Architect Audit &#x2192; DAG &#x2192; Ship.</p><a href="/docs" class="btn-primary">&#x2192; GET EARLY ACCESS</a></div></div></main><footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-logo-wrap">
+      <span class="footer-logo">SCRUMB</span>
+      <p>The compiler for your project. Made in India &#x1F1EE;&#x1F1F3;</p>
+    </div>
+    <div class="footer-col">
+      <h4>PRODUCT</h4>
+      <a href="/">Home</a>
+      <a href="/how-it-works">How It Works</a>
+      <a href="/shame-engine">Shame Engine</a>
+      <a href="/jetbrains-ai-plugin">JetBrains Plugin</a>
+    </div>
+    <div class="footer-col">
+      <h4>FEATURES</h4>
+      <a href="/agile-ai-tool">Agile AI Tool</a>
+      <a href="/ai-scrum-master">AI Scrum Master</a>
+      <a href="/sprint-planning-ai">Sprint Planning AI</a>
+    </div>
+    <div class="footer-col">
+      <h4>BLOG</h4>
+      <a href="/blog/why-hackathon-projects-fail">Why Hackathons Fail</a>
+      <a href="/blog/ai-project-management-for-developers">AI Project Management</a>
+      <a href="/blog/ai-scrum-master-future">Future of AI Scrum</a>
+    </div>
+    <div class="footer-col">
+      <h4>SUPPORT</h4>
+      <a href="/docs">Documentation</a>
+      <a href="/faq">FAQ</a>
+      <a href="/contacts">Contact Us</a>
     </div>
   </div>
-</main>
-
-<footer>
-  <a href="/">Home</a>
-  <a href="/sprint-planning-ai">Sprint Planning AI</a>
-  <a href="/jetbrains-ai-plugin">JetBrains Plugin</a>
-  <a href="/agile-ai-tool">Agile AI Tool</a>
-  <a href="/docs">Docs</a>
-  <a href="/faq">FAQ</a>
-  <p>© 2026 Scrumb · AI Scrum Master for Agile Teams</p>
+  <div class="footer-bottom">
+    <span class="footer-copy">&#169; 2026 SCRUMB &#xB7; AI Project Execution Engine</span>
+    <span class="footer-copy">Early access &#x2014; free to use</span>
+  </div>
 </footer>
-
 </body>
 </html>

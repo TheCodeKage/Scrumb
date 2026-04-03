@@ -1,10 +1,12 @@
 from rest_framework import serializers
 
 from .logic import calculate_health
+from Users.serializers import TeamSerializer, DeveloperSerializer
 from .models import Project, Task, ArchitectQuestion, Option
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    owner = serializers.SerializerMethodField()
     sub_tasks = serializers.SerializerMethodField()
     blocking_tasks = serializers.SerializerMethodField()
     is_blocked = serializers.ReadOnlyField()
@@ -16,6 +18,9 @@ class TaskSerializer(serializers.ModelSerializer):
             'phase_label', 'sub_tasks', 'owner',
             'is_blocked', 'blocking_tasks'
         ]
+
+    def get_owner(self, task):
+        return task.owner.user.username if task.owner else None
 
 
     def get_sub_tasks(self, task):
@@ -67,11 +72,12 @@ class ProjectSerializer(serializers.ModelSerializer):
     tasks = serializers.SerializerMethodField()
     questions = serializers.SerializerMethodField()
     health = serializers.SerializerMethodField()
+    team = TeamSerializer(read_only=True)
 
     class Meta:
         model = Project
         read_only_fields = ('is_detailed',)
-        fields = ['id', 'name', 'description', 'guarantee_date', "team", 'tasks', 'completion_percentage', 'health', 'is_detailed', 'questions']
+        fields = ['id', 'name', 'description', 'guarantee_date', 'team', 'tasks', 'completion_percentage', 'health', 'is_detailed', 'questions']
 
     def get_tasks(self, project):
         root_tasks = project.tasks.filter(parent_task__isnull=True)

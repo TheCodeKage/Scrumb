@@ -1,0 +1,9 @@
+Hello,
+
+Please confirm your email by clicking the link below:
+
+{{ activate_url }}
+
+This link expires in 3 days.
+
+If you didn't register for Scrumb, ignore this email.
