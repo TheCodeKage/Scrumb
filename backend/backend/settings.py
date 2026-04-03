@@ -55,6 +55,17 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+INSTALLED_APPS += ["corsheaders"]
+
+# Must be FIRST in middleware, before CommonMiddleware
+MIDDLEWARE.insert(0, "corsheaders.middleware.CorsMiddleware")
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+    "https://www.scrumb.in",
+]
+
 ROOT_URLCONF = "backend.urls"
 
 TEMPLATES = [
@@ -194,7 +205,9 @@ ACCOUNT_LOGIN_METHOD = {'username'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
-ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_CONFIRM_EMAIL_ON_GET = False
+
+ACCOUNT_ADAPTER = 'Users.adapter.CustomAccountAdapter'
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 PASSWORD_RESET_CONFIRM_URL = "reset/{uid}/{token}"
