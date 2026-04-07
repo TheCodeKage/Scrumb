@@ -1,10 +1,10 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
+from api_responses import success_response, error_response
 from .models import Team, Membership, Developer, Invitation, Skill
 from .serializers import TeamSerializer, DeveloperSerializer, InvitationSerializer
 from .permissions import IsTeamMember, IsTeamLeader
@@ -28,15 +28,23 @@ class DeveloperViewSet(viewsets.ModelViewSet):
         skill = request.data.get('skill')
 
         if not skill:
-            return Response({"error": "Skill is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return error_response(
+                message="Skill is required",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                errors=[{"field": "skill", "detail": "Skill is required"}],
+            )
         if not Skill.objects.filter(name=skill).exists():
-            return Response({"error": "Skill not found"}, status=status.HTTP_404_NOT_FOUND)
+            return error_response(
+                message="Skill not found",
+                status_code=status.HTTP_404_NOT_FOUND,
+                errors=[{"field": "skill", "detail": "Skill not found"}],
+            )
 
         if add:
             developer.skills.add(Skill.objects.get(name=skill))
         else:
             developer.skills.remove(Skill.objects.get(name=skill))
-        return Response({"status": "Skill added" if add else "Skill removed"})
+        return success_response(message="Skill added" if add else "Skill removed")
 
     @action(detail=True, methods=['post'])
     def add_skill(self, request, pk=None):
@@ -49,7 +57,7 @@ class DeveloperViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def get_skills(self, request, pk=None):
         developer = self.get_object()
-        return Response(developer.skills.values())
+        return success_response(message="Skills fetched", data=list(developer.skills.values()))
 
 
 class TeamViewSet(ActionPermissionMixin, viewsets.ModelViewSet):
@@ -89,31 +97,39 @@ class TeamViewSet(ActionPermissionMixin, viewsets.ModelViewSet):
         invited_username = request.data.get('username')
 
         if not invited_username:
-            return Response({"error": "Username is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return error_response(
+                message="Username is required",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                errors=[{"field": "username", "detail": "Username is required"}],
+            )
 
         if not Developer.objects.filter(user__username=invited_username).exists():
-            return Response({"error": "Developer not found"}, status=status.HTTP_404_NOT_FOUND)
+            return error_response(
+                message="Developer not found",
+                status_code=status.HTTP_404_NOT_FOUND,
+                errors=[{"field": "username", "detail": "Developer not found"}],
+            )
 
         invited_developer = Developer.objects.get(user__username=invited_username)
         success, error = send_invitation(request.user.developer, invited_developer, team)
 
         if not success:
-            return Response({"error": error}, status=status.HTTP_400_BAD_REQUEST)
+            return error_response(message=error, status_code=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"status": "Invitation sent"})
+        return success_response(message="Invitation sent")
 
     @action(detail=True, methods=['post'])
     def join_request(self, request, pk=None):
         team = self.get_object()
         success, error = send_join_request(request.user.developer, team)
         if not success:
-            return Response({"error": error}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"status": "Join request sent"})
+            return error_response(message=error, status_code=status.HTTP_400_BAD_REQUEST)
+        return success_response(message="Join request sent")
 
     @action(detail=True, methods=['get'])
     def join_requests(self, request, pk=None):
         team = self.get_object()
-        return Response(team.active_join_requests.values())
+        return success_response(message="Join requests fetched", data=list(team.active_join_requests.values()))
 
     @action(detail=True, methods=['post'])
     def approve_join_request(self, request, pk=None):
@@ -121,18 +137,26 @@ class TeamViewSet(ActionPermissionMixin, viewsets.ModelViewSet):
         invitation_id = request.data.get('invitation_id')
 
         if not invitation_id:
-            return Response({"error": "Invitation ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return error_response(
+                message="Invitation ID is required",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                errors=[{"field": "invitation_id", "detail": "Invitation ID is required"}],
+            )
 
         if not team.invitations.filter(id=invitation_id).exists():
-            return Response({"error": "Invitation not found"}, status=status.HTTP_404_NOT_FOUND)
+            return error_response(
+                message="Invitation not found",
+                status_code=status.HTTP_404_NOT_FOUND,
+                errors=[{"field": "invitation_id", "detail": "Invitation not found"}],
+            )
 
         invitation = team.invitations.get(id=invitation_id)
         success, error = accept_join_request(invitation)
 
         if not success:
-            return Response({"error": error}, status=status.HTTP_400_BAD_REQUEST)
+            return error_response(message=error, status_code=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"status": "Join request approved"})
+        return success_response(message="Join request approved")
 
 
 class InvitationViewSet(ActionPermissionMixin, viewsets.ReadOnlyModelViewSet):
@@ -150,9 +174,9 @@ class InvitationViewSet(ActionPermissionMixin, viewsets.ReadOnlyModelViewSet):
         success, error = accept_invitation(invitation)
 
         if not success:
-            return Response({"error": error}, status=status.HTTP_400_BAD_REQUEST)
+            return error_response(message=error, status_code=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"status": "Invitation accepted"})
+        return success_response(message="Invitation accepted")
 
     @action(detail=True, methods=['post'])
     def decline(self, request, pk=None):
@@ -161,6 +185,6 @@ class InvitationViewSet(ActionPermissionMixin, viewsets.ReadOnlyModelViewSet):
         success, error = decline_invitation(invitation)
 
         if not success:
-            return Response({"error": error}, status=status.HTTP_400_BAD_REQUEST)
+            return error_response(message=error, status_code=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"status": "Invitation declined"})
+        return success_response(message="Invitation declined")
