@@ -6,12 +6,13 @@ from django.conf import settings
 
 def update_site_name(apps, schema_editor):
     SiteModel = apps.get_model('sites', 'Site')
-    domain = 'scrumb.in'
 
     SiteModel.objects.update_or_create(
-        pk=settings.SITE_ID,
-        defaults={'domain': domain,
-                  'name': domain}
+        pk=1,  # ✅ HARD CODE
+        defaults={
+            'domain': 'scrumb.in',
+            'name': 'Scrumb'
+        }
     )
 
 class Migration(migrations.Migration):
