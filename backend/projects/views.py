@@ -1,46 +1,56 @@
 from django.db import transaction
 from django.http import JsonResponse
 from django.utils import timezone
-from rest_framework import viewsets, serializers
+from rest_framework import viewsets, serializers, status
 from rest_framework.decorators import action
-from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied, ValidationError
 
-from Users.models import Team, Membership
 from AI.api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
-from mixins import ActionPermissionMixin
-from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut, get_team_shame_data, add_questions
+from Users.models import Team, Membership
+from api_responses import success_response, error_response
+from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut, get_stalled_tasks, add_questions, \
+    select_option_for_question
 from .models import Project, Task, ArchitectQuestion
 from .permissions import IsTeamLeader
 from .serializers import TaskSerializer, ProjectSerializer, QuestionSerializer
 
 
 # Create your views here.
-class ProjectViewSet(ActionPermissionMixin, viewsets.ModelViewSet):
+
+
+class ProjectBaseViewSet(viewsets.GenericViewSet):
     serializer_class = ProjectSerializer
 
-    permission_map = {
-        'generate_plan': [IsTeamLeader],
-        'panic_mode': [IsTeamLeader],
-        'destroy': [IsTeamLeader],
-    }
-
     def get_queryset(self):
-        return Project.objects.filter(team__members=self.request.user.developer).prefetch_related('tasks__subtasks', 'tasks__depends_on')
+        return (Project.objects.filter(team__members=self.request.user.developer)
+                .select_related('team')
+                .prefetch_related('tasks__depends_on', 'tasks__subtasks'))
+
+
+class ProjectViewSet(ProjectBaseViewSet, viewsets.ModelViewSet):
+    def get_permissions(self):
+        if self.action == 'destroy':
+            return [IsTeamLeader()]
+        return super().get_permissions()
 
     def perform_create(self, serializer):
         team_id = self.request.data.get('team_id')
 
         if not team_id:
             raise serializers.ValidationError({"team_id": "This field is required."})
-        if not Team.objects.filter(id=team_id, members=self.request.user.developer, members__memberships__role=Membership.Role.LEADER).exists():
-            raise serializers.ValidationError({"team_id": "Invalid team ID."})
 
-        team = Team.objects.get(id=team_id)
+        team = Team.objects.filter(
+            id=team_id,
+            members=self.request.user.developer,
+            members__memberships__role=Membership.Role.LEADER
+        ).first()
+
+        if not team:
+            raise serializers.ValidationError({"team_id": "Invalid team ID."})
 
         # 1. Save the project first
         project = serializer.save(team=team)
         audit_data = check_description(project)
-
 
         if audit_data.get("is_detailed"):
             project.is_detailed = True
@@ -48,20 +58,26 @@ class ProjectViewSet(ActionPermissionMixin, viewsets.ModelViewSet):
         else:
             add_questions(project, audit_data.get("questions", []))
 
-        project.save()
 
-
-
+class ProjectPlanningViewSet(ProjectBaseViewSet):
+    permission_classes = [IsTeamLeader]
 
     @action(detail=True, methods=['post'])
     def generate_plan(self, request, pk=None):
         project = self.get_object()
 
-        if project.tasks.exists(): return Response({"error": "Plan has already been generated"}, status=400)
+        if project.tasks.exists():
+            return error_response(
+                message="Plan has already been generated",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
 
         # Ensure every question has exactly one 'is_selected=True' option
         if project.questions.filter(options__is_selected=True).distinct().count() < project.questions.count():
-            return Response({"error": "You haven't answered all the Architect's questions yet."}, status=400)
+            return error_response(
+                message="You have not answered all architect questions yet",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
 
         # Flip the switch: The project is now detailed enough because the user chose the MCQs
         project.is_detailed = True
@@ -69,7 +85,114 @@ class ProjectViewSet(ActionPermissionMixin, viewsets.ModelViewSet):
 
         tasks_data = generate_tasks(project)
         save_tasks(tasks_data, project)
-        return Response({"status": "Plan Generated"})
+        return success_response(message="Plan generated")
+
+    @action(detail=True, methods=['post'])
+    def answer_all(self, request, pk=None):
+        project = self.get_object()
+
+        if project.is_detailed:
+            return error_response(
+                message="Plan has already been generated",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        questions = project.questions.all()
+
+        if not questions.exists():
+            return error_response(
+                message="No questions found for this project",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+
+        answers = request.data.get("answers", [])
+
+        if not isinstance(answers, list):
+            raise ValidationError("Answers must be a list.")
+
+        question_map = {q.id: q for q in questions}
+
+        with transaction.atomic():
+            for item in answers:
+                q_id = item.get("question_id")
+                opt_id = item.get("selected_option_id")
+
+                if q_id not in question_map:
+                    raise ValidationError(f"Invalid question_id: {q_id}")
+
+                select_option_for_question(question_map[q_id], opt_id)
+
+        return success_response(message="All answers submitted successfully", status_code=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get'])
+    def interview(self, request, pk=None):
+        project = self.get_object()
+
+        # If Gemini is still thinking (Audit phase), tell the IDE to wait
+        if not project.is_detailed and not project.questions.exists():
+            return success_response(
+                message="Architect is reviewing",
+                data={"phase": "AUDITING"},
+            )
+
+        # Return the questions so Sohal can render the MCQs
+        serializer = QuestionSerializer(project.questions.all(), many=True)
+        return success_response(
+            message="Architect questions fetched",
+            data={
+                "phase": "INTERVIEWING",
+                "questions": serializer.data,
+            },
+        )
+
+
+class ProjectAnalyticsViewSet(ProjectBaseViewSet):
+    @action(detail=True, methods=['get'])
+    def health(self, request, pk=None):
+        project = self.get_object()
+
+        project_status, velocity, distance, target_cut = calculate_health(project)
+
+        if not velocity:
+            return success_response(message="No history yet", data={"daily_velocity": "N/A"})
+
+        return success_response(
+            message="Project health fetched",
+            data={
+                "project_name": project.name,
+                "status": project_status,
+                "completion_percentage": project.completion_percentage,
+                "daily_velocity": velocity,
+                "current_panic_requirement": f"{target_cut}% scope cut needed",
+                "days_until_guarantee": (project.guarantee_date - timezone.now().date()).days,
+                "expected_complete_by": f"{round(distance / velocity)} days",
+            },
+        )
+
+    @action(detail=True, methods=['get'])
+    def stalled_tasks(self, request, pk=None):
+        project = self.get_object()
+        stalled_tasks = get_stalled_tasks(project)
+        return success_response(message="Stalled tasks fetched", data={"stalled_tasks": stalled_tasks})
+
+    @action(detail=True, methods=['get'])
+    def roast(self, request, pk=None):
+        project = self.get_object()
+        stalled_tasks = get_stalled_tasks(project)
+        shame_team(stalled_tasks, project.team.values())
+        return success_response(message="Roast sent")
+
+
+class ProjectPanicViewSet(ProjectBaseViewSet):
+    permission_classes = [IsTeamLeader]
+
+    @action(detail=True, methods=['post'])
+    def panic_previews(self, request, pk=None):
+        project = self.get_object()
+        return success_response(
+            message="Panic previews generated",
+            data=get_panic_recommendations(project, calculate_target_cut(project)),
+        )
 
     @action(detail=True, methods=['post'])
     def panic_mode(self, request, pk=None):
@@ -81,53 +204,15 @@ class ProjectViewSet(ActionPermissionMixin, viewsets.ModelViewSet):
             )
         )
 
-        return Response({
-            "no_of_tasks_before": count_old,
-            "no_of_tasks_after": count_new,
-            "total_importance_before": imp_old,
-            "total_importance_after": imp_new,
-        })
-
-    @action(detail=True, methods=['get'])
-    def health(self, request, pk=None):
-        project = self.get_object()
-
-        status, velocity, distance, target_cut = calculate_health(project)
-
-        if not velocity: return "N/A (no history yet)"
-
-        return Response({
-            "project_name": project.name,
-            "status": status,
-            "completion_percentage": project.completion_percentage,
-            "daily_velocity": velocity,
-            "current_panic_requirement": f"{target_cut}% scope cut needed",
-            "days_until_guarantee": (project.guarantee_date - timezone.now().date()).days,
-            "expected_complete_by": f"{round(distance/velocity)} days",
-        })
-
-    @action(detail=True, methods=['get'])
-    def team_shame(self, request, pk=None):
-        project = self.get_object()
-        shame_data, team_data = get_team_shame_data(project)
-        return Response(
-            shame_team(shame_data, team_data)
+        return success_response(
+            message="Panic mode applied",
+            data={
+                "no_of_tasks_before": count_old,
+                "no_of_tasks_after": count_new,
+                "total_importance_before": imp_old,
+                "total_importance_after": imp_new,
+            },
         )
-
-    @action(detail=True, methods=['get'])
-    def interview(self, request, pk=None):
-        project = self.get_object()
-
-        # If Gemini is still thinking (Audit phase), tell the IDE to wait
-        if not project.is_detailed and not project.questions.exists():
-            return Response({"status": "AUDITING", "message": "Architect is reviewing..."})
-
-        # Return the questions so Sohal can render the MCQs
-        serializer = QuestionSerializer(project.questions.all(), many=True)
-        return Response({
-            "status": "INTERVIEWING",
-            "questions": serializer.data
-        })
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -135,7 +220,8 @@ class TaskViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'patch', 'delete', 'head', 'options']
 
     def get_queryset(self):
-        return Task.objects.filter(project__team__members=self.request.user.developer).prefetch_related('subtasks', 'depends_on')
+        return Task.objects.filter(project__team__members=self.request.user.developer).prefetch_related('subtasks',
+                                                                                                        'depends_on')
 
     def perform_update(self, serializer):
         instance = self.get_object()
@@ -159,41 +245,44 @@ class TaskViewSet(viewsets.ModelViewSet):
         serializer.save()
 
 
-class QuestionViewSet(viewsets.GenericViewSet, viewsets.mixins.ListModelMixin, viewsets.mixins.UpdateModelMixin):
+class QuestionViewSet(viewsets.GenericViewSet,
+                      viewsets.mixins.ListModelMixin,
+                      viewsets.mixins.RetrieveModelMixin):
+
     serializer_class = QuestionSerializer
 
     def get_queryset(self):
-        return ArchitectQuestion.objects.filter(project__team__members=self.request.user.developer).prefetch_related('options')
+        queryset = ArchitectQuestion.objects.filter(
+            project__team__members=self.request.user.developer
+        ).prefetch_related('options')
 
-    def perform_update(self, serializer):
-        selected_option_id = self.request.data.get('selected_option_id')
-        question: ArchitectQuestion = self.get_object()
+        project_id = self.request.query_params.get("project")
 
-        if not question.project.team.is_leader(self.request.user.developer):
-            return Response({"error": "Only the team leader can answer the Architect's questions."}, status=403)
+        if project_id:
+            try:
+                project_id = int(project_id)
+                queryset = queryset.filter(project_id=project_id)
+            except (ValueError, TypeError):
+                raise ValidationError("Invalid project ID.")
 
-        try:
-            selected_option_id = int(selected_option_id)
-        except (ValueError, TypeError):
-            raise serializers.ValidationError("Invalid Option ID for this question.")
+        return queryset
 
-        if selected_option_id:
-            with transaction.atomic():
-                # 1. Ensure the option actually belongs to this question (Security)
-                option_to_select = question.options.filter(id=selected_option_id)
+    @action(detail=True, methods=["post"])
+    def select(self, request, pk=None):
+        question = self.get_object()
 
-                if not option_to_select.exists():
-                    raise serializers.ValidationError("Invalid Option ID for this question.")
+        if not question.project.team.is_leader(request.user.developer):
+            raise PermissionDenied("Only the team leader can answer the Architect's questions.")
 
-                # 2. Reset all and select the new one
-                question.options.all().update(is_selected=False)
-                option_to_select.update(is_selected=True)
+        with transaction.atomic():
+            select_option_for_question(question, request.data.get("selected_option_id"))
 
-        # 3. Save the serializer to trigger any other signals/logic
-        serializer.save()
-
-        # 4. CRITICAL: Refresh the object from DB so the response shows the new state
         question.refresh_from_db()
+        return success_response(
+            message="Option selected",
+            data=self.get_serializer(question).data,
+        )
+
 
 def healthz(request):
     return JsonResponse({

@@ -38,18 +38,19 @@ class Project(models.Model):
 
 
 class Task(models.Model):
-
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
 
     title = models.CharField(max_length=100)
     slug = models.SlugField(unique=False)
-    status = models.CharField(max_length=20, choices=[("to-do", "To-Do"), ("doing", "Doing"), ("done", "Done"), ("archived", "Archived")])
+    status = models.CharField(max_length=20, choices=[("to-do", "To-Do"), ("doing", "Doing"), ("done", "Done"),
+                                                      ("archived", "Archived")])
     importance = models.IntegerField(default=0)
     phase_label = models.CharField(max_length=100)
 
     parent_task = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True, related_name='subtasks')
     depends_on = models.ManyToManyField("self", blank=True, related_name='blocked_tasks', symmetrical=False)
     owner = models.ForeignKey(Developer, on_delete=models.SET_NULL, blank=True, null=True, related_name='owned_tasks')
+    blocked_tasks_count = models.PositiveIntegerField(default=0)
 
     updated_on = models.DateTimeField(auto_now=True)
 
@@ -74,7 +75,7 @@ class Task(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #take a snapshot the moment the object is loaded
+        # take a snapshot the moment the object is loaded
         self._original_status = self.status
 
     def archive_recursive(self, reason="Automated cascade"):
@@ -95,8 +96,9 @@ class Task(models.Model):
 
 class TaskHistory(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='history')
-    from_status = models.CharField(max_length=20, choices=[('to-do', 'To-Do'), ('doing', 'Doing'),('done', 'Done')])
-    to_status = models.CharField(max_length=20, choices=[('to-do', 'To-Do'), ('doing', 'Doing'),('done', 'Done'), ('archived', 'Archived')])
+    from_status = models.CharField(max_length=20, choices=[('to-do', 'To-Do'), ('doing', 'Doing'), ('done', 'Done')])
+    to_status = models.CharField(max_length=20, choices=[('to-do', 'To-Do'), ('doing', 'Doing'), ('done', 'Done'),
+                                                         ('archived', 'Archived')])
     change_reason = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -106,7 +108,7 @@ class TaskHistory(models.Model):
 
 class ArchitectQuestion(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='questions')
-    text = models.TextField() # The question from Gemini
+    text = models.TextField()  # The question from Gemini
 
     @property
     def is_answered(self):

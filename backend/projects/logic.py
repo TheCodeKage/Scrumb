@@ -1,10 +1,12 @@
 import random
 from collections.abc import Iterable
+from collections import defaultdict
 from datetime import timedelta
 
 from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
+from rest_framework.exceptions import ValidationError
 
 from Users.models import Developer
 from projects.models import TaskHistory, Task, Project, ArchitectQuestion, Option
@@ -17,7 +19,7 @@ def get_selected_constraints(project: Project):
     selections = []
     # Using your model structure
     for question in project.questions.all():
-        selected_texts = question.selected_option_text # Your property
+        selected_texts = question.selected_option_text  # Your property
         if selected_texts:
             selections.append({
                 "context": question.text,
@@ -40,7 +42,7 @@ def add_questions(project: Project, questions: Iterable[dict]):
             Option(
                 question=question_obj,
                 text=opt_text,
-                is_recommended=opt_text==q_data["architect_recommendation"]
+                is_recommended=opt_text == q_data["architect_recommendation"]
             ) for opt_text in q_data["options"]
         ]
 
@@ -177,18 +179,91 @@ def calculate_health(project: Project):
     return status, velocity, total_importance, target_cut
 
 
-def get_team_shame_data(project: Project):
+def get_stalled_tasks(project: Project):
     # 1. Identify the "Stallers"
-    stalled_tasks = project.tasks.filter(status='doing').order_by('updated_on')[:3]
+    stalled_tasks = (
+        project.tasks.filter(status='doing')
+        .order_by('-blocked_tasks_count', 'updated_on')[:5]
+        .select_related('blocked_tasks_count', 'updated_on')
+    )
 
     # 2. Prepare the data for Gemini
-    team_data = project.team
     shame_data = []
     for task in stalled_tasks:
         shame_data.append({
             "owner": task.owner,  # The simple string field
             "task": task.title,
+            "tasks_stalled": task.blocked_tasks_count,
             "days_stalled": (timezone.now() - task.updated_on).days
         })
 
-    return shame_data, team_data
+    return shame_data
+
+def update_blocking_counts(project: Project):
+    tasks = list(
+        Task.objects.filter(project=project)
+        .select_related('parent_task')
+        .prefetch_related('depends_on', 'subtasks')
+    )
+
+    # -------- Build graph --------
+    graph = defaultdict(set)
+
+    for task in tasks:
+        for dep in task.depends_on.all():
+            graph[dep.id].add(task.id)
+
+        if task.parent_task:
+            graph[task.parent_task.id].add(task.id)
+
+    # -------- DFS with memo --------
+    memo = {}
+
+    def dfs(task_id, visiting=None):
+        if visiting is None:
+            visiting = set()
+        if task_id in memo:
+            return memo[task_id]
+
+        if task_id in visiting:
+            return set()  # break cycle safely
+
+        visiting.add(task_id)
+
+        blocked = set()
+        for neighbor in graph[task_id]:
+            blocked.add(neighbor)
+            blocked |= dfs(neighbor, visiting)
+
+        visiting.remove(task_id)
+
+        memo[task_id] = blocked
+        return blocked
+
+    # -------- Compute + assign --------
+    for task in tasks:
+        blocked_set = dfs(task.id)
+        task.blocked_tasks_count = len(blocked_set)
+
+    # -------- Bulk update (CRITICAL) --------
+    with transaction.atomic():
+        Task.objects.bulk_update(tasks, ['blocked_tasks_count'])
+
+
+def select_option_for_question(question, selected_option_id):
+    try:
+        selected_option_id = int(selected_option_id)
+    except (ValueError, TypeError):
+        raise ValidationError("Invalid option ID.")
+
+    option = question.options.filter(id=selected_option_id).first()
+
+    if not option:
+        raise ValidationError("Option does not belong to this question.")
+
+    # Efficient update
+    question.options.exclude(id=selected_option_id).update(is_selected=False)
+    option.is_selected = True
+    option.save()
+
+    return question
