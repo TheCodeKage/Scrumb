@@ -1,0 +1,19 @@
+### Create Project 1
+POST {{host_url}}/project/
+Authorization: Bearer {{token1}}
+Content-Type: application/json
+
+{
+    "name": "SaakshiAI",
+    "team_id": "{{team_id1}}",
+    "description": "SaakshiAI lets abuse survivors document incidents by voice — privately. The AI runs entirely on-device via RunAnywhere SDK. Nothing is ever transmitted. No server, no account, no trace. Spoken accounts are structured into timestamped legal records. When she's ready, she exports a case file. Not a notes app. A witness.",
+    "guarantee_date": "2026-06-30"
+}
+
+> {%
+    client.global.set("project_id1", response.body.id);
+ %}
+
+### Get Project Details
+GET {{host_url}}/project/{{project_id1}}/
+Authorization: Bearer {{token1}}

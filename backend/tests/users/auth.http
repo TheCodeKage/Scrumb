@@ -1,0 +1,55 @@
+###Signup User 1
+POST {{host_url}}/api/auth/registration/
+Content-Type: application/json
+
+{
+    "email": "{{email1}}",
+    "password1": "{{password}}",
+    "password2": "{{password}}",
+    "username": "{{username1}}"
+}
+
+###Signup User 2
+POST {{host_url}}/api/auth/registration/
+Content-Type: application/json
+
+{
+    "email": "{{email2}}",
+    "password1": "{{password}}",
+    "password2": "{{password}}",
+    "username": "{{username2}}"
+}
+
+###Login User 1
+POST {{host_url}}/api/auth/login/
+Content-Type: application/json
+
+{
+    "username": "{{username1}}",
+    "password": "{{password}}"
+}
+
+> {%
+    client.global.set("token1", response.body.access);
+ %}
+
+###Login User 2
+POST {{host_url}}/api/auth/login/
+Content-Type: application/json
+
+{
+    "username": "{{username2}}",
+    "password": "{{password}}"
+}
+
+> {%
+    client.global.set("token2", response.body.access);
+ %}
+
+###Get User Details 1
+GET {{host_url}}/api/auth/user/
+Authorization: Bearer {{token1}}
+
+###Get User Details 2
+GET {{host_url}}/api/auth/user/
+Authorization: Bearer {{token2}}

@@ -1,0 +1,32 @@
+### Get MCQs
+GET {{host_url}}/question/?project={{project_id1}}
+Authorization: Bearer {{token1}}
+
+> {%
+    const questions = response.body.results || [];
+    client.global.set("questions_length", questions.length);
+    let arr = [];
+    for (const question of questions) {
+        for (const option of question.options) {
+            if (option.is_recommended) {
+                arr.push({
+                    question_id: question.id,
+                    selected_option_id: option.id
+                });
+                break;
+            }
+        }
+    }
+    client.global.set("answers", JSON.stringify(arr));
+    console.log("Answers set to:", JSON.stringify(arr));
+%}
+
+
+### Answer MCQ
+POST {{host_url}}/project/plan/{{project_id1}}/answer_all/
+Authorization: Bearer {{token1}}
+Content-Type: application/json
+
+{
+    "answers": {{answers}}
+}

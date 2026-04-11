@@ -1,0 +1,52 @@
+### Get Invitations for User 2
+GET {{host_url}}/users/invite/
+Authorization: Bearer {{token2}}
+
+> {%
+    const teamId1 = client.global.get("team_id1");
+    const teamId2 = client.global.get("team_id2");
+
+    const invites = response.body.results || [];
+
+    let invite1 = null;
+    let invite2 = null;
+
+    for (let i = 0; i < invites.length; i++) {
+        const item = invites[i];
+
+        if (item.team.id == teamId1) {
+            invite1 = item.id;
+        }
+
+        if (item.team.id == teamId2) {
+            invite2 = item.id;
+        }
+
+        if (invite1 && invite2) break;
+    }
+
+    if (invite1) {
+        client.global.set("invite_id1", invite1);
+    }
+
+    if (invite2) {
+        client.global.set("invite_id2", invite2);
+    }
+
+    // fallback (optional)
+    if (!invite1 && !invite2 && invites.length > 0) {
+        client.global.set("invite_id_fallback", invites[0].id);
+    }
+%}
+
+### Accept Invitation
+POST {{host_url}}/users/invite/{{invite_id1}}/accept/
+Authorization: Bearer {{token2}}
+
+### Decline Invitation
+POST {{host_url}}/users/invite/{{invite_id2}}/decline/
+Authorization: Bearer {{token2}}
+
+### Send join request to team 3
+POST {{host_url}}/users/team/{{team_id3}}/join_request/
+Authorization: Bearer {{token2}}

@@ -1,0 +1,73 @@
+###Create Team 1
+POST {{host_url}}/users/team/
+Authorization: Bearer {{token1}}
+Content-Type: application/json
+
+{
+    "name": "Team Alpha"
+}
+
+> {%
+    client.global.set("team_id1", response.body.id);
+ %}
+
+
+###Create Team 2
+POST {{host_url}}/users/team/
+Authorization: Bearer {{token1}}
+Content-Type: application/json
+
+{
+    "name": "Team Beta"
+}
+
+> {%
+    client.global.set("team_id2", response.body.id);
+ %}
+
+###Create Team 3
+POST {{host_url}}/users/team/
+Authorization: Bearer {{token1}}
+Content-Type: application/json
+
+{
+    "name": "Team Gamma"
+}
+
+> {%
+    client.global.set("team_id3", response.body.id);
+ %}
+
+
+###Get team details 1
+GET {{host_url}}/users/team/{{team_id1}}/
+Authorization: Bearer {{token1}}
+
+
+###Get team details 2
+GET {{host_url}}/users/team/{{team_id2}}/
+Authorization: Bearer {{token1}}
+
+
+###Get team details 3
+GET {{host_url}}/users/team/{{team_id3}}/
+Authorization: Bearer {{token1}}
+
+
+###Send team invitation 1
+POST {{host_url}}/users/team/{{team_id1}}/invite/
+Authorization: Bearer {{token1}}
+Content-Type: application/json
+
+{
+    "username": "{{username2}}"
+}
+
+###Send team invitation 2
+POST {{host_url}}/users/team/{{team_id2}}/invite/
+Authorization: Bearer {{token1}}
+Content-Type: application/json
+
+{
+    "username": "{{username2}}"
+}

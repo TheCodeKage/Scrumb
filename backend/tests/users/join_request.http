@@ -1,0 +1,26 @@
+### Get Join Requests for Team 3
+GET {{host_url}}/users/team/{{team_id3}}/join_requests/
+Authorization: Bearer {{token1}}
+
+> {%
+    const teamId3 = client.global.get("team_id3");
+
+    const requests = response.body || [];
+
+    const req = requests.find(r => r.team_id == teamId3);
+
+    const finalReq = req || requests[0];
+
+    if (finalReq) {
+        client.global.set("join_request_id", finalReq.id);
+    }
+%}
+
+### Accept Join Request
+POST {{host_url}}/users/team/{{team_id3}}/approve_join_request/
+Authorization: Bearer {{token1}}
+Content-Type: application/json
+
+{
+    "invitation_id": "{{join_request_id}}"
+}
