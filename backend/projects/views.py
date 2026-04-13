@@ -2,8 +2,10 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.utils import timezone
 from rest_framework import viewsets, serializers, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 
 from AI.api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
 from Users.models import Team, Membership
@@ -284,6 +286,8 @@ class QuestionViewSet(viewsets.GenericViewSet,
         )
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
 def healthz(request):
     return JsonResponse({
         "status": "healthy",
