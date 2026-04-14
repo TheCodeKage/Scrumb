@@ -73,6 +73,8 @@ def github_webhook(request):
 
     event_type = request.headers.get("X-GitHub-Event", "")
 
+    print(f"Received GitHub event: {event_type}, payload: {request.data}")
+
     # 2. Ignore non-push events
     if event_type != "push":
         return Response({"status": "ignored", "event": event_type})

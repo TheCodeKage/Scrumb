@@ -101,7 +101,7 @@ client.test("webhook still rejects invalid signatures before event filtering", f
 %}
 
 ### GitHub unrelated commits endpoint returns a project-scoped list
-GET {{host_url}}/github/{{project_id1}}/unrelated-commits/
+GET {{host_url}}/project/{{project_id1}}/unrelated-commits/
 Authorization: Bearer {{token1}}
 
 > {%
@@ -109,4 +109,3 @@ client.test("unrelated commits list is reachable", function() {
     client.assert(response.status === 200, "expected 200 from unrelated commits list");
 });
 %}
-
