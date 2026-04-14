@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ["scrumb.onrender.com", "127.0.0.1", "api.scrumb.in", "localhost"]
+ALLOWED_HOSTS = ["scrumb.onrender.com", "127.0.0.1", "apiV1.scrumb.in", "localhost"]
 
 
 # Application definition
@@ -208,3 +208,7 @@ ACCOUNT_ADAPTER = 'Users.adapter.CustomAccountAdapter'
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 PASSWORD_RESET_CONFIRM_URL = "reset/{uid}/{token}"
+
+
+GITHUB_APP_SLUG = os.getenv("GITHUB_APP_SLUG")
+GITHUB_WEBHOOK_SECRET = os.getenv("GITHUB_WEBHOOK_SECRET")
