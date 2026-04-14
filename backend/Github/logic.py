@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import json
 import re
+from urllib.parse import urlparse
 
 import requests
 from django.conf import settings
@@ -34,6 +35,31 @@ def extract_slug_from_branch(branch: str) -> str | None:
     if match:
         return match.group(1)
     return branch if '/' not in branch else None
+
+
+def get_repo_full_name(project: Project) -> str | None:
+    """
+    Normalizes stored repo values to owner/repo for GitHub API usage.
+    Supports both full GitHub URLs and already-normalized owner/repo strings.
+    """
+    raw = (project.github_link or '').strip()
+    if not raw:
+        return None
+
+    if raw.startswith('http://') or raw.startswith('https://'):
+        parsed = urlparse(raw)
+        path = (parsed.path or '').strip('/')
+    else:
+        path = raw.strip('/')
+
+    if path.endswith('.git'):
+        path = path[:-4]
+
+    parts = path.split('/')
+    if len(parts) >= 2 and parts[0] and parts[1]:
+        return f"{parts[0]}/{parts[1]}"
+
+    return None
 
 
 # ── GitHub API helpers ─────────────────────────────────────────────────────────
@@ -79,7 +105,7 @@ def fetch_diff_for_task(task: Task, token: str) -> str | None:
     Fetches a unified diff across all CommitEvents linked to this task.
     Truncated to 6000 chars to stay within Gemini context limits.
     """
-    repo = task.project.github_link
+    repo = get_repo_full_name(task.project)
     if not repo:
         return None
 
@@ -254,8 +280,9 @@ def store_unrelated_commit(project: Project, commit: dict,
     ).first()
 
     detail = {'files': [], 'lines_added': 0, 'lines_deleted': 0}
-    if token and project.github_repo:
-        detail = fetch_commit_detail(project.github_repo, sha, token)
+    repo = get_repo_full_name(project)
+    if token and repo:
+        detail = fetch_commit_detail(repo, sha, token)
 
     from datetime import datetime
     try:
@@ -383,30 +410,49 @@ def process_push_event(payload: dict) -> dict:
     task = match_commit_to_task(project, branch, commits)
 
     if task:
-        result['task_matched'] = {'id': task.id, 'title': task.title,
-                                  'status': task.status}
+        status_before = task.status
+        result['task_matched'] = {
+            'id': task.id,
+            'title': task.title,
+            'status_before': status_before,
+        }
 
-        if task.status == 'done':
-            # ── Path A: task already marked done — verify it ───────────────────
-            skip_check = getattr(
-                getattr(project, 'settings', None),
-                'skip_ai_completion_check', False
+        # Always log matched commit activity first so downstream checks use fresh history.
+        _handle_task_activity(task, commits, payload, result)
+
+        skip_check = getattr(
+            getattr(project, 'settings', None),
+            'skip_ai_completion_check', False
+        )
+
+        if skip_check:
+            result['verification'] = {'action': 'skipped_by_settings'}
+        else:
+            verdict = verify_task_completion(
+                task,
+                diff=(fetch_diff_for_task(task, token) if token else None)
             )
-            if not skip_check:
-                verdict = verify_task_completion(task, diff = (fetch_diff_for_task(task, token) if token else None))
-                result['verification'] = verdict
+            result['verification'] = verdict
 
+            if status_before == 'done':
                 if not verdict['verified']:
                     apply_revert_policy(task, verdict)
                     result['verification']['action'] = 'reverted'
                 else:
                     result['verification']['action'] = 'confirmed'
+            elif verdict['verified']:
+                task._change_reason = (
+                    f"Auto-completed by AI after push verification: "
+                    f"{verdict.get('reason', '')}"
+                )
+                task.status = 'done'
+                task.save(update_fields=['status', 'updated_on'])
+                result['verification']['action'] = 'auto_completed'
             else:
-                result['verification'] = {'action': 'skipped_by_settings'}
+                result['verification']['action'] = 'kept_in_progress'
 
-        else:
-            # ── Path B: normal commit against active task ──────────────────────
-            _handle_task_activity(task, commits, payload, result)
+        task.refresh_from_db(fields=['status'])
+        result['task_matched']['status_after'] = task.status
 
     else:
         # ── Path C: no match — check if it looks like a completed task ─────────
