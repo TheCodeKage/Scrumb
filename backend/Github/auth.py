@@ -12,6 +12,7 @@ def _get_private_key() -> str:
     pem_path = getattr(settings, 'GITHUB_APP_PRIVATE_KEY_PATH', None)
     if pem_path:
         with open(pem_path, 'r') as f:
+            print(f"Loading GitHub App private key from {pem_path}")
             return f.read()
 
     # Env variable — stored with literal \n, restore real newlines
