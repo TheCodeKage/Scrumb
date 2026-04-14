@@ -10,6 +10,7 @@ from rest_framework.exceptions import ValidationError
 
 from Users.models import Developer
 from projects.models import TaskHistory, Task, Project, ArchitectQuestion, Option
+from Github.models import UnrelatedCommit, CommitEvent
 
 
 def get_selected_constraints(project: Project):
@@ -57,14 +58,38 @@ def answer_question(project: Project, question_id: int, answer_id: int):
 
 
 def get_daily_velocity(project: Project, days=7):
+    cutoff = timezone.now() - timedelta(days=days)
+
+    # On-task velocity: importance points completed
     recent_done_importance = TaskHistory.objects.filter(
         task__project=project,
         to_status='done',
-        timestamp__gte=timezone.now() - timedelta(days=days)
+        timestamp__gte=cutoff
     ).aggregate(total=Sum('task__importance'))['total'] or 0
 
-    # We use max(..., 1) to avoid DivisionByZero or making the AI think we are dead
-    return round(recent_done_importance / days, 2) or 0.1
+    raw_velocity = round(recent_done_importance / days, 2) or 0.1
+
+    # Distraction penalty: proportion of commits that were off-task
+    total_commits = CommitEvent.objects.filter(
+        task__project=project,
+        timestamp__gte=cutoff
+    ).count()
+
+    unrelated_commits = UnrelatedCommit.objects.filter(
+        project=project,
+        timestamp__gte=cutoff
+    ).count()
+
+    all_commits = total_commits + unrelated_commits
+    if all_commits > 0:
+        distraction_ratio = unrelated_commits / all_commits
+        # Penalty: up to 30% velocity reduction at 100% off-task
+        penalty = min(distraction_ratio * 0.3, 0.3)
+        effective_velocity = round(raw_velocity * (1 - penalty), 2)
+    else:
+        effective_velocity = raw_velocity
+
+    return max(effective_velocity, 0.1)  # floor to avoid division by zero
 
 
 def calculate_target_cut(project: Project):

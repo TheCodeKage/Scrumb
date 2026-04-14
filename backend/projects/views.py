@@ -1,20 +1,28 @@
+import logging
+
 from django.db import transaction
 from django.http import JsonResponse
 from django.utils import timezone
 from rest_framework import viewsets, serializers, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from AI.api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
+from Github.models import UnrelatedCommit
 from Users.models import Team, Membership
 from api_responses import success_response, error_response
 from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut, get_stalled_tasks, add_questions, \
     select_option_for_question
-from .models import Project, Task, ArchitectQuestion
+from .models import Project, Task, ArchitectQuestion, ProjectSettings
 from .permissions import IsTeamLeader
-from .serializers import TaskSerializer, ProjectSerializer, QuestionSerializer
+from .serializers import TaskSerializer, ProjectSerializer, QuestionSerializer, ProjectSettingsSerializer, \
+    UnrelatedCommitSerializer
+
+
+logger = logging.getLogger(__name__)
 
 
 # Create your views here.
@@ -60,6 +68,31 @@ class ProjectViewSet(ProjectBaseViewSet, viewsets.ModelViewSet):
         else:
             add_questions(project, audit_data.get("questions", []))
 
+    @action(detail=True, methods=["get", "patch"], url_path="settings", url_name="settings")
+    def project_settings(self, request, pk=None):
+        project = self.get_object()
+
+        obj, _ = ProjectSettings.objects.get_or_create(project=project)
+
+        if request.method == "GET":
+            serializer = ProjectSettingsSerializer(obj)
+            return Response(serializer.data)
+
+        serializer = ProjectSettingsSerializer(obj, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["get"], url_path="unrelated-commits")
+    def unrelated_commits(self, request, pk=None):
+        queryset = UnrelatedCommit.objects.filter(
+            project_id=pk,
+            project__team__members=request.user.developer
+        ).select_related('developer__user')
+
+        serializer = UnrelatedCommitSerializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 class ProjectPlanningViewSet(ProjectBaseViewSet):
     permission_classes = [IsTeamLeader]
@@ -81,12 +114,19 @@ class ProjectPlanningViewSet(ProjectBaseViewSet):
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Flip the switch: The project is now detailed enough because the user chose the MCQs
+        try:
+            tasks_data = generate_tasks(project)
+            save_tasks(tasks_data, project)
+        except Exception:
+            logger.exception("Failed to generate plan for project_id=%s", project.id)
+            return error_response(
+                message="Task plan generation is temporarily unavailable.",
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        # Mark the project detailed only after the plan has been generated and saved.
         project.is_detailed = True
         project.save(update_fields=['is_detailed'])
-
-        tasks_data = generate_tasks(project)
-        save_tasks(tasks_data, project)
         return success_response(message="Plan generated")
 
     @action(detail=True, methods=['post'])

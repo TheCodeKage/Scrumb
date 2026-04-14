@@ -7,6 +7,7 @@ Content-Type: application/json
     "name": "SaakshiAI",
     "team_id": "{{team_id1}}",
     "description": "SaakshiAI lets abuse survivors document incidents by voice — privately. The AI runs entirely on-device via RunAnywhere SDK. Nothing is ever transmitted. No server, no account, no trace. Spoken accounts are structured into timestamped legal records. When she's ready, she exports a case file. Not a notes app. A witness.",
+    "github_link": "https://github.com/TheCodeKage/SakshiAI",
     "guarantee_date": "2026-06-30"
 }
 
@@ -15,5 +16,9 @@ Content-Type: application/json
  %}
 
 ### Get Project Details
-GET {{host_url}}/project/{{project_id1}}/
+GET {{host_url}}/project/1/
 Authorization: Bearer {{token1}}
+
+> {%
+    client.global.set("project_id1", response.body.id);
+ %}

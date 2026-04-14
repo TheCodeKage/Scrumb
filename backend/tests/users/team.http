@@ -39,9 +39,17 @@ Content-Type: application/json
  %}
 
 
+###Get all teams
+GET {{host_url}}/users/team/?show_all=true
+Authorization: Bearer {{token2}}
+
 ###Get team details 1
-GET {{host_url}}/users/team/{{team_id1}}/
+GET {{host_url}}/users/team/1/
 Authorization: Bearer {{token1}}
+
+> {%
+    client.global.set("team_id1", response.body.id);
+ %}
 
 
 ###Get team details 2

@@ -1,6 +1,6 @@
 ### Get Join Requests for Team 3
-GET {{host_url}}/users/team/{{team_id3}}/join_requests/
-Authorization: Bearer {{token1}}
+GET {{host_url}}/users/team/1/join_requests/
+Authorization: Bearer {{token2}}
 
 > {%
     const teamId3 = client.global.get("team_id3");
@@ -17,10 +17,10 @@ Authorization: Bearer {{token1}}
 %}
 
 ### Accept Join Request
-POST {{host_url}}/users/team/{{team_id3}}/approve_join_request/
+POST {{host_url}}/users/team/1/approve_join_request/
 Authorization: Bearer {{token1}}
 Content-Type: application/json
 
 {
-    "invitation_id": "{{join_request_id}}"
+    "invitation_id": "1"
 }

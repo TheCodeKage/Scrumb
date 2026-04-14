@@ -74,6 +74,8 @@ class TeamViewSet(ActionPermissionMixin, viewsets.ModelViewSet):
         'join_request': [IsAuthenticated],
         'join_requests': [IsAuthenticated, IsTeamMember],
         'approve_join_request': [IsAuthenticated, IsTeamLeader],
+        'leave': [IsAuthenticated, IsTeamMember],
+        'kick': [IsAuthenticated, IsTeamLeader],
     }
 
     def get_queryset(self):
@@ -157,6 +159,52 @@ class TeamViewSet(ActionPermissionMixin, viewsets.ModelViewSet):
             return error_response(message=error, status_code=status.HTTP_400_BAD_REQUEST)
 
         return success_response(message="Join request approved")
+
+    @action(detail=True, methods=['post'])
+    def leave(self, request, pk=None):
+        team = self.get_object()
+        Membership.objects.filter(team=team, developer=request.user.developer).delete()
+        return success_response(message="Team left")
+
+    @action(detail=True, methods=['post'])
+    def kick(self, request, pk=None):
+        team = self.get_object()
+        kicked_username = request.data.get('username')
+
+        if not kicked_username:
+            return error_response(
+                message="Username is required",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                errors=[{"field": "username", "detail": "Username is required"}],
+            )
+
+        kicked_developer = Developer.objects.filter(
+            user__username=kicked_username,
+            memberships__team=team
+        ).first()
+
+        if not kicked_developer:
+            return error_response(
+                message="Developer not found in this team",
+                status_code=status.HTTP_404_NOT_FOUND,
+                errors=[{"field": "username", "detail": "Developer not found"}],
+            )
+
+        if kicked_developer.user == request.user:
+            return error_response(
+                message="You cannot kick yourself",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        deleted, _ = kicked_developer.memberships.filter(team=team).delete()
+
+        if deleted == 0:
+            return error_response(
+                message="Developer is not part of this team",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return success_response(message="Developer kicked successfully")
 
 
 class InvitationViewSet(ActionPermissionMixin, viewsets.ReadOnlyModelViewSet):

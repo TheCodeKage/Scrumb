@@ -48,5 +48,5 @@ POST {{host_url}}/users/invite/{{invite_id2}}/decline/
 Authorization: Bearer {{token2}}
 
 ### Send join request to team 3
-POST {{host_url}}/users/team/{{team_id3}}/join_request/
+POST {{host_url}}/users/team/1/join_request/
 Authorization: Bearer {{token2}}

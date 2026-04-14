@@ -9,6 +9,8 @@ from Users.models import Team, Developer
 class Project(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
+    github_installation_id = models.BigIntegerField(null=True, blank=True)
+    github_link = models.URLField(blank=True, null=True)
 
     is_active = models.BooleanField(default=True)
     created_on = models.DateField(auto_now=True)
@@ -53,6 +55,7 @@ class Task(models.Model):
     blocked_tasks_count = models.PositiveIntegerField(default=0)
 
     updated_on = models.DateTimeField(auto_now=True)
+    ai_suggested = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('project', 'slug')
@@ -128,3 +131,33 @@ class Option(models.Model):
     text = models.TextField()
     is_selected = models.BooleanField(default=False)
     is_recommended = models.BooleanField(default=False)
+
+
+class ProjectSettings(models.Model):
+
+    class CompletionPolicy(models.TextChoices):
+        HARD_BLOCK  = 'hard_block',  'Hard block — revert silently'
+        SOFT_WARN   = 'soft_warn',   'Soft warn — revert with warning notification'
+        SHAME_BLOCK = 'shame_block', 'Shame block — revert and post to webhook'
+
+    class SuggestionPolicy(models.TextChoices):
+        AUTO      = 'auto',    'Auto-mark done immediately'
+        SUGGEST   = 'suggest', 'Notify developer to confirm'
+        REVIEW    = 'review',  'Move to done, flag for leader review'
+
+    project = models.OneToOneField(
+        Project, on_delete=models.CASCADE, related_name='settings'
+    )
+    completion_policy   = models.CharField(
+        max_length=20, choices=CompletionPolicy.choices,
+        default=CompletionPolicy.HARD_BLOCK,
+    )
+    suggestion_policy   = models.CharField(
+        max_length=20, choices=SuggestionPolicy.choices,
+        default=SuggestionPolicy.SUGGEST,
+    )
+    skip_ai_completion_check = models.BooleanField(default=False)
+    max_commits_for_review   = models.PositiveIntegerField(default=10)
+
+    def __str__(self):
+        return f"Settings({self.project.name})"

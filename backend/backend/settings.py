@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.admin",
     "projects.apps.ProjectsConfig",
-    "Users.apps.UsersConfig"
+    "Users.apps.UsersConfig",
+    "Github.apps.GithubConfig"
 ]
 
 MIDDLEWARE = [
@@ -213,3 +214,4 @@ PASSWORD_RESET_CONFIRM_URL = "reset/{uid}/{token}"
 
 GITHUB_APP_SLUG = os.getenv("GITHUB_APP_SLUG", None)
 GITHUB_WEBHOOK_SECRET = os.getenv("GITHUB_WEBHOOK_SECRET", None)
+GITHUB_APP_ID = os.getenv("GITHUB_APP_ID", None)

@@ -24,6 +24,7 @@ from Users.routers import router as user_router
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('healthz', healthz),
+    path('github/', include('Github.urls')),
     path('api/auth/registration/', include(dj_rest_auth_registration_urls)),
     path('api/auth/password-reset-confirm/<str:uidb64>/<str:token>', PasswordResetConfirmView.as_view(),name='password_reset_confirm'),
     path('api/auth/', include(dj_rest_auth_urls)),
