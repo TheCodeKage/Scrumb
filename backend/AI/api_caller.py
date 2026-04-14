@@ -205,6 +205,7 @@ def match_tasks_to_commits(project: Project, branch: str, commits: list) -> Task
 
     try:
         result = get_ai_response(prompt, in_json=True)
+        print("gemini result of task matching: ", result)
         task_id = result.get('task_id')
 
         if task_id is None:
@@ -226,6 +227,8 @@ def verify_task_completion(task: Task, diff: str | None) -> dict:
     Falls back gracefully — never crashes the webhook.
     Returns: {verified, confidence, reason, missing}
     """
+
+    print("gemini called, diff: ", diff)
 
     commits = list(
         task.commits.order_by('-timestamp')
@@ -263,6 +266,7 @@ RESPOND WITH ONLY THIS JSON:
 """
     try:
         result = get_ai_response(prompt, in_json=True)
+        print("gemini result: ", result)
         return {
             'verified':   bool(result.get('verified', False)),
             'confidence': int(result.get('confidence', 0)),
@@ -319,6 +323,7 @@ RESPOND WITH ONLY THIS JSON:
 """
     try:
         result = get_ai_response(prompt, in_json=True)
+        print("gemini result for unmatched whatever I dont care: ", result)
         return {
             'looks_complete': bool(result.get('looks_complete', False)),
             'task_id':        result.get('task_id'),
