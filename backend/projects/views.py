@@ -286,7 +286,7 @@ class QuestionViewSet(viewsets.GenericViewSet,
         )
 
 
-@api_view(["GET"])
+@api_view(["GET", "HEAD"])
 @permission_classes([AllowAny])
 def healthz(request):
     return JsonResponse({
