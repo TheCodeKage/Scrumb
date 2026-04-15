@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from Github.models import UnrelatedCommit
 from .logic import calculate_health
 from Users.serializers import TeamSerializer, DeveloperSerializer
 from .models import Project, Task, ArchitectQuestion, Option, ProjectSettings
@@ -111,17 +110,3 @@ class ProjectSerializer(serializers.ModelSerializer):
         }
         return health
 
-
-class UnrelatedCommitSerializer(serializers.ModelSerializer):
-    developer_username = serializers.SerializerMethodField()
-
-    class Meta:
-        model = UnrelatedCommit
-        fields = [
-            'id', 'sha', 'branch', 'message', 'author',
-            'developer_username', 'timestamp',
-            'files_changed', 'lines_added', 'lines_deleted',
-        ]
-
-    def get_developer_username(self, obj):
-        return obj.developer.user.username if obj.developer else None

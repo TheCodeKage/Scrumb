@@ -11,6 +11,8 @@
 # and `tests/projects/create.http` first so `{{token1}}` and `{{project_id1}}` are populated.
 # @no-redirect
 
+HEAD https://apiv1.scrumb.in/healthz
+
 ### GitHub setup redirects the project leader to GitHub install flow
 GET {{host_url}}/github/setup/{{project_id1}}/
 Authorization: Bearer {{token1}}

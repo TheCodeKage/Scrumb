@@ -41,7 +41,7 @@ Content-Type: application/json
 
 ###Get all teams
 GET {{host_url}}/users/team/?show_all=true
-Authorization: Bearer {{token2}}
+Authorization: Bearer {{token1}}
 
 ###Get team details 1
 GET {{host_url}}/users/team/1/

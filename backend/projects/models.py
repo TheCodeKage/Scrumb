@@ -55,7 +55,6 @@ class Task(models.Model):
     blocked_tasks_count = models.PositiveIntegerField(default=0)
 
     updated_on = models.DateTimeField(auto_now=True)
-    ai_suggested = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('project', 'slug')
@@ -145,6 +144,11 @@ class ProjectSettings(models.Model):
         SUGGEST   = 'suggest', 'Notify developer to confirm'
         REVIEW    = 'review',  'Move to done, flag for leader review'
 
+    class ShamePolicy(models.TextChoices):
+        SHAME     = 'shame',    'Shame developer'
+        REMIND    = 'remind',   'Remind developer'
+        NONE      = 'none',     'Do nothing'
+
     project = models.OneToOneField(
         Project, on_delete=models.CASCADE, related_name='settings'
     )
@@ -155,6 +159,10 @@ class ProjectSettings(models.Model):
     suggestion_policy   = models.CharField(
         max_length=20, choices=SuggestionPolicy.choices,
         default=SuggestionPolicy.SUGGEST,
+    )
+    shame_policy        = models.CharField(
+        max_length=20, choices=ShamePolicy.choices,
+        default=ShamePolicy.REMIND,
     )
     skip_ai_completion_check = models.BooleanField(default=False)
     max_commits_for_review   = models.PositiveIntegerField(default=10)

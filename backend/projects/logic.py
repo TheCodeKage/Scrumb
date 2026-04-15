@@ -10,7 +10,6 @@ from rest_framework.exceptions import ValidationError
 
 from Users.models import Developer
 from projects.models import TaskHistory, Task, Project, ArchitectQuestion, Option
-from Github.models import UnrelatedCommit, CommitEvent
 
 
 def get_selected_constraints(project: Project):
@@ -69,7 +68,9 @@ def get_daily_velocity(project: Project, days=7):
 
     raw_velocity = round(recent_done_importance / days, 2) or 0.1
 
-    # Distraction penalty: proportion of commits that were off-task
+    return raw_velocity
+
+    """# Distraction penalty: proportion of commits that were off-task
     total_commits = CommitEvent.objects.filter(
         task__project=project,
         timestamp__gte=cutoff
@@ -89,7 +90,7 @@ def get_daily_velocity(project: Project, days=7):
     else:
         effective_velocity = raw_velocity
 
-    return max(effective_velocity, 0.1)  # floor to avoid division by zero
+    return max(effective_velocity, 0.1)   # floor to avoid division by zero"""
 
 
 def calculate_target_cut(project: Project):

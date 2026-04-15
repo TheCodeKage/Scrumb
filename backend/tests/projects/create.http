@@ -22,3 +22,12 @@ Authorization: Bearer {{token1}}
 > {%
     client.global.set("project_id1", response.body.id);
  %}
+
+### Small FIx
+PATCH {{host_url}}/project/1/
+Authorization: Bearer {{token1}}
+Content-Type: application/json
+
+{
+    "github_installation_id": "123900247"
+}
