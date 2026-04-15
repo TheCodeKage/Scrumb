@@ -6,7 +6,6 @@ from django.utils import timezone
 from rest_framework import viewsets, serializers, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
@@ -20,7 +19,6 @@ from .models import Project, Task, ArchitectQuestion, ProjectSettings
 from .permissions import IsTeamLeader
 from .serializers import TaskSerializer, ProjectSerializer, QuestionSerializer, ProjectSettingsSerializer, \
     UnrelatedCommitSerializer
-
 
 logger = logging.getLogger(__name__)
 
@@ -326,7 +324,7 @@ class QuestionViewSet(viewsets.GenericViewSet,
         )
 
 
-@api_view(["GET"])
+@api_view(["GET", "HEAD"])
 @permission_classes([AllowAny])
 def healthz(request):
     return JsonResponse({
