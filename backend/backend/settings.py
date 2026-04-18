@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "projects.apps.ProjectsConfig",
     "Users.apps.UsersConfig",
+    "Github.apps.GithubConfig"
 ]
 
 MIDDLEWARE = [

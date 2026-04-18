@@ -89,7 +89,8 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         read_only_fields = ('is_detailed',)
-        fields = ['id', 'name', 'description', 'guarantee_date', 'team', 'tasks', 'completion_percentage', 'health', 'is_detailed', 'questions', 'settings', 'github_link']
+        fields = ['id', 'name', 'description', 'guarantee_date', 'team', 'tasks', 'completion_percentage', 'health', 'is_detailed', 'questions', 'settings',
+                  'github_repo_slug']
 
     def get_tasks(self, project):
         root_tasks = project.tasks.filter(parent_task__isnull=True)

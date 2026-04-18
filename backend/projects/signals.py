@@ -1,6 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from Github.logic import get_github_installation
 from projects.models import Task, TaskHistory, ProjectSettings, Project
 
 
@@ -24,3 +25,10 @@ def log_task_status_change(sender, instance, created, **kwargs):
 def create_project_settings(sender, instance, created, **kwargs):
     if created:
         ProjectSettings.objects.get_or_create(project=instance)
+
+
+@receiver(post_save, sender=Project)
+def check_existing_installation(sender, instance, created, **kwargs):
+    if created:
+        if instance.github_repo_slug:
+            get_github_installation(instance)

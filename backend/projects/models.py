@@ -9,8 +9,9 @@ from Users.models import Team, Developer
 class Project(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
+
     github_installation_id = models.BigIntegerField(null=True, blank=True)
-    github_link = models.URLField(blank=True, null=True)
+    github_repo_slug = models.CharField(max_length=100, blank=True, null=True)
 
     is_active = models.BooleanField(default=True)
     created_on = models.DateField(auto_now=True)

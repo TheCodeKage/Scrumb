@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Github App Installation</title>
+</head>
+<body>
+    {% if error is defined %}
+        <h1>Installation Failed</h1>
+        <p>{{ error }}</p>
+    {% else %}
+        <h1>Installation Successful</h1>
+        <p>Your Github App has been successfully installed. Open JetBrains IDE to continue</p>
+    {% endif %}
+</body>
+</html>
