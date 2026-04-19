@@ -16,7 +16,7 @@ def get_token():
     payload = {
         'iat': now - 60,
         'exp': now + (10 * 60) - 60,
-        'iss': _APP_ID
+        'iss': str(_APP_ID)
     }
     return jwt.encode(payload, _APP_RSA, algorithm='RS256')
 

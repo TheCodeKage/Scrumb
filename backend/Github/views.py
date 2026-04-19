@@ -1,9 +1,8 @@
 from django.conf import settings
-from django.core.cache import cache
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from Github.logic import _update_projects
+from Github.logic import safe_sync
 from api_responses import success_response, error_response
 from projects.models import Project
 
@@ -45,10 +44,7 @@ class InstallationViewSet(viewsets.ViewSet):
                 project.save()
 
         # prevent duplicate sync spam
-        key = f"sync_once_{installation_id}"
-        if not cache.get(key):
-            cache.set(key, True, timeout=60)
-            _update_projects(installation_id)
+        safe_sync(installation_id)
 
         return success_response(
             message="GitHub installation connected successfully.",
