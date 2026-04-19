@@ -13,10 +13,13 @@ def _build_github_app_installation_link(project_id=None):
     else:
         return f"https://github.com/apps/{settings.GITHUB_APP_SLUG}/installations/new"
 
+
 # Create your views here.
 
 
 class InstallationViewSet(viewsets.ViewSet):
+    permission_classes = []
+
     @action(detail=False, methods=['get'])
     def install(self, request, pk=None):
         return success_response(
@@ -56,6 +59,8 @@ class InstallationViewSet(viewsets.ViewSet):
 
 
 class EventsViewSet(viewsets.ViewSet):
+    permission_classes = []
+
     @action(detail=False, methods=['post'])
     def push(self, request):
         print(request.data)
