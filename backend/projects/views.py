@@ -10,7 +10,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from AI.api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
-from Users.models import Team, Membership
+from users.models import Team, Membership
 from api_responses import success_response, error_response
 from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut, get_stalled_tasks, add_questions, \
     select_option_for_question

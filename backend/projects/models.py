@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Sum
 
-from Users.models import Team, Developer
+from users.models import Team, Developer
 
 
 # Create your models here.

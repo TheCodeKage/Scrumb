@@ -8,7 +8,7 @@ from django.db.models import Sum
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
-from Users.models import Developer
+from users.models import Developer
 from projects.models import TaskHistory, Task, Project, ArchitectQuestion, Option
 
 

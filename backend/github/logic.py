@@ -1,6 +1,6 @@
 import requests
 
-from Github.auth import get_token, get_installation_token
+from github.auth import get_token, get_installation_token
 from projects.models import Project
 from django.core.cache import cache
 
@@ -126,6 +126,6 @@ Any user can set github repo slug without authentication, and above methods chec
 and match with installation id without authentication. This allows anyone to access Scrumb
 provided features on other users' private repositories by simply guessing the repo slug.
 
-Github provides webhooks that are triggered when a repo is added/removed from an installation.
+github provides webhooks that are triggered when a repo is added/removed from an installation.
 Using that is cheaper and faster in execution.
 """

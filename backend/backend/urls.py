@@ -21,8 +21,8 @@ from django.urls import path, include
 import dj_rest_auth.urls as dj_rest_auth_urls, dj_rest_auth.registration.urls as dj_rest_auth_registration_urls
 from projects.views import healthz
 from projects.routers import router as project_router
-from Users.routers import router as user_router
-from Github.routers import router as github_router
+from users.routers import router as user_router
+from github.routers import router as github_router
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('healthz', healthz),

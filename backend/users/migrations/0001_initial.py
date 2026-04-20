@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='developer', to=settings.AUTH_USER_MODEL)),
-                ('skills', models.ManyToManyField(to='Users.skill')),
+                ('skills', models.ManyToManyField(to='users.skill')),
             ],
         ),
         migrations.CreateModel(
@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 ('role', models.CharField(choices=[('leader', 'Leader'), ('member', 'Member')], default='member', max_length=100)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('developer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='memberships', to='Users.developer')),
+                ('developer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='memberships', to='users.developer')),
             ],
         ),
         migrations.CreateModel(
@@ -45,13 +45,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100)),
-                ('members', models.ManyToManyField(related_name='teams', through='Users.Membership', to='Users.developer')),
+                ('members', models.ManyToManyField(related_name='teams', through='users.Membership', to='users.developer')),
             ],
         ),
         migrations.AddField(
             model_name='membership',
             name='team',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='memberships', to='Users.team'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='memberships', to='users.team'),
         ),
         migrations.CreateModel(
             name='TeamLog',
@@ -59,8 +59,8 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('action', models.CharField(max_length=100)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('developer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='logs', to='Users.developer')),
-                ('team', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='logs', to='Users.team')),
+                ('developer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='logs', to='users.developer')),
+                ('team', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='logs', to='users.team')),
             ],
         ),
         migrations.AlterUniqueTogether(
@@ -75,8 +75,8 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('declined', 'Declined')], default='pending', max_length=100)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('developer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='invitations', to='Users.developer')),
-                ('team', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='invitations', to='Users.team')),
+                ('developer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='invitations', to='users.developer')),
+                ('team', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='invitations', to='users.team')),
             ],
             options={
                 'constraints': [models.UniqueConstraint(condition=models.Q(('status', 'pending')), fields=('team', 'developer'), name='unique_team_developer')],

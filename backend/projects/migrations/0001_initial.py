@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('Users', '0001_initial'),
+        ('users', '0001_initial'),
     ]
 
     operations = [
@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
                 ('created_on', models.DateField(auto_now=True)),
                 ('guarantee_date', models.DateField()),
                 ('is_detailed', models.BooleanField(default=False)),
-                ('team', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='projects', to='Users.team')),
+                ('team', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='projects', to='users.team')),
             ],
         ),
         migrations.AddField(
@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
                 ('blocked_tasks_count', models.PositiveIntegerField(default=0)),
                 ('updated_on', models.DateTimeField(auto_now=True)),
                 ('depends_on', models.ManyToManyField(blank=True, related_name='blocked_tasks', to='projects.task')),
-                ('owner', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='owned_tasks', to='Users.developer')),
+                ('owner', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='owned_tasks', to='users.developer')),
                 ('parent_task', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='subtasks', to='projects.task')),
                 ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tasks', to='projects.project')),
             ],

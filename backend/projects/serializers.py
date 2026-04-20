@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .logic import calculate_health
-from Users.serializers import TeamSerializer, DeveloperSerializer
+from users.serializers import TeamSerializer, DeveloperSerializer
 from .models import Project, Task, ArchitectQuestion, Option, ProjectSettings
 
 

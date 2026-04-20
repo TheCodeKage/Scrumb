@@ -7,7 +7,7 @@ Content-Type: application/json
     "name": "SaakshiAI1",
     "team_id": "{{team_id1}}",
     "description": "SaakshiAI lets abuse survivors document incidents by voice — privately. The AI runs entirely on-device via RunAnywhere SDK. Nothing is ever transmitted. No server, no account, no trace. Spoken accounts are structured into timestamped legal records. When she's ready, she exports a case file. Not a notes app. A witness.",
-    "github_link": "https://github.com/TheCodeKage/SakshiAI",
+    "github_repo_slug": "TheCodeKage/SakshiAI",
     "guarantee_date": "2026-06-30"
 }
 
@@ -16,7 +16,7 @@ Content-Type: application/json
  %}
 
 ### Get Project Details
-GET {{host_url}}/project/1/
+GET {{host_url}}/project/2/
 Authorization: Bearer {{token1}}
 
 > {%
@@ -24,10 +24,10 @@ Authorization: Bearer {{token1}}
  %}
 
 ### Small FIx
-PATCH {{host_url}}/project/1/
+PATCH {{host_url}}/project/2/
 Authorization: Bearer {{token1}}
 Content-Type: application/json
 
 {
-    "github_installation_id": "123900247"
+    "github_repo_slug": "TheCodeKage/SakshiAI"
 }

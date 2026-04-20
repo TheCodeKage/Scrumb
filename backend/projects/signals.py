@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from Github.logic import get_github_installation
+from github.logic import get_github_installation
 from projects.models import Task, TaskHistory, ProjectSettings, Project
 
 

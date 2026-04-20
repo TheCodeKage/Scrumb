@@ -43,8 +43,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.admin",
     "projects.apps.ProjectsConfig",
-    "Users.apps.UsersConfig",
-    "Github.apps.GithubConfig"
+    "users.apps.UsersConfig",
+    "github.apps.GithubConfig"
 ]
 
 MIDDLEWARE = [
@@ -190,7 +190,7 @@ SIMPLE_JWT = {
 
 REST_AUTH = {
     'USE_JWT': True,
-    'PASSWORD_RESET_SERIALIZER': 'Users.serializers.PasswordResetSerializer',
+    'PASSWORD_RESET_SERIALIZER': 'users.serializers.PasswordResetSerializer',
 }
 
 AUTHENTICATION_BACKENDS.append("allauth.account.auth_backends.AuthenticationBackend")
@@ -206,7 +206,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
 ACCOUNT_CONFIRM_EMAIL_ON_GET = False
 
-ACCOUNT_ADAPTER = 'Users.adapter.CustomAccountAdapter'
+ACCOUNT_ADAPTER = 'users.adapter.CustomAccountAdapter'
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 PASSWORD_RESET_CONFIRM_URL = "reset/{uid}/{token}"

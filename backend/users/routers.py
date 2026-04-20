@@ -1,6 +1,6 @@
 from rest_framework import routers
 
-from Users.views import TeamViewSet, InvitationViewSet, DeveloperViewSet
+from users.views import TeamViewSet, InvitationViewSet, DeveloperViewSet
 
 router = routers.DefaultRouter()
 router.register(r'developer', DeveloperViewSet, basename="developer")

@@ -2,7 +2,7 @@ from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from Github.logic import safe_sync
+from github.logic import safe_sync
 from api_responses import success_response, error_response
 from projects.models import Project
 
