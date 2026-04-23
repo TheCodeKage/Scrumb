@@ -1,4 +1,5 @@
 # View to link discord guild object with projects, check login user is leader for projects selected
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
 from rest_framework.decorators import action
@@ -16,7 +17,7 @@ class HasAPIKeyHeader(BasePermission):
     def has_permission(self, request, view):
         api_key = request.headers.get("X-API-KEY")  # or whatever header name
 
-        return api_key == "your-secret-key"
+        return api_key == settings.DISCORD_API_KEY
 
 class LinkDiscordView(APIView):
     permission_classes = (IsAuthenticated,)
