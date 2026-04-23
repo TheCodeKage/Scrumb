@@ -9,9 +9,9 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from AI.api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
+from services.AI.api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
 from users.models import Team, Membership
-from api_responses import success_response, error_response
+from services.api_responses import success_response, error_response
 from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut, get_stalled_tasks, add_questions, \
     select_option_for_question
 from .models import Project, Task, ArchitectQuestion, ProjectSettings
@@ -28,6 +28,11 @@ class ProjectBaseViewSet(viewsets.GenericViewSet):
     serializer_class = ProjectSerializer
 
     def get_queryset(self):
+        if self.request.query_params.get('is_leader', 'false').lower() == 'true':
+            return (Project.objects.filter(team__members=self.request.user.developer,
+                                           team__memberships__role=Membership.Role.LEADER)
+                    .select_related('team')
+                    .prefetch_related('tasks__depends_on', 'tasks__subtasks'))
         return (Project.objects.filter(team__members=self.request.user.developer)
                 .select_related('team')
                 .prefetch_related('tasks__depends_on', 'tasks__subtasks'))
@@ -208,6 +213,7 @@ class ProjectAnalyticsViewSet(ProjectBaseViewSet):
         project = self.get_object()
         stalled_tasks = get_stalled_tasks(project)
         shame_team(stalled_tasks, project.team.values())
+        #Todo: Add discord call here
         return success_response(message="Roast sent")
 
 

@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 from github.logic import safe_sync
-from api_responses import success_response, error_response
+from services.api_responses import success_response, error_response
 from projects.models import Project
 
 

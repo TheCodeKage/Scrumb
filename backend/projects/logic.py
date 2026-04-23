@@ -210,14 +210,13 @@ def get_stalled_tasks(project: Project):
     stalled_tasks = (
         project.tasks.filter(status='doing')
         .order_by('-blocked_tasks_count', 'updated_on')[:5]
-        .select_related('blocked_tasks_count', 'updated_on')
     )
 
     # 2. Prepare the data for Gemini
     shame_data = []
     for task in stalled_tasks:
         shame_data.append({
-            "owner": task.owner,  # The simple string field
+            "owner": task.owner.user.username,  # The simple string field
             "task": task.title,
             "tasks_stalled": task.blocked_tasks_count,
             "days_stalled": (timezone.now() - task.updated_on).days

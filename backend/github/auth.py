@@ -3,12 +3,17 @@ from django.conf import settings
 
 import jwt
 import time
+from pathlib import Path
+from django.conf import settings
+
+def get_private_key():
+    path = Path(settings.BASE_DIR) / "scrumbapp.2026-04-14.private-key.pem"
+
+    with open(path, "r") as f:
+        return f.read()
 
 _APP_ID = settings.GITHUB_APP_ID
-_APP_RSA_PATH = settings.GITHUB_APP_PRIVATE_KEY_PATH
-
-with open(_APP_RSA_PATH, 'r') as f:
-    _APP_RSA = f.read()
+_APP_RSA = get_private_key()
 
 
 def get_token():

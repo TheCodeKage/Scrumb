@@ -16,6 +16,13 @@ class Developer(models.Model):
     skills = models.ManyToManyField(Skill)
 
 
+class PreviousProject(models.Model):
+    project_name = models.CharField(max_length=100)
+    project_description = models.TextField()
+    project_link = models.URLField(blank=True, null=True)
+    developer = models.ForeignKey(Developer, on_delete=models.CASCADE, related_name='previous_projects')
+
+
 class Team(models.Model):
     name = models.CharField(max_length=100)
 

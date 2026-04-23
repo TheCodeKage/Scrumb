@@ -2,7 +2,23 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from github.logic import get_github_installation
+from projects.logic import update_blocking_counts
 from projects.models import Task, TaskHistory, ProjectSettings, Project
+
+
+@receiver(post_save, sender=Task)
+def update_task_status(sender, instance, created, **kwargs):
+    if not created:
+        if instance._original_status != instance.status:
+            project = instance.project
+
+            project._unaccounted_importance += instance.importance
+
+            if project._unaccounted_importance > 10:
+                update_blocking_counts(project)
+                project._unaccounted_importance = 0
+
+            project.save()
 
 
 @receiver(post_save, sender=Task)

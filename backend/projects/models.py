@@ -39,6 +39,10 @@ class Project(models.Model):
 
         return round((done / total) * 100, 2)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._unaccounted_importance = 0
+
 
 class Task(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')

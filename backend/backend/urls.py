@@ -14,7 +14,6 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from allauth.socialaccount.providers import github
 from dj_rest_auth.views import PasswordResetConfirmView
 from django.contrib import admin
 from django.urls import path, include
@@ -30,6 +29,7 @@ urlpatterns = [
     path('api/auth/password-reset-confirm/<str:uidb64>/<str:token>', PasswordResetConfirmView.as_view(),name='password_reset_confirm'),
     path('api/auth/', include(dj_rest_auth_urls)),
     path('github/', include(github_router.urls)),
+    path('discord/', include('bot_integrations.urls')),
     path('users/', include(user_router.urls)),
     path('', include(project_router.urls)),
 ]

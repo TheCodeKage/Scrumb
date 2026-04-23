@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "projects.apps.ProjectsConfig",
     "users.apps.UsersConfig",
-    "github.apps.GithubConfig"
+    "github.apps.GithubConfig",
+    "bot_integrations.apps.BotIntegrationsConfig"
 ]
 
 MIDDLEWARE = [
@@ -67,6 +68,16 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",
     "https://www.scrumb.in",
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [
+    "https://www.scrumb.in",
+    # add preview/staging origins if needed
+]
+
+# Production-safe cookie flags
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 ROOT_URLCONF = "backend.urls"
 
@@ -216,3 +227,7 @@ GITHUB_APP_SLUG = os.getenv("GITHUB_APP_SLUG", None)
 GITHUB_WEBHOOK_SECRET = os.getenv("GITHUB_WEBHOOK_SECRET", None)
 GITHUB_APP_ID = os.getenv("GITHUB_APP_ID", None)
 GITHUB_APP_PRIVATE_KEY_PATH = os.getenv("GITHUB_APP_PRIVATE_KEY_PATH", None)
+
+DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN", None)
+DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID", None)
+DISCORD_PERMISSIONS_INTEGER = int(os.getenv("DISCORD_PERMISSIONS_INTEGER", 0))

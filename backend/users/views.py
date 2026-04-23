@@ -4,11 +4,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
-from api_responses import success_response, error_response
+from services.api_responses import success_response, error_response
 from .models import Team, Membership, Developer, Invitation, Skill
 from .serializers import TeamSerializer, DeveloperSerializer, InvitationSerializer
-from .permissions import IsTeamMember, IsTeamLeader
-from mixins import ActionPermissionMixin
+from .permissions import IsTeamMember, IsTeamLeader, ActionPermissionMixin
 from .logic import send_invitation, send_join_request, accept_join_request, accept_invitation, decline_invitation
 
 
