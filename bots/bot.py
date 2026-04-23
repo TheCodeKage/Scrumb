@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import atexit
+
 from typing import TYPE_CHECKING
-import requests
-from asgiref.sync import sync_to_async
+import httpx
 from discord import Client, app_commands
 from discord import Interaction, TextChannel
 from discord.client import Intents
@@ -15,15 +16,15 @@ if TYPE_CHECKING:
     from discord import Guild
     from uuid import UUID
 
-
 load_dotenv()
 
 client = Client(intents=Intents.default())
 tree = app_commands.CommandTree(client)
 api_key = os.getenv("API_KEY")
-BASE_URL = "http://localhost:8000"
+BASE_URL = "https://apiv2.scrumb.in"
 
 headers = {"X-API-KEY": api_key}
+client_http = httpx.AsyncClient(timeout=httpx.Timeout(30, connect=5, read=10, write=10))
 
 
 async def send_message(channel_id: int, message: str, view: View | None = None):
@@ -43,67 +44,85 @@ async def send_message(channel_id: int, message: str, view: View | None = None):
 
 
 # ----------------------- Helpers ----------------------------------
+# -------------- HTTP Helpers ---------------
+async def async_get(url: str, params=None):
+    try:
+        response = await client_http.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        print(f"GET request failed: {e}")
+        return None
+
+
+async def async_post(url: str, json=None):
+    try:
+        response = await client_http.post(url, headers=headers, json=json)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        print(f"POST request failed: {e}")
+        return None
+
+
+@atexit.register
+def close_http():
+    import asyncio
+    try:
+        asyncio.run(client_http.aclose())
+    except:
+        pass
+
+
 # -------------- Django ORM Helpers ---------------
-@sync_to_async
-def get_guild_projects(guild_id: int):
-    response = requests.get(f"{BASE_URL}/discord/get_guild_projects/", headers=headers, params={"guild_id": guild_id})
-    try:
-        response.raise_for_status()
-    except Exception as e:
-        print(f"Failed to fetch projects: {e}")
-        return []
-    return response.json()["data"]
+async def get_guild_projects(guild_id: int):
+    data = await async_get(
+        f"{BASE_URL}/discord/get_guild_projects/",
+        params={"guild_id": guild_id}
+    )
+    return data["data"] if data else []
 
 
-@sync_to_async
-def save_setup(guild_id: int, project_id: int, channel_id: int):
-    response = requests.post(f"{BASE_URL}/discord/save_setup/", headers=headers, json={"guild_id": guild_id, "project_id": project_id, "channel_id": channel_id})
-    try:
-        response.raise_for_status()
-    except Exception as e:
-        print(f"Failed to fetch projects: {e}")
-        return []
+async def save_setup(guild_id: int, project_id: int, channel_id: int):
+    await async_post(
+        f"{BASE_URL}/discord/save_setup/",
+        json={
+            "guild_id": guild_id,
+            "project_id": project_id,
+            "channel_id": channel_id
+        }
+    )
 
 
-@sync_to_async
-def get_projects_for_autocomplete(guild_id: int, current: str):
-    response = requests.get(f"{BASE_URL}/discord/get_projects_for_autocomplete/", headers=headers, params={"guild_id": guild_id, "current": current})
-    try:
-        response.raise_for_status()
-    except Exception as e:
-        print(f"Failed to fetch projects: {e}")
-        return []
-    return response.json()["data"]
+async def get_projects_for_autocomplete(guild_id: int, current: str):
+    data = await async_get(
+        f"{BASE_URL}/discord/get_projects_for_autocomplete/",
+        params={"guild_id": guild_id, "current": current}
+    )
+    return data["data"] if data else []
 
 
-@sync_to_async
-def get_pending_notifications():
-    response = requests.get(f"{BASE_URL}/discord/get_pending_notifications/", headers=headers)
-    try:
-        response.raise_for_status()
-    except Exception as e:
-        print(f"Failed to fetch projects: {e}")
-        return []
-    return response.json()["data"]
+async def get_pending_notifications():
+    data = await async_get(
+        f"{BASE_URL}/discord/get_pending_notifications/"
+    )
+    return data["data"] if data else []
 
 
-@sync_to_async
-def mark_notifications_as_sent(notification_ids: list[int]):
-    response = requests.post(f"{BASE_URL}/discord/mark_notifications_as_sent/", headers=headers, json={"notification_ids": notification_ids})
-    try:
-        response.raise_for_status()
-    except Exception as e:
-        print(f"Failed to fetch projects: {e}")
+async def mark_notifications_as_sent(notification_ids: list[int]):
+    await async_post(
+        f"{BASE_URL}/discord/mark_notifications_as_sent/",
+        json={"notification_ids": notification_ids}
+    )
 
 
-@sync_to_async
-def create_installation_state(guild_id: int):
-    response = requests.post(f"{BASE_URL}/discord/create_installation_state/", headers=headers, json={"guild_id": guild_id})
-    try:
-        response.raise_for_status()
-    except Exception as e:
-        print(f"Failed to fetch projects: {e}")
-    return response.json()["data"]["state_id"]
+async def create_installation_state(guild_id: int):
+    data = await async_post(
+        f"{BASE_URL}/discord/create_installation_state/",
+        json={"guild_id": guild_id}
+    )
+    return data["data"]["state_id"] if data else None
+
 
 # -------------- Autocomplete Helper ---------------
 async def project_autocomplete(interaction: Interaction, current: str):
@@ -124,7 +143,7 @@ def setup_button_view(state_id: UUID):
 
 
 # ----------------------- Check Notifications ----------------------
-@tasks.loop(seconds=10)
+@tasks.loop(minutes=10.0)
 async def send_pending_notifications():
     sent_notification_ids = []
     notifications = await get_pending_notifications()
@@ -237,7 +256,9 @@ async def on_guild_join(guild: Guild):
         if send_channel:
             state_id = await create_installation_state(guild.id)
             view = setup_button_view(state_id)
-            await send_message(send_channel.id, "Thanks for adding me! Click the link below to link this server to your Scrumb projects.", view=view)
+            await send_message(send_channel.id,
+                               "Thanks for adding me! Click the link below to link this server to your Scrumb projects.",
+                               view=view)
     except Exception as e:
         print(f"Failed to fetch channels: {e} {str(e.__traceback__.tb_lineno)}")
 
