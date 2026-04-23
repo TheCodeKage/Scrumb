@@ -1,12 +1,22 @@
 # View to link discord guild object with projects, check login user is leader for projects selected
-from rest_framework.permissions import IsAuthenticated
+from django.db import transaction
+from django.db.models import Q
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.views import APIView
+from rest_framework.viewsets import ViewSet
 
-from bot_integrations.models import DiscordGuild, InstallationState, DiscordBotIntegration
+from bot_integrations.models import DiscordGuild, InstallationState, DiscordBotIntegration, Notification
 from projects.models import Project
 from users.models import Membership
 from services.api_responses import success_response, error_response
 
+
+class HasAPIKeyHeader(BasePermission):
+    def has_permission(self, request, view):
+        api_key = request.headers.get("X-API-KEY")  # or whatever header name
+
+        return api_key == "your-secret-key"
 
 class LinkDiscordView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -73,3 +83,111 @@ class LinkDiscordView(APIView):
         DiscordBotIntegration.objects.bulk_create(new_integrations)
 
         return success_response("Projects linked successfully")
+
+
+class DiscordBotViews(ViewSet):
+    permission_classes = (HasAPIKeyHeader,)
+    http_method_names = ["get", "post"]
+
+    @action(detail=False, methods=['get'])
+    def get_guild_projects(self, request, *args, **kwargs):
+        guild_id = request.query_params.get('guild_id')
+        if not guild_id:
+            return error_response("Guild ID is required")
+
+        try:
+            projects = list(
+                DiscordGuild.objects
+                .filter(id=guild_id)
+                .values_list('bot_integrations__project_id', 'bot_integrations__project__name')
+            )
+        except DiscordGuild.DoesNotExist:
+            return error_response("Guild not found")
+        except Exception as e:
+            print(e)
+            return error_response("An unknown error occurred while fetching projects")
+
+        return success_response("Projects Fetched Successfully", data=projects)
+
+    @action(detail=False, methods=['post'])
+    def save_setup(self, request, *args, **kwargs):
+        guild_id = request.data.get('guild_id')
+        project_id = request.data.get('project_id')
+        channel_id = request.data.get('channel_id')
+
+        if not guild_id:
+            return error_response("Guild ID is required")
+        if not project_id:
+            return error_response("Project ID is required")
+        if not channel_id:
+            return error_response("Channel ID is required")
+
+        guild, _ = DiscordGuild.objects.get_or_create(id=guild_id)
+
+        with transaction.atomic():
+            integration = guild.bot_integrations.select_for_update().filter(
+                project_id=project_id
+            ).first()
+
+            if not integration:
+                integration = guild.bot_integrations.create(project_id=project_id)
+
+            integration.channel_id = channel_id
+            integration.save()
+
+        return success_response("Setup saved successfully")
+
+    @action(detail=False, methods=['get'])
+    def get_projects_for_autocomplete(self, request, *args, **kwargs):
+        guild_id = request.query_params.get('guild_id')
+        current = request.query_params.get('current')
+
+        if not guild_id:
+            return error_response("Guild ID is required")
+
+        projects = list(
+            DiscordGuild.objects
+            .filter(id=guild_id)
+            .filter(
+                Q(bot_integrations__project__name__icontains=current)
+            )
+            .values_list(
+                'bot_integrations__project__name',
+                'bot_integrations__project_id'
+            )
+            .distinct()[:25]
+        )
+
+        return success_response("Projects fetched successfully", data=projects)
+
+    @action(detail=False, methods=['get'])
+    def get_pending_notifications(self, request, *args, **kwargs):
+        notifications = list(
+            Notification.objects.filter(
+                is_sent=False,
+                bot_integration__channel_id__isnull=False
+            )
+            .order_by('timestamp')[:30]
+            .values('message', 'bot_integration__channel_id', 'id')
+        )
+        return success_response("Notifications fetched successfully", data=notifications)
+
+    @action(detail=False, methods=['post'])
+    def mark_notifications_as_sent(self, request, *args, **kwargs):
+        notification_ids = request.data.get('notification_ids')
+        if not notification_ids:
+            return success_response("No notification IDs provided")
+
+        with transaction.atomic():
+            Notification.objects.filter(id__in=notification_ids).update(is_sent=True)
+        return success_response("Notifications marked as sent successfully")
+
+    @action(detail=False, methods=['post'])
+    def create_installation_state(self, request, *args, **kwargs):
+        guild_id = request.data.get('guild_id')
+        if not guild_id:
+            return error_response("Guild ID is required")
+
+        guild, _ = DiscordGuild.objects.get_or_create(id=guild_id)
+        state = InstallationState.objects.create(guild=guild)
+        return success_response("Installation state created successfully", data={"state_id": state.id})
