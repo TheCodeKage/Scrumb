@@ -16,7 +16,7 @@ Content-Type: application/json
  %}
 
 ### Get Project Details
-GET {{host_url}}/project/
+GET {{host_url}}/project/1/
 Authorization: Bearer {{token1}}
 
 > {%

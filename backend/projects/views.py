@@ -13,6 +13,7 @@ from bot_integrations.logic import send_message
 from services.AI.api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
 from users.models import Team, Membership
 from services.api_responses import success_response, error_response
+from . import analytics
 from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut, get_stalled_tasks, add_questions, \
     select_option_for_question
 from .models import Project, Task, ArchitectQuestion, ProjectSettings
@@ -184,38 +185,22 @@ class ProjectAnalyticsViewSet(ProjectBaseViewSet):
     @action(detail=True, methods=['get'])
     def health(self, request, pk=None):
         project = self.get_object()
-
-        project_status, velocity, distance, target_cut = calculate_health(project)
-
-        if not velocity:
-            return success_response(message="No history yet", data={"daily_velocity": "N/A"})
-
-        return success_response(
-            message="Project health fetched",
-            data={
-                "project_name": project.name,
-                "status": project_status,
-                "completion_percentage": project.completion_percentage,
-                "daily_velocity": velocity,
-                "current_panic_requirement": f"{target_cut}% scope cut needed",
-                "days_until_guarantee": (project.guarantee_date - timezone.now().date()).days,
-                "expected_complete_by": f"{round(distance / velocity)} days",
-            },
-        )
+        health = analytics.health(project)
+        if health is None:
+            return success_response(message="No history yet", data={'daily_velocity': 'N/A'})
+        return success_response(message="Project health fetched", data=health)
 
     @action(detail=True, methods=['get'])
     def stalled_tasks(self, request, pk=None):
         project = self.get_object()
-        stalled_tasks = get_stalled_tasks(project)
-        return success_response(message="Stalled tasks fetched", data={"stalled_tasks": stalled_tasks})
+        stalled_data = analytics.stalled_tasks(project)
+        return success_response(message="Stalled tasks fetched", data=stalled_data)
 
     @action(detail=True, methods=['get'])
     def roast(self, request, pk=None):
         project = self.get_object()
-        stalled_tasks = get_stalled_tasks(project)
-        roast = shame_team(stalled_tasks, project.team.get_team_data())
-        send_message(roast, project=project)
-        return success_response(message="Roast sent")
+        roast_data = analytics.roast(project)
+        return success_response(message="Roast sent", data=roast_data)
 
 
 class ProjectPanicViewSet(ProjectBaseViewSet):

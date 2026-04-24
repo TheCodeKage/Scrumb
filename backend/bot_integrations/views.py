@@ -7,7 +7,8 @@ from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
-from bot_integrations.models import DiscordGuild, InstallationState, DiscordBotIntegration, Notification
+from bot_integrations.logic import process_cron_jobs
+from bot_integrations.models import DiscordGuild, InstallationState, DiscordBotIntegration, Notification, CronSchedule
 from projects.models import Project
 from users.models import Membership
 from services.api_responses import success_response, error_response
@@ -18,6 +19,14 @@ class HasAPIKeyHeader(BasePermission):
         api_key = request.headers.get("X-API-KEY")  # or whatever header name
 
         return api_key == settings.DISCORD_API_KEY
+
+
+class HasCronJobAPIKeyHeader(BasePermission):
+    def has_permission(self, request, view):
+        api_key = request.headers.get("X-CRON-API-KEY")
+
+        return api_key == settings.CRON_JOB_API_KEY
+
 
 class LinkDiscordView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -192,3 +201,24 @@ class DiscordBotViews(ViewSet):
         guild, _ = DiscordGuild.objects.get_or_create(id=guild_id)
         state = InstallationState.objects.create(guild=guild)
         return success_response("Installation state created successfully", data={"state_id": state.id})
+
+
+class CronJobViews(ViewSet):
+    permission_classes = (HasCronJobAPIKeyHeader,)
+    http_method_names = ["get", "post"]
+
+    # method to calculate time for sending message, getting and compiling all analytics, and sending messages of current batch
+    @action(detail=False, methods=['get'])
+    def cron_job(self, request, *args, **kwargs):
+        process_cron_jobs()
+        return success_response("Cron jobs processed successfully")
+
+    @action(detail=False, methods=['get'])
+    def reset_weekly_cron_schedule(self, request, *args, **kwargs):
+        CronSchedule.reset_weekly_schedules()
+        return success_response("Weekly cron schedules reset successfully")
+
+    @action(detail=False, methods=['get'])
+    def reset_daily_cron_schedule(self, request, *args, **kwargs):
+        CronSchedule.reset_daily_schedules()
+        return success_response("Daily cron schedules reset successfully")
