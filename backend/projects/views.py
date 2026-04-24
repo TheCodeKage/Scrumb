@@ -9,6 +9,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from bot_integrations.logic import send_message
 from services.AI.api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
 from users.models import Team, Membership
 from services.api_responses import success_response, error_response
@@ -212,8 +213,8 @@ class ProjectAnalyticsViewSet(ProjectBaseViewSet):
     def roast(self, request, pk=None):
         project = self.get_object()
         stalled_tasks = get_stalled_tasks(project)
-        shame_team(stalled_tasks, project.team.values())
-        #Todo: Add discord call here
+        roast = shame_team(stalled_tasks, project.team.get_team_data())
+        send_message(roast, project=project)
         return success_response(message="Roast sent")
 
 
