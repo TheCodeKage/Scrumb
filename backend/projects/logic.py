@@ -125,6 +125,7 @@ def save_tasks(data: Iterable, project: Project):
     # --- PASS 1: CREATE ALL TASKS ---
     def create_recursive(tasks_list, parent=None):
         for task_data in tasks_list:
+            task_data['slug'] = task_data['slug'][:100]
             t = Task.objects.create(
                 project=project,
                 parent_task=parent,
