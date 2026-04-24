@@ -1,4 +1,6 @@
 import uuid
+
+from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
 
@@ -35,7 +37,7 @@ class InstallationState(models.Model):
 class CronSchedule(models.Model):
     project = models.OneToOneField(Project, on_delete=models.CASCADE, related_name='cron_schedule')
     scheduled_hour = models.PositiveSmallIntegerField(validators=[MaxValueValidator(23)])
-    scheduled_day_of_week = models.PositiveSmallIntegerField(validators=[MaxValueValidator(6)])
+    scheduled_day_of_week = models.SmallIntegerField(validators=[MaxValueValidator(6)])
     processed = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
 
@@ -66,10 +68,15 @@ class CronSchedule(models.Model):
         self.save()
 
     def promote_to_daily(self):
-        self.scheduled_day_of_week = -1
+        hour = CronSchedule.get_empty_batch_daily()
+        if hour is not None:
+            self.scheduled_day_of_week = -1
+            self.scheduled_hour = hour
+            self.save()
 
     def demote_to_weekly(self):
         self.scheduled_day_of_week, self.scheduled_hour = self.get_empty_batch_weekly()
+        self.save()
 
     @staticmethod
     def reset_daily_schedules():
@@ -80,32 +87,40 @@ class CronSchedule(models.Model):
         CronSchedule.objects.filter(scheduled_day_of_week__gte=0).update(processed=False)
 
     @staticmethod
-    def get_current_batch(day_start_hour: int = 8):
+    def get_current_batch(day_start_hour: int = 8, day_length: int = 12):
         now = timezone.now()
+
         current_day_of_week = now.weekday()
         current_hour = now.hour - day_start_hour
-        current_half_hour = 0 if now.minute < 28 else 1
 
+        # before 8 AM → no jobs
         if current_hour < 0:
             return CronSchedule.objects.none()
 
+        # after 8 PM → treat as end of day (optional safety)
+        if current_hour > day_length - 1:
+            current_hour = day_length - 1
+
         return CronSchedule.objects.filter(
-            scheduled_day_of_week=current_day_of_week,
-            scheduled_hour__gte=2*current_hour+current_half_hour,
-            processed=False
+            processed=False,
+            active=True,
+            scheduled_hour__lte=current_hour
+        ).filter(
+            Q(scheduled_day_of_week=current_day_of_week) |
+            Q(scheduled_day_of_week__lt=0)
         ).select_related('project')
 
     @staticmethod
     def get_empty_batch_weekly(BATCH_SIZE: int = 40):
         for i in range(7):
-            for j in range(24):
+            for j in range(12):
                 if CronSchedule.objects.filter(scheduled_day_of_week=i, scheduled_hour=j).count() < BATCH_SIZE:
                     return i, j
         return None, None
 
     @staticmethod
     def get_empty_batch_daily(BATCH_SIZE: int = 10):
-        for j in range(24):
+        for j in range(12):
             if CronSchedule.objects.filter(scheduled_day_of_week__lt=0, scheduled_hour=j).count() < BATCH_SIZE:
                 return j
         return None
