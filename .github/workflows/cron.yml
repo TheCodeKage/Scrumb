@@ -1,0 +1,15 @@
+name: Run Django Cron Job
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"  # every 30 minutes (adjust as needed)
+
+jobs:
+  ping-cron:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Call Django Cron Endpoint
+        run: |
+          curl -X GET "https://apiv2.scrumb.in/discord/cron_job/" \
+          -H "X-CRON-API-KEY: ${{ secrets.CRON_API_KEY }}"
