@@ -1,0 +1,14 @@
+name: Reset Daily Cron Schedule
+
+on:
+  schedule:
+    - cron: "35 2 * * *"
+
+jobs:
+  reset-daily:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reset daily schedules
+        run: |
+          curl -X GET "https://apiv2.scrumb.in/discord/reset_daily_cron_schedule/" \
+          -H "X-CRON-API-KEY: ${{ secrets.CRON_API_KEY }}"
