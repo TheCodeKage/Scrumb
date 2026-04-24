@@ -54,24 +54,35 @@ def get_cron_jobs(scheduled_hour: int, scheduled_day_of_week: int = -1):
 
 
 def process_cron_jobs():
+    threshold_date = (now() + timedelta(days=7)).date()
+
     for cron_job in CronSchedule.get_current_batch():
         try:
             project = cron_job.project
 
-            if cron_job.is_active and now() >= project.guarantee_date:
+            # deactivate if expired
+            if cron_job.is_active and now().date() >= project.guarantee_date:
                 cron_job.deactivate()
                 continue
 
-            if not cron_job.is_active and now() < project.guarantee_date:
+            # reactivate if valid again
+            if not cron_job.is_active and now().date() < project.guarantee_date:
                 cron_job.activate()
+                continue
 
-            if not cron_job.is_daily() and project.guarantee_date <= now() + timedelta(days=7):
+            # promote to daily
+            if not cron_job.is_daily and project.guarantee_date <= threshold_date:
                 cron_job.promote_to_daily()
+                continue
 
-            if cron_job.is_daily() and project.guarantee_date > now() + timedelta(days=7):
+            # demote to weekly
+            if cron_job.is_daily and project.guarantee_date > threshold_date:
                 cron_job.demote_to_weekly()
+                continue
 
+            # process job
             send_message(compile_message(project), project=project)
             cron_job.mark_as_processed()
+
         except Exception as e:
-            print(e)
+            print(f"Error processing cron job {cron_job.id}: {e}")
