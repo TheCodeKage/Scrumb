@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
-from bot_integrations.logic import process_cron_jobs
+from bot_integrations.logic import process_cron_jobs, add_cron_job
 from bot_integrations.models import DiscordGuild, InstallationState, DiscordBotIntegration, Notification, CronSchedule
 from projects.models import Project
 from users.models import Membership
@@ -137,7 +137,7 @@ class DiscordBotViews(ViewSet):
         with transaction.atomic():
             integration = guild.bot_integrations.select_for_update().filter(
                 project_id=project_id
-            ).first()
+            ).select_related('project').first()
 
             if not integration:
                 integration = guild.bot_integrations.create(project_id=project_id)
@@ -145,7 +145,14 @@ class DiscordBotViews(ViewSet):
             integration.channel_id = channel_id
             integration.save()
 
-        return success_response("Setup saved successfully")
+        try:
+            add_cron_job(integration.project)
+            msg = "Setup saved successfully"
+        except Exception as e:
+            msg = "Setup saved successfully, However, an error occurred while adding automatic project updates. Please contact support."
+            print(e)
+
+        return success_response(msg)
 
     @action(detail=False, methods=['get'])
     def get_projects_for_autocomplete(self, request, *args, **kwargs):
