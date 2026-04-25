@@ -41,7 +41,7 @@ Scrumb solves this with three principles:
   - Scope Executioner
 
 ### IDE Integration
-- JetBrains Plugin (Sehal's Realm)
+- JetBrains Plugin
 
 ### Database
 - PostgreSQL  
