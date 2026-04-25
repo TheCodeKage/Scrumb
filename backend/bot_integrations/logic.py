@@ -1,5 +1,5 @@
 from datetime import timedelta
-from django.utils.timezone import now
+from django.utils.timezone import now, localtime
 
 from projects.analytics import health, stalled_tasks, roast
 from .models import DiscordBotIntegration, Notification, CronSchedule
@@ -119,7 +119,7 @@ def get_cron_jobs(scheduled_hour: int, scheduled_day_of_week: int = -1):
 
 
 def process_cron_jobs():
-    threshold_date = (now() + timedelta(days=7)).date()
+    threshold_date = (localtime(now()) + timedelta(days=7)).date()
 
     for cron_job in CronSchedule.get_current_batch():
         try:

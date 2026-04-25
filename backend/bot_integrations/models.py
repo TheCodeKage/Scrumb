@@ -88,7 +88,7 @@ class CronSchedule(models.Model):
 
     @staticmethod
     def get_current_batch(day_start_hour: int = 8, day_length: int = 12):
-        now = timezone.now()
+        now = timezone.localtime(timezone.now())
 
         current_day_of_week = now.weekday()
         current_hour = now.hour - day_start_hour
