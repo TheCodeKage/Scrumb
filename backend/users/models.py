@@ -14,6 +14,7 @@ class Skill(models.Model):
 class Developer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='developer')
     skills = models.ManyToManyField(Skill)
+    description = models.TextField(blank=True, null=True)
 
 
 class PreviousProject(models.Model):

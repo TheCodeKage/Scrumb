@@ -154,6 +154,14 @@ class ProjectSettings(models.Model):
         REMIND    = 'remind',   'Remind developer'
         NONE      = 'none',     'Do nothing'
 
+    class PanicPolicy(models.TextChoices):
+        FORCE_ARCHIVE        = 'force_archive',      'Forcefully archive low priority tasks'
+        DELAY_DEADLINE       = 'delay_deadline',     'Delay deadline to avoid panic'
+        ASK_LEADER_ARCHIVE   = 'ask_leader_archive', 'Ask leader to review, force archive on timeout'
+        ASK_LEADER_REVIEW    = 'ask_leader_review',  'Ask leader to review, delay deadline on timeout'
+        ASK_LEADER           = 'ask_leader',         'Ask leader to review, do nothing on timeout'
+        NONE                 = 'none',               'Do nothing'
+
     project = models.OneToOneField(
         Project, on_delete=models.CASCADE, related_name='settings'
     )
@@ -167,7 +175,11 @@ class ProjectSettings(models.Model):
     )
     shame_policy        = models.CharField(
         max_length=20, choices=ShamePolicy.choices,
-        default=ShamePolicy.REMIND,
+        default=ShamePolicy.SHAME,
+    )
+    panic_policy        = models.CharField(
+        max_length=20, choices=PanicPolicy.choices,
+        default=PanicPolicy.FORCE_ARCHIVE,
     )
     skip_ai_completion_check = models.BooleanField(default=False)
     max_commits_for_review   = models.PositiveIntegerField(default=10)

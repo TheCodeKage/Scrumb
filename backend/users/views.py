@@ -5,21 +5,34 @@ from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
 from services.api_responses import success_response, error_response
-from .models import Team, Membership, Developer, Invitation, Skill
-from .serializers import TeamSerializer, DeveloperSerializer, InvitationSerializer
+from .models import Team, Membership, Developer, Invitation, Skill, PreviousProject
+from .serializers import TeamSerializer, DeveloperSerializer, InvitationSerializer, PreviousProjectSerializer
 from .permissions import IsTeamMember, IsTeamLeader, ActionPermissionMixin
 from .logic import send_invitation, send_join_request, accept_join_request, accept_invitation, decline_invitation
+
+
+class PreviousProjectViewSet(viewsets.ModelViewSet):
+    serializer_class = PreviousProjectSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
+
+    def get_queryset(self):
+        return PreviousProject.objects.filter(developer__user=self.request.user)
+
+    def perform_create(self, serializer):
+        developer = self.request.user.developer
+        serializer.save(developer=developer)
 
 
 class DeveloperViewSet(viewsets.ModelViewSet):
     serializer_class = DeveloperSerializer
     permission_classes = [IsAuthenticated]
 
-    allowed_actions = ['add_skill', 'remove_skill', 'get_skills', 'get']
+    allowed_actions = ['add_skill', 'remove_skill', 'get_skills', 'update_description', 'get']
 
     def get_queryset(self):
         return Developer.objects.filter(user=self.request.user).prefetch_related(
-            'skills',
+            'skills', 'previous_projects'
         )
 
     def get_skill(self, request, pk=None, add=True):
@@ -32,6 +45,7 @@ class DeveloperViewSet(viewsets.ModelViewSet):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 errors=[{"field": "skill", "detail": "Skill is required"}],
             )
+        skill = skill.lower().trim()
         if not Skill.objects.filter(name=skill).exists():
             return error_response(
                 message="Skill not found",
@@ -45,18 +59,27 @@ class DeveloperViewSet(viewsets.ModelViewSet):
             developer.skills.remove(Skill.objects.get(name=skill))
         return success_response(message="Skill added" if add else "Skill removed")
 
-    @action(detail=True, methods=['post'])
+    @action(detail=False, methods=['post'])
     def add_skill(self, request, pk=None):
+        pk = request.data.get('developer_id')
         return self.get_skill(request, pk, add=True)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=False, methods=['post'])
     def remove_skill(self, request, pk=None):
+        pk = request.data.get('developer_id')
         return self.get_skill(request, pk, add=False)
 
-    @action(detail=True, methods=['get'])
+    @action(detail=False, methods=['get'])
     def get_skills(self, request, pk=None):
-        developer = self.get_object()
+        developer = request.user.developer
         return success_response(message="Skills fetched", data=list(developer.skills.values()))
+
+    @action(detail=False, methods=['patch'])
+    def update_description(self, request, pk=None):
+        developer = request.user.developer
+        developer.description = request.data.get('description')
+        developer.save()
+        return success_response(message="Description updated")
 
 
 class TeamViewSet(ActionPermissionMixin, viewsets.ModelViewSet):

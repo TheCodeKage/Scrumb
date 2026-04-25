@@ -3,7 +3,7 @@ from django.utils.timezone import now, localtime
 
 from projects.analytics import health, stalled_tasks, roast
 from .models import DiscordBotIntegration, Notification, CronSchedule
-from projects.models import Project
+from projects.models import Project, ProjectSettings
 
 
 # ----------------------------- Message Sending Functions ----------------------------------------------------
@@ -40,10 +40,14 @@ def get_status_emoji(status: str | None) -> str:
         return "⚪"
 
 
-def compile_message(project: Project):
+def compile_message(project: Project, roaster_mode: bool = True):
     health_data = health(project)
     stalled_tasks_data = stalled_tasks(project)
-    roast_data = roast(project)
+
+    if roaster_mode:
+        roast_data = roast(project)
+    else:
+        roast_data = {"roast": ""}
 
     lines = []
 
@@ -124,6 +128,7 @@ def process_cron_jobs():
     for cron_job in CronSchedule.get_current_batch():
         try:
             project = cron_job.project
+            shame_mode = project.settings.shame_policy
 
             # deactivate if expired
             if cron_job.is_active and now().date() >= project.guarantee_date:
@@ -146,7 +151,11 @@ def process_cron_jobs():
                 continue
 
             # process job
-            send_message(compile_message(project), project=project)
+            if not shame_mode == ProjectSettings.ShamePolicy.NONE:
+                send_message(compile_message(project, shame_mode==ProjectSettings.ShamePolicy.SHAME), project=project)
+
+            # check panic
+
             cron_job.mark_as_processed()
 
         except Exception as e:

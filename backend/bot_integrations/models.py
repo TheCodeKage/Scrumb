@@ -108,7 +108,7 @@ class CronSchedule(models.Model):
         ).filter(
             Q(scheduled_day_of_week=current_day_of_week) |
             Q(scheduled_day_of_week__lt=0)
-        ).select_related('project')
+        ).select_related('project', 'project__settings')
 
     @staticmethod
     def get_empty_batch_weekly(BATCH_SIZE: int = 40):
