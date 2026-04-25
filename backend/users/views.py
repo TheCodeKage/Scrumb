@@ -35,8 +35,8 @@ class DeveloperViewSet(viewsets.ModelViewSet):
             'skills', 'previous_projects'
         )
 
-    def get_skill(self, request, pk=None, add=True):
-        developer = self.get_object()
+    def get_skill(self, request, add=True):
+        developer = self.request.user.developer
         skill = request.data.get('skill')
 
         if not skill:
@@ -61,13 +61,11 @@ class DeveloperViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def add_skill(self, request, pk=None):
-        pk = request.data.get('developer_id')
-        return self.get_skill(request, pk, add=True)
+        return self.get_skill(request, add=True)
 
     @action(detail=False, methods=['post'])
     def remove_skill(self, request, pk=None):
-        pk = request.data.get('developer_id')
-        return self.get_skill(request, pk, add=False)
+        return self.get_skill(request, add=False)
 
     @action(detail=False, methods=['get'])
     def get_skills(self, request, pk=None):
