@@ -2,14 +2,19 @@ name: Run Django Cron Job
 
 on:
   schedule:
-    - cron: "*/30 * * * *"  # every 30 minutes (adjust as needed)
+    - cron: "*/30 * * * *"  # every 30 minutes
+  workflow_dispatch:
 
 jobs:
   ping-cron:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Call Django Cron Endpoint
+      - name: Call Django Cron Endpoint with retry
         run: |
-          curl -X GET "https://apiv2.scrumb.in/discord/cron_job/" \
-          -H "X-CRON-API-KEY: ${{ secrets.CRON_API_KEY }}"
+          for i in 1 2 3; do
+            curl -f -X GET "https://apiv2.scrumb.in/discord/cron_job/" \
+            -H "X-CRON-API-KEY: ${{ secrets.CRON_API_KEY }}" && break
+            echo "Retry $i failed..."
+            sleep 5
+          done
