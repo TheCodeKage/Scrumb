@@ -187,9 +187,12 @@ def process_cron_jobs():
             panic_policy = project.settings.panic_policy
             if health_data and health_data.get("status") == "TERMINAL" and panic_policy != ProjectSettings.PanicPolicy.NONE:
                 panic_recommendations = get_panic_recommendations(project, raw_health_data.get('target_cut', 0))
+                print(panic_recommendations)
                 updated_deadline = project.deadline + timedelta(days=raw_health_data.get('expected_complete_by', 0))
+                print(updated_deadline)
                 if panic_policy == ProjectSettings.PanicPolicy.FORCE_ARCHIVE:
                     cut_tasks(panic_recommendations, project)
+                    print("cut tasks")
                     send_message(
                         f"🚨 **Panic Alert for {project.name}!** 🚨\n\n"
                         f"{health_data.get('current_panic_requirement')}\n\n"
@@ -199,6 +202,7 @@ def process_cron_jobs():
 
                 elif panic_policy == ProjectSettings.PanicPolicy.DELAY_DEADLINE:
                     project.deadline = updated_deadline
+                    print("delay deadline")
                     project.save()
                     send_message(
                         f"🚨 **Panic Alert for {project.name}!** 🚨\n\n"
