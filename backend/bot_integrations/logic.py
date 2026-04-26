@@ -188,7 +188,7 @@ def process_cron_jobs():
             if health_data and health_data.get("status") == "TERMINAL" and panic_policy != ProjectSettings.PanicPolicy.NONE:
                 panic_recommendations = get_panic_recommendations(project, raw_health_data.get('target_cut', 0))
                 print(panic_recommendations)
-                updated_deadline = project.deadline + timedelta(days=raw_health_data.get('expected_complete_by', 0))
+                updated_deadline = project.guarantee_date + timedelta(days=raw_health_data.get('expected_complete_by', 0))
                 print(updated_deadline)
                 if panic_policy == ProjectSettings.PanicPolicy.FORCE_ARCHIVE:
                     cut_tasks(panic_recommendations, project)
@@ -201,7 +201,7 @@ def process_cron_jobs():
                     )
 
                 elif panic_policy == ProjectSettings.PanicPolicy.DELAY_DEADLINE:
-                    project.deadline = updated_deadline
+                    project.guarantee_date = updated_deadline
                     print("delay deadline")
                     project.save()
                     send_message(
@@ -231,7 +231,7 @@ def process_cron_jobs():
                 if action:
                     cut_tasks(action.panic_recommendations, timeout.project)
             elif timeout.ActionType == Timeout.ActionType.DELAY:
-                timeout.project.deadline = timeout.actions.filter(action_type=NotificationAction.ActionType.DELAY).first().deadline_update
+                timeout.project.guarantee_date = timeout.actions.filter(action_type=NotificationAction.ActionType.DELAY).first().deadline_update
                 timeout.project.save()
             timeout.process_timeout()
 
@@ -249,7 +249,7 @@ def process_interaction(button_id: UUID):
         return None
 
     if interaction.action_type == NotificationAction.ActionType.DELAY:
-        interaction.timeout.project.deadline = interaction.deadline_update
+        interaction.timeout.project.guarantee_date = interaction.deadline_update
         interaction.timeout.project.save()
     elif interaction.action_type == NotificationAction.ActionType.CUT:
         cut_tasks(interaction.panic_recommendations, interaction.timeout.project)
