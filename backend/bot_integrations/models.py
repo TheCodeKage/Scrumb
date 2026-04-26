@@ -30,7 +30,7 @@ class Notification(models.Model):
 
 
 class Timeout(models.Model):
-    project = models.OneToOneField(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     class ActionType(models.TextChoices):
         CUT = 'cut_tasks', 'Cut Tasks'
