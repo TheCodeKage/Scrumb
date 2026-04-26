@@ -255,7 +255,6 @@ def process_interaction(button_id: UUID):
     elif interaction.action_type == NotificationAction.ActionType.CUT:
         cut_tasks(interaction.panic_recommendations, interaction.timeout.project)
 
-    interaction.enabled = False
-    interaction.save()
+    interaction.timeout.process_timeout()
 
     return True
