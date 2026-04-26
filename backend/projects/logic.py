@@ -198,7 +198,7 @@ def calculate_health(project: Project):
     # 3. Categorization
     status = "HEALTHY"
     if target_cut > 0: status = "STRESSED"
-    if target_cut > 50: status = "TERMINAL"
+    if target_cut > 40: status = "TERMINAL"
 
     total_importance = project.tasks.exclude(status__in=('archived', 'done')).aggregate(importance=Sum('importance'))[
                            'importance'] or 0

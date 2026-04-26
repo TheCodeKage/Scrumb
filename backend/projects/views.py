@@ -2,19 +2,17 @@ import logging
 
 from django.db import transaction
 from django.http import JsonResponse
-from django.utils import timezone
 from rest_framework import viewsets, serializers, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from bot_integrations.logic import send_message
-from services.AI.api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
-from users.models import Team, Membership
+from services.AI.api_caller import generate_tasks, get_panic_recommendations, check_description
 from services.api_responses import success_response, error_response
+from users.models import Team, Membership
 from . import analytics
-from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut, get_stalled_tasks, add_questions, \
+from .logic import save_tasks, cut_tasks, calculate_target_cut, add_questions, \
     select_option_for_question
 from .models import Project, Task, ArchitectQuestion, ProjectSettings
 from .permissions import IsTeamLeader

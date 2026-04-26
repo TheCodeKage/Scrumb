@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
-from bot_integrations.logic import process_cron_jobs, add_cron_job
+from bot_integrations.logic import process_cron_jobs, add_cron_job, process_interaction
 from bot_integrations.models import DiscordGuild, InstallationState, DiscordBotIntegration, Notification, CronSchedule
 from projects.models import Project
 from users.models import Membership
@@ -179,14 +179,26 @@ class DiscordBotViews(ViewSet):
 
     @action(detail=False, methods=['get'])
     def get_pending_notifications(self, request, *args, **kwargs):
-        notifications = list(
+        qs = (
             Notification.objects.filter(
                 is_sent=False,
                 bot_integration__channel_id__isnull=False
             )
             .order_by('timestamp')[:30]
-            .values('message', 'bot_integration__channel_id', 'id')
+            .select_related('bot_integration')
+            .prefetch_related('actions')
         )
+        notifications = []
+        for notification in qs:
+            notifications.append({
+                'id': notification.id,
+                'message': notification.message,
+                'bot_integration__channel_id': notification.bot_integration.channel_id,
+                'actions': [
+                    {'id': a.id, 'action_type': a.action_type}
+                    for a in notification.actions.all()
+                ]
+            })
         return success_response("Notifications fetched successfully", data=notifications)
 
     @action(detail=False, methods=['post'])
@@ -208,6 +220,16 @@ class DiscordBotViews(ViewSet):
         guild, _ = DiscordGuild.objects.get_or_create(id=guild_id)
         state = InstallationState.objects.create(guild=guild)
         return success_response("Installation state created successfully", data={"state_id": state.id})
+
+    @action(detail=False, methods=['post'])
+    def process_button_click(self, request, *args, **kwargs):
+        id = request.data.get('id')
+        if not id:
+            return error_response("id is required")
+        if process_interaction(id):
+            return success_response("Interaction processed successfully")
+        else:
+            return error_response("Failed to process interaction")
 
 
 class CronJobViews(ViewSet):

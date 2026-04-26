@@ -29,6 +29,41 @@ class Notification(models.Model):
     is_sent = models.BooleanField(default=False)
 
 
+class Timeout(models.Model):
+    project = models.OneToOneField(Project, on_delete=models.CASCADE)
+
+    class ActionType(models.TextChoices):
+        CUT = 'cut_tasks', 'Cut Tasks'
+        DELAY = 'delay_deadline', 'Delay Deadline'
+
+    action_type = models.CharField(max_length=20, choices=ActionType.choices, blank=True, null=True)
+    timeout_time = models.DateTimeField(default=timezone.now() + timedelta(hours=6))
+
+    def process_timeout(self):
+        self.actions.update(enabled=False)
+        self.delete()
+
+    @staticmethod
+    def get_current_batch():
+        return Timeout.objects.filter(timeout_time__lte=timezone.now()).order_by('timeout_time')
+
+
+class NotificationAction(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    notification = models.ForeignKey(Notification, on_delete=models.CASCADE, related_name='actions')
+
+    class ActionType(models.TextChoices):
+        CUT = 'cut_tasks', 'Cut Tasks'
+        DELAY = 'delay_deadline', 'Delay Deadline'
+
+    action_type = models.CharField(max_length=20, choices=ActionType.choices, blank=True, null=True)
+    timeout = models.ForeignKey(Timeout, on_delete=models.CASCADE, related_name='actions')
+    enabled = models.BooleanField(default=True)
+
+    panic_recommendations = models.JSONField(default=list, blank=True, null=True)
+    deadline_update = models.DateTimeField(blank=True, null=True)
+
+
 class InstallationState(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     guild = models.ForeignKey(DiscordGuild, on_delete=models.CASCADE, related_name='installation_states')

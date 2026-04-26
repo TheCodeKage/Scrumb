@@ -1,9 +1,19 @@
 from datetime import timedelta
+from uuid import UUID
+
 from django.utils.timezone import now, localtime
 
-from projects.analytics import health, stalled_tasks, roast
-from .models import DiscordBotIntegration, Notification, CronSchedule
+from projects.analytics import health, stalled_tasks, roast, raw_health
+from projects.logic import cut_tasks
+from services.AI.api_caller import get_panic_recommendations
+from .models import DiscordBotIntegration, Notification, CronSchedule, NotificationAction, Timeout
 from projects.models import Project, ProjectSettings
+
+project_settings_map = {
+    ProjectSettings.PanicPolicy.ASK_LEADER: None,
+    ProjectSettings.PanicPolicy.ASK_LEADER_ARCHIVE: Timeout.ActionType.CUT,
+    ProjectSettings.PanicPolicy.ASK_LEADER_REVIEW: Timeout.ActionType.DELAY
+}
 
 
 # ----------------------------- Message Sending Functions ----------------------------------------------------
@@ -13,14 +23,30 @@ def send_message(
         bot_integration: DiscordBotIntegration | None = None,
 ):
     if not project and not bot_integration:
-        return
+        return None
 
     if project:
         if not project.discord_bot_integration:
-            return
+            return None
         bot_integration = project.discord_bot_integration
 
-    Notification.objects.create(message=message, bot_integration=bot_integration)
+    return Notification.objects.create(message=message, bot_integration=bot_integration)
+
+
+def add_notification_action(notification: Notification, project: Project, recommendations: list[str], deadline: timedelta):
+    notification_actions = []
+    action_type = project_settings_map.get(project.settings.panic_policy) if project else None
+    timeout = Timeout.objects.create(project=project, action_type=action_type)
+    for action in [NotificationAction.ActionType.DELAY, NotificationAction.ActionType.CUT]:
+        notification_actions.append(NotificationAction(
+            notification=notification,
+            action_type=action,
+            timeout=timeout,
+            panic_recommendations=recommendations,
+            deadline_update=deadline
+        ))
+    if notification_actions:
+        NotificationAction.objects.bulk_create(notification_actions)
 
 
 # ----------------------------- Message Retrieval Functions ----------------------------------------------------
@@ -40,8 +66,7 @@ def get_status_emoji(status: str | None) -> str:
         return "⚪"
 
 
-def compile_message(project: Project, roaster_mode: bool = True):
-    health_data = health(project)
+def compile_message(project: Project, roaster_mode: bool = True, health_data: dict | None = None):
     stalled_tasks_data = stalled_tasks(project)
 
     if roaster_mode:
@@ -150,13 +175,82 @@ def process_cron_jobs():
                 cron_job.demote_to_weekly()
                 continue
 
+            raw_health_data = raw_health(project)
+            health_data = health(raw_health_data=raw_health_data,)
+
             # process job
             if not shame_mode == ProjectSettings.ShamePolicy.NONE:
-                send_message(compile_message(project, shame_mode==ProjectSettings.ShamePolicy.SHAME), project=project)
+                send_message(compile_message(project, shame_mode == ProjectSettings.ShamePolicy.SHAME, health_data),
+                             project=project)
 
             # check panic
+            panic_policy = project.settings.panic_policy
+            if health_data and health_data.get("status") == "TERMINAL" and panic_policy != ProjectSettings.PanicPolicy.NONE:
+                panic_recommendations = get_panic_recommendations(project, raw_health_data.get('target_cut', 0))
+                updated_deadline = project.deadline + timedelta(days=raw_health_data.get('expected_complete_by', 0))
+                if panic_policy == ProjectSettings.PanicPolicy.FORCE_ARCHIVE:
+                    cut_tasks(panic_recommendations, project)
+                    send_message(
+                        f"🚨 **Panic Alert for {project.name}!** 🚨\n\n"
+                        f"{health_data.get('current_panic_requirement')}\n\n"
+                        f"Following tasks have been cut:\n" + "\n".join(f"- {rec}" for rec in panic_recommendations),
+                        project=project
+                    )
+
+                elif panic_policy == ProjectSettings.PanicPolicy.DELAY_DEADLINE:
+                    project.deadline = updated_deadline
+                    project.save()
+                    send_message(
+                        f"🚨 **Panic Alert for {project.name}!** 🚨\n\n"
+                        f"{health_data.get('current_panic_requirement')}\n\n"
+                        f"Deadline has been extended by {raw_health_data.get('expected_complete_by', 0)} days. Please focus on getting back on track!",
+                        project=project
+                    )
+
+                else:
+                    panic_message = send_message(
+                        f"🚨 **Panic Alert for {project.name}!** 🚨\n\n"
+                        f"{health_data.get('current_panic_requirement')}\n\n"
+                        f"Please take immediate action to reduce scope and get back on track!",
+                        project=project
+                    )
+                    add_notification_action(panic_message, project, panic_recommendations, updated_deadline)
 
             cron_job.mark_as_processed()
 
         except Exception as e:
             print(f"Error processing cron job {cron_job.id}: {e}")
+
+        for timeout in Timeout.get_current_batch():
+            if timeout.action_type == Timeout.ActionType.CUT:
+                action = timeout.actions.filter(action_type=NotificationAction.ActionType.CUT).first()
+                if action:
+                    cut_tasks(action.panic_recommendations, timeout.project)
+            elif timeout.ActionType == Timeout.ActionType.DELAY:
+                timeout.project.deadline = timeout.actions.filter(action_type=NotificationAction.ActionType.DELAY).first().deadline_update
+                timeout.project.save()
+            timeout.process_timeout()
+
+
+# ----------------------------- Discord Button Actions ----------------------------------------------------
+def process_interaction(button_id: UUID):
+    if not button_id:
+        return None
+
+    interaction = NotificationAction.objects.filter(id=button_id).select_related('timeout').first()
+    if not interaction:
+        return None
+
+    if not interaction.enabled:
+        return None
+
+    if interaction.action_type == NotificationAction.ActionType.DELAY:
+        interaction.timeout.project.deadline = interaction.deadline_update
+        interaction.timeout.project.save()
+    elif interaction.action_type == NotificationAction.ActionType.CUT:
+        cut_tasks(interaction.panic_recommendations, interaction.timeout.project)
+
+    interaction.enabled = False
+    interaction.save()
+
+    return True

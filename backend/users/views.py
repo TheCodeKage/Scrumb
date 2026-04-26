@@ -45,7 +45,7 @@ class DeveloperViewSet(viewsets.ModelViewSet):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 errors=[{"field": "skill", "detail": "Skill is required"}],
             )
-        skill = skill.lower().trim()
+        skill = skill.lower().strip()
         if not Skill.objects.filter(name=skill).exists():
             return error_response(
                 message="Skill not found",
