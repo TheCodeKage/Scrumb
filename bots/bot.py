@@ -4,7 +4,7 @@ import atexit
 
 from typing import TYPE_CHECKING
 import httpx
-from discord import Client, app_commands
+from discord import Client, app_commands, ButtonStyle
 from discord import Interaction, TextChannel
 from discord.client import Intents
 from discord.ext import tasks
@@ -41,7 +41,7 @@ def build_action_view(actions):
 
         button = Button(
             label=label,
-            style=1,  # primary
+            style=ButtonStyle.primary,
             custom_id=str(action["id"])  # IMPORTANT
         )
 
