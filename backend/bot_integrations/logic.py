@@ -188,6 +188,7 @@ def process_cron_jobs():
             if health_data and health_data.get("status") == "TERMINAL" and panic_policy != ProjectSettings.PanicPolicy.NONE:
                 panic_recommendations = get_panic_recommendations(project, raw_health_data.get('target_cut', 0))
                 print(panic_recommendations)
+                print(raw_health_data)
                 updated_deadline = project.guarantee_date + timedelta(days=raw_health_data.get('expected_complete_by', 0))
                 print(updated_deadline)
                 if panic_policy == ProjectSettings.PanicPolicy.FORCE_ARCHIVE:
