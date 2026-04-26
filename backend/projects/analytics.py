@@ -18,7 +18,7 @@ def raw_health(project: Project):
         "daily_velocity": velocity,
         "target_cut": target_cut,
         "days_until_guarantee": (project.guarantee_date - timezone.now().date()).days,
-        "expected_complete_by": {round(distance / velocity)},
+        "expected_complete_by": round(distance / velocity),
     }
 
 
