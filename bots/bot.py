@@ -27,6 +27,29 @@ headers = {"X-API-KEY": api_key}
 client_http = httpx.AsyncClient(timeout=httpx.Timeout(30, connect=5, read=10, write=10))
 
 
+def build_action_view(actions):
+    if not actions:
+        return None
+
+    view = View(timeout=None)
+
+    for action in actions:
+        label = (
+            "✂️ Cut Tasks" if action["action_type"] == "cut_tasks"
+            else "⏳ Delay Deadline"
+        )
+
+        button = Button(
+            label=label,
+            style=1,  # primary
+            custom_id=str(action["id"])  # IMPORTANT
+        )
+
+        view.add_item(button)
+
+    return view
+
+
 async def send_message(channel_id: int, message: str, view: View | None = None):
     channel = client.get_channel(channel_id)
 
@@ -149,7 +172,13 @@ async def send_pending_notifications():
     notifications = await get_pending_notifications()
     for notification in notifications:
         try:
-            await send_message(notification["bot_integration__channel_id"], notification["message"])
+            view = build_action_view(notification.get("actions"))
+
+            await send_message(
+                notification["bot_integration__channel_id"],
+                notification["message"],
+                view=view
+            )
             sent_notification_ids.append(notification["id"])
         except Exception as e:
             print(f"Failed to send notification: {e}")
@@ -261,6 +290,34 @@ async def on_guild_join(guild: Guild):
                                view=view)
     except Exception as e:
         print(f"Failed to fetch channels: {e} {str(e.__traceback__.tb_lineno)}")
+
+
+@client.event
+async def on_interaction(interaction: Interaction):
+    if not interaction.type.name == "component":
+        return
+
+    button_id = interaction.data.get("custom_id")
+
+    if not button_id:
+        return
+
+    # Call backend
+    res = await async_post(
+        f"{BASE_URL}/discord/process_button_click/",
+        json={"id": button_id}
+    )
+
+    if res and res.get("success"):
+        await interaction.response.send_message(
+            "✅ Action executed successfully.",
+            ephemeral=True
+        )
+    else:
+        await interaction.response.send_message(
+            "❌ Failed or already processed.",
+            ephemeral=True
+        )
 
 
 client.run(os.getenv("DISCORD_BOT_TOKEN"))
