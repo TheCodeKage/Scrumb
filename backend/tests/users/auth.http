@@ -51,5 +51,34 @@ GET {{host_url}}/api/auth/user/
 Authorization: Bearer {{token1}}
 
 ###Get User Details 2
-GET {{host_url}}/api/auth/user/
-Authorization: Bearer {{token2}}
+GET {{host_url}}/users/developer/
+Authorization: Bearer {{token1}}
+
+###Get CSRF Cookie For Session Auth
+GET {{host_url}}/api/session/csrf/
+
+###Session Signup User 3
+POST {{host_url}}/api/session/signup/
+Content-Type: application/json
+
+{
+    "email": "session-user@example.com",
+    "password1": "{{password}}",
+    "password2": "{{password}}",
+    "username": "session_user_1"
+}
+
+###Session Login User 1
+POST {{host_url}}/api/session/login/
+Content-Type: application/json
+
+{
+    "username": "{{username1}}",
+    "password": "{{password}}"
+}
+
+###Session Current User
+GET {{host_url}}/api/session/me/
+
+###Session Logout
+POST {{host_url}}/api/session/logout/

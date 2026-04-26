@@ -8,9 +8,8 @@ from django.db.models import Sum
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
-from Users.models import Developer
+from users.models import Developer
 from projects.models import TaskHistory, Task, Project, ArchitectQuestion, Option
-from Github.models import UnrelatedCommit, CommitEvent
 
 
 def get_selected_constraints(project: Project):
@@ -69,7 +68,9 @@ def get_daily_velocity(project: Project, days=7):
 
     raw_velocity = round(recent_done_importance / days, 2) or 0.1
 
-    # Distraction penalty: proportion of commits that were off-task
+    return raw_velocity
+
+    """# Distraction penalty: proportion of commits that were off-task
     total_commits = CommitEvent.objects.filter(
         task__project=project,
         timestamp__gte=cutoff
@@ -89,7 +90,7 @@ def get_daily_velocity(project: Project, days=7):
     else:
         effective_velocity = raw_velocity
 
-    return max(effective_velocity, 0.1)  # floor to avoid division by zero
+    return max(effective_velocity, 0.1)   # floor to avoid division by zero"""
 
 
 def calculate_target_cut(project: Project):
@@ -124,6 +125,7 @@ def save_tasks(data: Iterable, project: Project):
     # --- PASS 1: CREATE ALL TASKS ---
     def create_recursive(tasks_list, parent=None):
         for task_data in tasks_list:
+            task_data['slug'] = task_data['slug'][:100]
             t = Task.objects.create(
                 project=project,
                 parent_task=parent,
@@ -196,7 +198,7 @@ def calculate_health(project: Project):
     # 3. Categorization
     status = "HEALTHY"
     if target_cut > 0: status = "STRESSED"
-    if target_cut > 50: status = "TERMINAL"
+    if target_cut > 40: status = "TERMINAL"
 
     total_importance = project.tasks.exclude(status__in=('archived', 'done')).aggregate(importance=Sum('importance'))[
                            'importance'] or 0
@@ -209,14 +211,13 @@ def get_stalled_tasks(project: Project):
     stalled_tasks = (
         project.tasks.filter(status='doing')
         .order_by('-blocked_tasks_count', 'updated_on')[:5]
-        .select_related('blocked_tasks_count', 'updated_on')
     )
 
     # 2. Prepare the data for Gemini
     shame_data = []
     for task in stalled_tasks:
         shame_data.append({
-            "owner": task.owner,  # The simple string field
+            "owner": task.owner.user.username,  # The simple string field
             "task": task.title,
             "tasks_stalled": task.blocked_tasks_count,
             "days_stalled": (timezone.now() - task.updated_on).days

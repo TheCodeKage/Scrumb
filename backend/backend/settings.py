@@ -43,8 +43,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.admin",
     "projects.apps.ProjectsConfig",
-    "Users.apps.UsersConfig",
-    "Github.apps.GithubConfig"
+    "users.apps.UsersConfig",
+    "github.apps.GithubConfig",
+    "bot_integrations.apps.BotIntegrationsConfig"
 ]
 
 MIDDLEWARE = [
@@ -67,6 +68,16 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",
     "https://www.scrumb.in",
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [
+    "https://www.scrumb.in",
+    # add preview/staging origins if needed
+]
+
+# Production-safe cookie flags
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 ROOT_URLCONF = "backend.urls"
 
@@ -190,7 +201,7 @@ SIMPLE_JWT = {
 
 REST_AUTH = {
     'USE_JWT': True,
-    'PASSWORD_RESET_SERIALIZER': 'Users.serializers.PasswordResetSerializer',
+    'PASSWORD_RESET_SERIALIZER': 'users.serializers.PasswordResetSerializer',
 }
 
 AUTHENTICATION_BACKENDS.append("allauth.account.auth_backends.AuthenticationBackend")
@@ -206,7 +217,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
 ACCOUNT_CONFIRM_EMAIL_ON_GET = False
 
-ACCOUNT_ADAPTER = 'Users.adapter.CustomAccountAdapter'
+ACCOUNT_ADAPTER = 'users.adapter.CustomAccountAdapter'
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 PASSWORD_RESET_CONFIRM_URL = "reset/{uid}/{token}"
@@ -216,3 +227,9 @@ GITHUB_APP_SLUG = os.getenv("GITHUB_APP_SLUG", None)
 GITHUB_WEBHOOK_SECRET = os.getenv("GITHUB_WEBHOOK_SECRET", None)
 GITHUB_APP_ID = os.getenv("GITHUB_APP_ID", None)
 GITHUB_APP_PRIVATE_KEY_PATH = os.getenv("GITHUB_APP_PRIVATE_KEY_PATH", None)
+
+DISCORD_API_KEY = os.getenv("DISCORD_API_KEY", None)
+
+CRON_JOB_ON_TIME = "8:00:00"
+CRON_JOB_API_KEY = os.getenv("CRON_JOB_API_KEY", None)
+CRON_JOB_BATCH_SIZE = 50

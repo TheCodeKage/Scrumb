@@ -2,23 +2,21 @@ import logging
 
 from django.db import transaction
 from django.http import JsonResponse
-from django.utils import timezone
 from rest_framework import viewsets, serializers, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from AI.api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
-from Github.models import UnrelatedCommit
-from Users.models import Team, Membership
-from api_responses import success_response, error_response
-from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut, get_stalled_tasks, add_questions, \
+from services.AI.api_caller import generate_tasks, get_panic_recommendations, check_description
+from services.api_responses import success_response, error_response
+from users.models import Team, Membership
+from . import analytics
+from .logic import save_tasks, cut_tasks, calculate_target_cut, add_questions, \
     select_option_for_question
 from .models import Project, Task, ArchitectQuestion, ProjectSettings
 from .permissions import IsTeamLeader
-from .serializers import TaskSerializer, ProjectSerializer, QuestionSerializer, ProjectSettingsSerializer, \
-    UnrelatedCommitSerializer
+from .serializers import TaskSerializer, ProjectSerializer, QuestionSerializer, ProjectSettingsSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +28,11 @@ class ProjectBaseViewSet(viewsets.GenericViewSet):
     serializer_class = ProjectSerializer
 
     def get_queryset(self):
+        if self.request.query_params.get('is_leader', 'false').lower() == 'true':
+            return (Project.objects.filter(team__members=self.request.user.developer,
+                                           team__memberships__role=Membership.Role.LEADER)
+                    .select_related('team')
+                    .prefetch_related('tasks__depends_on', 'tasks__subtasks'))
         return (Project.objects.filter(team__members=self.request.user.developer)
                 .select_related('team')
                 .prefetch_related('tasks__depends_on', 'tasks__subtasks'))
@@ -79,16 +82,6 @@ class ProjectViewSet(ProjectBaseViewSet, viewsets.ModelViewSet):
         serializer = ProjectSettingsSerializer(obj, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
-
-    @action(detail=True, methods=["get"], url_path="unrelated-commits")
-    def unrelated_commits(self, request, pk=None):
-        queryset = UnrelatedCommit.objects.filter(
-            project_id=pk,
-            project__team__members=request.user.developer
-        ).select_related('developer__user')
-
-        serializer = UnrelatedCommitSerializer(queryset, many=True)
         return Response(serializer.data)
 
 
@@ -190,37 +183,22 @@ class ProjectAnalyticsViewSet(ProjectBaseViewSet):
     @action(detail=True, methods=['get'])
     def health(self, request, pk=None):
         project = self.get_object()
-
-        project_status, velocity, distance, target_cut = calculate_health(project)
-
-        if not velocity:
-            return success_response(message="No history yet", data={"daily_velocity": "N/A"})
-
-        return success_response(
-            message="Project health fetched",
-            data={
-                "project_name": project.name,
-                "status": project_status,
-                "completion_percentage": project.completion_percentage,
-                "daily_velocity": velocity,
-                "current_panic_requirement": f"{target_cut}% scope cut needed",
-                "days_until_guarantee": (project.guarantee_date - timezone.now().date()).days,
-                "expected_complete_by": f"{round(distance / velocity)} days",
-            },
-        )
+        health = analytics.health(project)
+        if health is None:
+            return success_response(message="No history yet", data={'daily_velocity': 'N/A'})
+        return success_response(message="Project health fetched", data=health)
 
     @action(detail=True, methods=['get'])
     def stalled_tasks(self, request, pk=None):
         project = self.get_object()
-        stalled_tasks = get_stalled_tasks(project)
-        return success_response(message="Stalled tasks fetched", data={"stalled_tasks": stalled_tasks})
+        stalled_data = analytics.stalled_tasks(project)
+        return success_response(message="Stalled tasks fetched", data=stalled_data)
 
     @action(detail=True, methods=['get'])
     def roast(self, request, pk=None):
         project = self.get_object()
-        stalled_tasks = get_stalled_tasks(project)
-        shame_team(stalled_tasks, project.team.values())
-        return success_response(message="Roast sent")
+        roast_data = analytics.roast(project)
+        return success_response(message="Roast sent", data=roast_data)
 
 
 class ProjectPanicViewSet(ProjectBaseViewSet):

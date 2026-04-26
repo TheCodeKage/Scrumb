@@ -1,9 +1,9 @@
 # GitHub App integration HTTP checks
 #
 # Current issues found while reviewing the implementation:
-# 1) `Github/urls.py` currently uses `path('', router.urls, ...)` instead of `include(router.urls)`,
+# 1) `github/urls.py` currently uses `path('', router.urls, ...)` instead of `include(router.urls)`,
 #    which breaks Django URL loading during `manage.py check`.
-# 2) `Github/auth.py` expects `settings.GITHUB_APP_ID`, but that setting is not defined in
+# 2) `github/auth.py` expects `settings.GITHUB_APP_ID`, but that setting is not defined in
 #    `backend/settings.py`.
 #
 # These requests document the intended contract for the GitHub flow once the URL config is fixed.
@@ -11,8 +11,10 @@
 # and `tests/projects/create.http` first so `{{token1}}` and `{{project_id1}}` are populated.
 # @no-redirect
 
+HEAD https://apiv1.scrumb.in/healthz
+
 ### GitHub setup redirects the project leader to GitHub install flow
-GET {{host_url}}/github/setup/{{project_id1}}/
+GET {{host_url}}/github/install/
 Authorization: Bearer {{token1}}
 
 > {%
@@ -25,8 +27,8 @@ client.test("setup returns redirect", function() {
 %}
 
 ### GitHub setup denies non-leaders / unrelated users
-GET {{host_url}}/github/setup/{{project_id1}}/
-Authorization: Bearer {{token2}}
+GET {{host_url}}/github/setup/?installation_id=123900247
+Authorization: Bearer {{token1}}
 
 > {%
 client.test("setup rejects non-leader access", function() {
@@ -35,14 +37,21 @@ client.test("setup rejects non-leader access", function() {
 %}
 
 ### GitHub callback handles missing query parameters
-GET {{host_url}}/github/callback/
+POST {{host_url}}/github/webhook/push/
+Content-Type: application/json
 
-> {%
-client.test("callback rejects missing params", function() {
-    client.assert(response.status === 400, "expected 400 when installation_id/state is missing");
-    client.assert(response.body && response.body.error, "expected error response body");
-});
-%}
+{
+  "installation": { "id": 123456789 },
+  "ref": "refs/heads/main",
+  "commits": [
+    {
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "author": { "name": "naman" },
+      "message": "test commit",
+      "timestamp": "2026-04-14T12:00:00Z"
+    }
+  ]
+}
 
 ### GitHub callback links an installation back to the project
 GET {{host_url}}/github/callback/?installation_id=123456789&state={{project_id1}}

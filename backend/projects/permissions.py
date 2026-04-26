@@ -1,5 +1,5 @@
 from rest_framework.permissions import BasePermission
-from Users.models import Membership
+from users.models import Membership
 
 
 class IsTeamMember(BasePermission):
