@@ -7,7 +7,7 @@ from fastapi import FastAPI, BackgroundTasks, HTTPException, Request
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 from dotenv import load_dotenv
-
+from llm import ScrumbBrain
 load_dotenv()
 
 from Knowledge_graph_functions import ScrumbEngine, get_encoder
@@ -21,6 +21,10 @@ class TaskData(BaseModel):
     title: str
     description: str
 
+class ChatMessage(BaseModel):
+    user_id: str
+    idea_id: str
+    prompt: str
 
 class SeedRequest(BaseModel):
     user_id: str
@@ -137,7 +141,14 @@ async def inspect_knowledge_graph(user_id: str, idea_id: str):
         limit=20
     )
 
-
+@app.get("/project-health/{user_id}/{idea_id}")
+async def fetch_global_project_status(user_id: str, idea_id: str):
+    """
+    PROJECT HEALTH CHECK:
+    Fetches the Knowledge Graph and audits completion for all tasks in a project.
+    """
+    engine = ScrumbEngine(user_id)
+    return await engine.get_full_project_status(idea_id)
 @app.get("/health")
 def health():
     return {
@@ -145,7 +156,15 @@ def health():
         "version": "v3-Agentic-KG",
         "reasoning_engine": "Ollama/Llama3"
     }
-
+@app.post("/chat")
+async def chat_with_scrumb(data: ChatMessage):
+    """
+    KNOWLEDGE-AWARE CHET ENDPOINT:
+    Connects the user to their specific project Knowledge Graph.
+    """
+    brain = ScrumbBrain(data.user_id)
+    response = await brain.get_aware_response(data.idea_id, data.prompt)
+    return response
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

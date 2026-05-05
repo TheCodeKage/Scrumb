@@ -34,7 +34,7 @@ def get_encoder():
 class ScrumbEngine:
     def __init__(self, user_id: str):
         self.user_id = user_id
-        self.encoder = SentenceTransformer('all-MiniLM-L6-v2')
+        self.encoder = get_encoder()
         self.client = QdrantClient(url=os.getenv("QDRANT_URL"), api_key=os.getenv("QDRANT_API_KEY"))
         self.ollama_url = "http://127.0.0.1:11434/api/generate"
         self.model_name = "llama3"  # High reasoning capability for code
@@ -59,20 +59,35 @@ class ScrumbEngine:
     # --- AGENTIC REASONING (OLLAMA) ---
 
     async def _reason_with_ollama(self, prompt: str) -> Dict:
-        """The 'Brain' of Scrumb: Local LLM processing for semantic analysis."""
         payload = {
             "model": self.model_name,
             "prompt": prompt,
-            "stream": False,
-            "format": "json"
+            "stream": False
         }
         try:
             async with httpx.AsyncClient() as client:
-                resp = await client.post(self.ollama_url, json=payload, timeout=60.0)
-                return json.loads(resp.json()['response'])
+                resp = await client.post(self.ollama_url, json=payload, timeout=120.0)
+                raw_content = resp.json().get('response', '')
+
+                # 1. Try to parse the whole thing as JSON
+                try:
+                    return json.loads(raw_content)
+                except:
+                    # 2. If it fails, try to find a JSON block { ... } inside the text
+                    # This is common when the model says "Here is the data: { ... }"
+                    import re
+                    json_match = re.search(r'\{.*\}', raw_content, re.DOTALL)
+                    if json_match:
+                        try:
+                            return json.loads(json_match.group())
+                        except:
+                            pass
+
+                    # 3. Final Fallback: Return as a standard response key
+                    return {"response": raw_content}
         except Exception as e:
-            logger.error(f"Ollama Reasoning Failure: {e}")
-            return {}
+            logger.error(f"Ollama Failure: {e}")
+            return {"response": "I encountered a technical glitch."}
 
     # --- 1. SEED FUNCTION ---
 
@@ -231,21 +246,26 @@ class ScrumbEngine:
 
     async def is_task_completed(self, idea_id: str, task_id: str):
         """Analyzes the KG nodes under a task to verify objective fulfillment."""
-        # Search for all logic nodes under this task
+        """Analyzes the KG nodes under a task to verify objective fulfillment."""
         task_data = self.client.scroll(
             collection_name=COLLECTION_NAME,
             scroll_filter={"must": [
                 {"key": "idea_id", "match": {"value": idea_id}},
-                {"key": "task_id", "match": {"value": task_id}}
+                {"key": "task_id", "match": {"value": task_id}},
+                # Only look for actual logic/code nodes, ignore the task node itself
+                {"key": "node_type", "match": {"any": ["class", "function", "method", "standalone"]}}
             ]},
             limit=100
         )[0]
 
         if not task_data:
-            return {"status": "NOT_STARTED", "completion": 0}
+            return {"status": "NOT_STARTED", "score": 0, "is_completed": False}
 
-        aggregated_logic = "\n".join([f"[{p.payload['symbol_name']}]: {p.payload['intent']}" for p in task_data])
-
+        # Use .get() to avoid KeyError if a node is missing a field
+        aggregated_logic = "\n".join([
+            f"[{p.payload.get('symbol_name', 'Unknown')}]: {p.payload.get('intent', 'N/A')}"
+            for p in task_data
+        ])
         prompt = f"""
         Analyze the progress of Task '{task_id}' for Project '{idea_id}'.
         Logic Implemented:
@@ -273,3 +293,88 @@ class ScrumbEngine:
             integration = GithubIntegration(auth=auth)
 
             return integration.get_access_token(installation_id).token
+
+    async def get_full_project_status(self, idea_id: str):
+        """
+        THE PROJECT OVERSEER:
+        Aggregates all tasks for a given idea and determines their completion.
+        """
+        tasks_res = self.client.scroll(
+            collection_name=COLLECTION_NAME,
+            scroll_filter={"must": [
+                {"key": "idea_id", "match": {"value": idea_id}},
+                {"key": "node_type", "match": {"value": "task_node"}}
+            ]},
+            limit=100
+        )[0]
+
+        if not tasks_res:
+            return {"status": "NOT_FOUND", "message": "No tasks initialized for this idea."}
+
+        full_report = []
+
+        for task_node in tasks_res:
+            task_id = task_node.payload['task_id']
+            task_name = task_node.payload['name']
+            task_desc = task_node.payload.get('content', 'No description available')
+            # 2. Logic Search: FIXED Qdrant "any" filter
+            logic_res = self.client.scroll(
+                collection_name=COLLECTION_NAME,
+                scroll_filter={"must": [
+                    {"key": "idea_id", "match": {"value": idea_id}},
+                    {"key": "task_id", "match": {"value": task_id}},
+                    # Correct syntax for matching against a list
+                    {"key": "node_type", "match": {"any": ["class", "function", "method", "standalone"]}}
+                ]},
+                limit=100
+            )[0]
+
+            # 3. Use LLM to judge completion for this specific task
+            if not logic_res:
+                task_status = {
+                    "task_id": task_id,
+                    "name": task_name,
+                    "status": "NOT_STARTED",
+                    "completion_score": 0,
+                    "analysis": "No code artifacts found in the graph."
+                }
+            else:
+                # Prepare implementaiton context for LLM
+                logic_summary = "\n".join(
+                    [f"- {p.payload['symbol_name']}: {p.payload.get('intent', 'N/A')}" for p in logic_res])
+
+                prompt = f"""
+                Analyze completion for Task: {task_name}
+                Description: {task_desc}
+                Code Artifacts Found:
+                {logic_summary}
+
+                Return JSON:
+                {{
+                    "is_completed": bool,
+                    "score": 0-100,
+                    "summary": "one sentence summary of what is done",
+                    "missing_logic": ["item1", "item2"]
+                }}
+                """
+                analysis = await self._reason_with_ollama(prompt)
+                task_status = {
+                    "task_id": task_id,
+                    "name": task_name,
+                    "status": "COMPLETED" if analysis.get("is_completed") else "PARTIAL",
+                    "completion_score": analysis.get("score", 0),
+                    "summary": analysis.get("summary"),
+                    "missing": analysis.get("missing_logic", [])
+                }
+
+            full_report.append(task_status)
+
+        # 4. Generate Final Project Summary
+        total_avg = sum(t['completion_score'] for t in full_report) / len(full_report)
+
+        return {
+            "idea_id": idea_id,
+            "overall_completion": f"{round(total_avg, 2)}%",
+            "task_breakdown": full_report,
+            "generated_at": datetime.now().isoformat()
+        }
