@@ -29,6 +29,10 @@ class Notification(models.Model):
     is_sent = models.BooleanField(default=False)
 
 
+def _default_timeout():
+    return timezone.now() + timedelta(hours=6)
+
+
 class Timeout(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
@@ -37,7 +41,7 @@ class Timeout(models.Model):
         DELAY = 'delay_deadline', 'Delay Deadline'
 
     action_type = models.CharField(max_length=20, choices=ActionType.choices, blank=True, null=True)
-    timeout_time = models.DateTimeField(default=timezone.now() + timedelta(hours=6))
+    timeout_time = models.DateTimeField(default=_default_timeout)
 
     def process_timeout(self):
         self.actions.update(enabled=False)
