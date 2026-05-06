@@ -1,11 +1,12 @@
 import requests
+from django.conf import settings
 
 from github.auth import get_token, get_installation_token
 from projects.models import Project
 from django.core.cache import cache
 
 
-def get_github_installation(project: Project) -> bool | None:
+def get_github_installation(github_repo_slug: str) -> int | None:
     """
     Checks whether the given project's GitHub repository has access enabled under a GitHub application
     installation and retrieves the installation ID for further use.
@@ -20,19 +21,31 @@ def get_github_installation(project: Project) -> bool | None:
     Returns None in case of an unexpected error or status from the GitHub API.
     """
 
-    url = f"https://api.github.com/repos/{project.github_repo_slug}/installation"
+    url = f"https://api.github.com/repos/{github_repo_slug}/installation"
     response = requests.get(url,
                             headers={"Authorization": f"Bearer {get_token()}", "Accept": "application/vnd.github+json"})
 
     if response.status_code == 200:
-        project.github_installation_id = response.json()["id"]
-        project.save()
-        return True
+        return int(response.json()["id"])
     elif response.status_code == 404:
-        return False
+        return -1
     else:
         response.raise_for_status()
         return None
+
+
+def set_github_installation(project: Project) -> bool | None:
+    try:
+        installation_id = get_github_installation(project.github_repo_slug)
+        if installation_id == -1:
+            print("Repository not found")
+            return False
+        project.github_installation_id = installation_id
+        project.save()
+        return True
+    except Exception as e:
+        print(e)
+        return False
 
 
 def delete_installation(installation_id: int):
@@ -106,18 +119,12 @@ def _update_projects(installation_id):
     ).update(github_installation_id=None)
 
 
-def safe_sync(installation_id):
-    key = f"sync_lock_{installation_id}"
-
-    if cache.get(key):
-        return
-
-    cache.set(key, True, timeout=60)  # 1 min lock
-    _update_projects(installation_id)
-
-
 def match_push_to_project(data):
     pass
+
+
+def build_github_app_installation_link():
+    return f"https://github.com/apps/{settings.GITHUB_APP_SLUG}/installations/new"
 
 """
 Problems in current execution

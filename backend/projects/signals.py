@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from github.logic import get_github_installation
+from github.logic import set_github_installation
 from projects.logic import update_blocking_counts
 from projects.models import Task, TaskHistory, ProjectSettings, Project
 
@@ -46,5 +46,5 @@ def create_project_settings(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Project)
 def check_existing_installation(sender, instance, created, **kwargs):
     if created:
-        if instance.github_repo_slug:
-            get_github_installation(instance)
+        if instance.github_repo_slug and instance.github_installation_id is None:
+            set_github_installation(instance)

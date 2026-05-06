@@ -17,6 +17,7 @@ from .logic import save_tasks, cut_tasks, calculate_target_cut, add_questions, \
 from .models import Project, Task, ArchitectQuestion, ProjectSettings
 from .permissions import IsTeamLeader
 from .serializers import TaskSerializer, ProjectSerializer, QuestionSerializer, ProjectSettingsSerializer
+from github.logic import get_github_installation, build_github_app_installation_link
 
 logger = logging.getLogger(__name__)
 
@@ -46,9 +47,13 @@ class ProjectViewSet(ProjectBaseViewSet, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         team_id = self.request.data.get('team_id')
+        github_repo_slug = self.request.data.get('github_repo_slug')
 
         if not team_id:
             raise serializers.ValidationError({"team_id": "This field is required."})
+
+        if not github_repo_slug:
+            raise serializers.ValidationError({"github_repo_slug": "This field is required."})
 
         team = Team.objects.filter(
             id=team_id,
@@ -59,8 +64,17 @@ class ProjectViewSet(ProjectBaseViewSet, viewsets.ModelViewSet):
         if not team:
             raise serializers.ValidationError({"team_id": "Invalid team ID."})
 
+        try:
+            github_installation_id = get_github_installation(github_repo_slug)
+        except Exception as e:
+            print(e)
+            raise serializers.ValidationError({"github_repo_slug": "Invalid GitHub repository slug."})
+
+        if github_installation_id is None or github_installation_id == -1:
+            raise serializers.ValidationError({"github_repo_slug": f"Github URL is not accessible by Scrumb. Connect your repository to Scrumb at {build_github_app_installation_link()} to continue."})
+
         # 1. Save the project first
-        project = serializer.save(team=team)
+        project = serializer.save(team=team, github_installation_id=github_installation_id)
         audit_data = check_description(project)
 
         if audit_data.get("is_detailed"):

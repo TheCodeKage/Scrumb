@@ -1,36 +1,21 @@
+import hashlib
+import hmac
+
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from github.logic import safe_sync
-from services.api_responses import success_response, error_response
 from projects.models import Project
-
-
-def _build_github_app_installation_link(project_id=None):
-    if project_id is not None:
-        return f"https://github.com/apps/{settings.GITHUB_APP_SLUG}/installations/new?state={project_id}"
-    else:
-        return f"https://github.com/apps/{settings.GITHUB_APP_SLUG}/installations/new"
-
-
-# Create your views here.
+from services.AI.api_caller import process_github_push
+from services.api_responses import success_response, error_response
 
 
 class InstallationViewSet(viewsets.ViewSet):
     permission_classes = []
 
     @action(detail=False, methods=['get'])
-    def install(self, request, pk=None):
-        return success_response(
-            message="Installation link created successfully.",
-            data={"install_url": _build_github_app_installation_link(request.query_params.get('project_id'))},
-        )
-
-    @action(detail=False, methods=['get'])
     def setup(self, request):
         installation_id = request.GET.get('installation_id')
-        project_id = request.GET.get('state')  # optional but recommended
 
         if not installation_id:
             return error_response("Missing installation_id")
@@ -40,22 +25,51 @@ class InstallationViewSet(viewsets.ViewSet):
         except ValueError:
             return error_response("Invalid installation_id")
 
-        if project_id is not None:
-            project = Project.objects.filter(id=project_id).first()
-            if project:
-                project.installation_id = installation_id
-                project.save()
-
-        # prevent duplicate sync spam
-        safe_sync(installation_id)
-
         return success_response(
             message="GitHub installation connected successfully.",
             data={
                 "installation_id": installation_id,
-                "project_id": project_id
             }
         )
+
+
+def _verify_github_signature(request) -> bool:
+    """
+    Verify GitHub webhook signature using X-Hub-Signature-256.
+
+    GitHub sends:
+        X-Hub-Signature-256: sha256=<hexdigest>
+
+    We compute the HMAC using the raw body and compare securely.
+    """
+    secret = getattr(settings, "GITHUB_WEBHOOK_SECRET", None)
+    if not secret:
+        return False
+
+    signature = request.headers.get("X-Hub-Signature-256")
+    if not signature or not signature.startswith("sha256="):
+        return False
+
+    raw_body = request.body  # must be raw bytes, not request.data
+    expected_signature = "sha256=" + hmac.new(
+        key=secret.encode("utf-8"),
+        msg=raw_body,
+        digestmod=hashlib.sha256,
+    ).hexdigest()
+
+    return hmac.compare_digest(signature, expected_signature)
+
+
+def _verify_github_event(request, expected_event: str = "push") -> bool:
+    """
+    Verify the GitHub event type sent in the X-GitHub-Event header.
+
+    Example:
+        X-GitHub-Event: push
+    """
+    event = request.headers.get("X-GitHub-Event")
+    return event == expected_event
+
 
 
 class EventsViewSet(viewsets.ViewSet):
@@ -63,5 +77,12 @@ class EventsViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=['post'])
     def push(self, request):
+        if not _verify_github_signature(request):
+            return error_response("Invalid GitHub signature")
+
+        if not _verify_github_event(request, "push"):
+            return error_response("Unsupported GitHub event")
+
         print(request.data)
+        process_github_push(Project.objects.filter(github_installation_id=request.data["installation_id"]).first(), request.data)
         return success_response("hi")
