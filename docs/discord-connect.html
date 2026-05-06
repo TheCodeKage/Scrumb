@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Connect Discord — Scrumb</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <style>
+    :root {
+      --bg: #0a0a08;
+      --bg-2: #0f0f0c;
+      --bg-3: #141410;
+      --border: rgba(255, 176, 0, 0.15);
+      --border-strong: rgba(255, 176, 0, 0.35);
+      --border-red: rgba(255, 59, 59, 0.2);
+      --border-discord: rgba(88, 101, 242, 0.35);
+      --text: #e8e4d4;
+      --text-muted: #6e6a58;
+      --text-dim: #3a3830;
+      --amber: #ffb000;
+      --amber-dim: rgba(255, 176, 0, 0.07);
+      --green: #00ff88;
+      --green-dim: rgba(0, 255, 136, 0.06);
+      --red: #ff3b3b;
+      --red-dim: rgba(255, 59, 59, 0.06);
+      --discord: #5865f2;
+      --discord-dim: rgba(88, 101, 242, 0.08);
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+      --display: 'Bebas Neue', sans-serif;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.022) 2px, rgba(0,0,0,0.022) 4px);
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 52px;
+      background: rgba(10,10,8,0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: var(--display);
+      font-size: 1.6rem;
+      letter-spacing: 0.08em;
+      color: var(--amber);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-tag {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+    }
+
+    .nav-discord-badge {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      color: var(--discord);
+      border: 1px solid var(--border-discord);
+      padding: 0.25rem 0.7rem;
+      background: var(--discord-dim);
+    }
+
+    /* MAIN */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 2rem 4rem;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+    }
+
+    /* SECTION MARKER */
+    .section-marker {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.8rem;
+    }
+    .section-marker::before { content: '// '; opacity: 0.45; }
+    .section-marker.discord { color: var(--discord); }
+    .section-marker.green { color: var(--green); }
+    .section-marker.red { color: var(--red); }
+
+    /* CARD HEADER */
+    .card-header {
+      padding: 2rem 2rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-header h1 {
+      font-family: var(--display);
+      font-size: 2.8rem;
+      letter-spacing: 0.04em;
+      line-height: 0.95;
+      color: var(--text);
+      margin-bottom: 0.8rem;
+    }
+
+    .card-header h1 span { color: var(--discord); }
+
+    .card-header p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      line-height: 1.7;
+    }
+
+    /* GUILD INFO STRIP */
+    .guild-strip {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.8rem 2rem;
+      background: var(--discord-dim);
+      border-bottom: 1px solid var(--border-discord);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+    }
+
+    .guild-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--discord);
+      flex-shrink: 0;
+    }
+
+    .guild-label { color: var(--text-dim); }
+    .guild-id { color: var(--discord); letter-spacing: 0.04em; }
+
+    /* CARD BODY */
+    .card-body { padding: 1.8rem 2rem 2rem; }
+
+    /* STEP INDICATOR */
+    .steps {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.8rem;
+      border: 1px solid var(--border);
+    }
+
+    .step {
+      flex: 1;
+      padding: 0.6rem 0.8rem;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      border-right: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+    }
+
+    .step:last-child { border-right: none; }
+
+    .step .step-num {
+      font-family: var(--display);
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .step.active {
+      background: var(--amber-dim);
+      color: var(--amber);
+    }
+
+    .step.done {
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    /* FIELDS */
+    .field { margin-bottom: 1.2rem; }
+
+    .field label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .field input {
+      width: 100%;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      padding: 0.75rem 1rem;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+
+    .field input:focus { border-color: var(--border-strong); }
+    .field input::placeholder { color: var(--text-dim); }
+
+    /* CALLOUT */
+    .callout {
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1.2rem;
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      line-height: 1.7;
+      border-left: 3px solid var(--amber);
+      background: var(--amber-dim);
+      color: var(--text-muted);
+      display: none;
+    }
+    .callout strong { color: var(--amber); }
+    .callout.error { border-left-color: var(--red); background: var(--red-dim); }
+    .callout.error strong { color: var(--red); }
+    .callout.success { border-left-color: var(--green); background: var(--green-dim); }
+    .callout.success strong { color: var(--green); }
+    .callout.visible { display: block; }
+
+    /* BUTTONS */
+    .btn-primary {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.82rem 1.6rem;
+      background: var(--amber);
+      color: var(--bg);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.15s;
+      margin-top: 0.4rem;
+    }
+    .btn-primary:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-primary.discord-btn {
+      background: var(--discord);
+      color: #fff;
+    }
+    .btn-primary.discord-btn:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+
+    .btn-secondary {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.82rem 1.6rem;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      margin-top: 0.7rem;
+    }
+    .btn-secondary:hover { border-color: var(--border-strong); color: var(--text); }
+
+    /* SPINNER */
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(10,10,8,0.3);
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .btn-primary.discord-btn .spinner { border-top-color: #fff; border-color: rgba(255,255,255,0.3); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* PROJECT LIST */
+    .project-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 1.4rem;
+      border: 1px solid var(--border);
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .project-list::-webkit-scrollbar { width: 4px; }
+    .project-list::-webkit-scrollbar-track { background: var(--bg-3); }
+    .project-list::-webkit-scrollbar-thumb { background: var(--border-strong); }
+
+    .project-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s;
+      user-select: none;
+    }
+
+    .project-item:last-child { border-bottom: none; }
+    .project-item:hover { background: var(--amber-dim); }
+    .project-item.selected { background: var(--amber-dim); border-left: 2px solid var(--amber); }
+
+    .project-check {
+      width: 44px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 0;
+      border-right: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+    }
+
+    .project-item.selected .project-check { color: var(--amber); }
+
+    .project-info {
+      padding: 0.8rem 1rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .project-name {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .project-item.selected .project-name { color: var(--amber); }
+
+    .project-meta {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      margin-top: 0.15rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .project-meta .health-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-right: 0.3rem;
+      vertical-align: middle;
+    }
+
+    .health-dot.healthy { background: var(--green); }
+    .health-dot.stressed { background: var(--amber); }
+    .health-dot.terminal { background: var(--red); }
+
+    .project-list-empty {
+      padding: 2rem;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    /* SELECT ALL */
+    .project-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-list-header label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .select-all-btn {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--amber);
+      background: none;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      padding: 0;
+      text-transform: uppercase;
+    }
+    .select-all-btn:hover { text-decoration: underline; }
+
+    .selected-count {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .selected-count span { color: var(--amber); }
+
+    /* TERMINAL BLOCK */
+    .terminal-block {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      padding: 1rem 1.2rem;
+      font-family: var(--mono);
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      line-height: 1.9;
+      margin-bottom: 1.4rem;
+      overflow-x: auto;
+    }
+
+    /* ERROR / SUCCESS FULL VIEWS */
+    .full-view {
+      display: none;
+      padding: 2.5rem 2rem;
+      text-align: center;
+    }
+
+    .big-code {
+      font-family: var(--display);
+      font-size: 5rem;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      opacity: 0.7;
+    }
+
+    .full-view h2 {
+      font-family: var(--display);
+      font-size: 2rem;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      margin-bottom: 0.8rem;
+    }
+
+    .full-view p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+      max-width: 360px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn-inline-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.72rem 1.6rem;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-inline-secondary:hover { border-color: var(--border-strong); color: var(--text); }
+
+    /* SUCCESS result cards */
+    .result-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .result-card {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.7rem 1rem;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+    }
+
+    .result-icon { font-size: 0.85rem; }
+
+    .result-name { color: var(--text); flex: 1; text-align: left; }
+    .result-status { font-size: 0.68rem; }
+    .result-status.ok { color: var(--green); }
+    .result-status.fail { color: var(--red); }
+
+    /* FOOTER */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: 1.2rem 2rem;
+      background: var(--bg-2);
+      text-align: center;
+    }
+
+    .footer-copy {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--text-dim);
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .blink { animation: blink 1.1s step-end infinite; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">SCRUMB<span class="nav-tag"> v0.1-alpha</span></a>
+  <span class="nav-discord-badge">⚡ DISCORD INTEGRATION</span>
+</nav>
+
+<main>
+  <div class="card" id="main-card">
+
+    <!-- ── VIEW: NO GUILD ID ─────────────────────────────────── -->
+    <div id="no-guild-view" style="display:none;">
+      <div class="card-header" style="border-top: 3px solid var(--red);">
+        <div class="section-marker red">// INTEGRATION_ERROR</div>
+        <h1>MISSING<br><span style="color:var(--red)">GUILD ID</span></h1>
+        <p>This page must be opened from the Scrumb Discord bot. No <code style="font-family:var(--mono);color:var(--amber);font-size:0.82em;">guild_id</code> parameter was found in the URL.</p>
+      </div>
+      <div class="card-body">
+        <div class="callout error visible">
+          <strong>ERROR —</strong> Expected URL format: <code style="font-size:0.85em;">/discord-connect.html?guild_id=YOUR_GUILD_ID</code>
+        </div>
+        <a href="/" class="btn-inline-secondary" style="display:flex;justify-content:center;">&#x2190; BACK TO HOME</a>
+      </div>
+    </div>
+
+    <!-- ── VIEW: STEP 1 — LOGIN ──────────────────────────────── -->
+    <div id="login-view" style="display:none;">
+      <div class="card-header">
+        <div class="section-marker discord">// DISCORD_INTEGRATION</div>
+        <h1>CONNECT<br><span>DISCORD</span></h1>
+        <p>Log in to your Scrumb account to link your projects to this Discord server.</p>
+      </div>
+
+      <div id="guild-strip-login" class="guild-strip">
+        <span class="guild-dot"></span>
+        <span class="guild-label">GUILD_ID:</span>
+        <span class="guild-id" id="guild-id-display-login">—</span>
+      </div>
+
+      <div class="card-body">
+        <div class="steps" id="steps-login">
+          <div class="step active" id="step-1"><span class="step-num">01</span> Login</div>
+          <div class="step" id="step-2"><span class="step-num">02</span> Projects</div>
+          <div class="step" id="step-3"><span class="step-num">03</span> Connect</div>
+        </div>
+
+        <div class="callout error" id="login-error">
+          <strong>AUTH ERROR —</strong> <span id="login-error-text">Invalid credentials.</span>
+        </div>
+
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="your_username" autocomplete="username" />
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+
+        <button class="btn-primary" id="login-btn" onclick="doLogin()">
+          &#x2192; LOGIN TO SCRUMB
+        </button>
+      </div>
+    </div>
+
+    <!-- ── VIEW: STEP 2 — SELECT PROJECTS ───────────────────── -->
+    <div id="projects-view" style="display:none;">
+      <div class="card-header">
+        <div class="section-marker discord">// SELECT_PROJECTS</div>
+        <h1>LINK<br><span>PROJECTS</span></h1>
+        <p>Choose which projects to connect to this Discord server. Shame Engine alerts and Panic Mode updates will post there.</p>
+      </div>
+
+      <div class="guild-strip">
+        <span class="guild-dot"></span>
+        <span class="guild-label">GUILD_ID:</span>
+        <span class="guild-id" id="guild-id-display-projects">—</span>
+      </div>
+
+      <div class="card-body">
+        <div class="steps">
+          <div class="step done" id="step-1b">&#x2713; Login</div>
+          <div class="step active" id="step-2b"><span class="step-num">02</span> Projects</div>
+          <div class="step" id="step-3b"><span class="step-num">03</span> Connect</div>
+        </div>
+
+        <div class="callout error" id="projects-error">
+          <strong>ERROR —</strong> <span id="projects-error-text">Could not load projects.</span>
+        </div>
+
+        <div id="projects-loading" style="padding:1.5rem 0;text-align:center;font-family:var(--mono);font-size:0.72rem;color:var(--text-dim);">
+          <div style="margin-bottom:0.5rem;">
+            <div style="display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--amber);border-radius:50%;animation:spin 0.9s linear infinite;"></div>
+          </div>
+          FETCHING_PROJECTS.load()
+        </div>
+
+        <div id="projects-content" style="display:none;">
+          <div class="project-list-header">
+            <label>Your Projects</label>
+            <button class="select-all-btn" onclick="toggleSelectAll()">SELECT ALL</button>
+          </div>
+
+          <div class="project-list" id="project-list">
+            <div class="project-list-empty">No projects found.</div>
+          </div>
+
+          <div class="selected-count">
+            <span id="selected-count-num">0</span> project(s) selected
+          </div>
+
+          <button class="btn-primary discord-btn" id="connect-btn" onclick="doConnect()" disabled>
+            &#x21D2; CONNECT TO DISCORD
+          </button>
+          <button class="btn-secondary" onclick="doLogout()">&#x2190; SWITCH ACCOUNT</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VIEW: SUCCESS ────────────────────────────────────── -->
+    <div id="success-view" style="display:none;">
+      <div class="card-header" style="border-top: 3px solid var(--green); background: var(--green-dim);">
+        <div class="section-marker green">// INTEGRATION_COMPLETE</div>
+        <h1>DISCORD<br><span style="color:var(--green)">LINKED</span></h1>
+        <p>Your selected projects are now connected to this Discord server.</p>
+      </div>
+
+      <div class="guild-strip" style="border-bottom-color:rgba(0,255,136,0.2);background:rgba(0,255,136,0.04);">
+        <span class="guild-dot" style="background:var(--green);"></span>
+        <span class="guild-label">GUILD_ID:</span>
+        <span class="guild-id" id="guild-id-display-success" style="color:var(--green);">—</span>
+      </div>
+
+      <div class="card-body">
+        <div class="result-list" id="result-list"></div>
+
+        <div style="background:var(--bg-3);border:1px solid rgba(0,255,136,0.15);padding:1rem 1.2rem;font-family:var(--mono);font-size:0.73rem;color:var(--text-muted);line-height:1.9;margin-bottom:1.4rem;">
+          <span style="color:var(--text-dim)">// INTEGRATION STATUS</span><br>
+          discord.guild: <span style="color:var(--green)" id="result-guild-id">—</span><br>
+          shame_engine: <span style="color:var(--green)">WILL POST HERE ✓</span><br>
+          panic_mode: <span style="color:var(--green)">WILL POST HERE ✓</span><br>
+          velocity_alerts: <span style="color:var(--amber)">STANDING BY</span>
+        </div>
+
+        <a href="/" class="btn-inline-secondary" style="display:flex;justify-content:center;">&#x2190; BACK TO HOME</a>
+      </div>
+    </div>
+
+    <!-- ── VIEW: PARTIAL / ERROR RESULTS ────────────────────── -->
+    <div id="result-error-view" style="display:none;">
+      <div class="card-header" style="border-top: 3px solid var(--red);">
+        <div class="section-marker red">// CONNECT_FAILED</div>
+        <h1>LINK<br><span style="color:var(--red)">FAILED</span></h1>
+        <p>One or more projects could not be connected to this Discord server.</p>
+      </div>
+      <div class="card-body">
+        <div class="result-list" id="result-error-list"></div>
+        <div class="callout error visible" id="result-error-msg">
+          <strong>ERROR —</strong> <span id="result-error-text">Unknown error.</span>
+        </div>
+        <button class="btn-secondary" onclick="goBackToProjects()">&#x21BA; TRY AGAIN</button>
+        <a href="/" class="btn-inline-secondary" style="display:flex;justify-content:center;margin-top:0.7rem;">&#x2190; BACK TO HOME</a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <span class="footer-copy">&copy; 2026 SCRUMB &middot; AI Project Execution Engine</span>
+</footer>
+
+<script>
+  // ─── CONFIG ────────────────────────────────────────────────────────────────
+  const API_BASE        = 'https://apiv2.scrumb.in';
+  const LOGIN_URL       = `${API_BASE}/api/auth/login/`;
+  const PROJECTS_URL    = `${API_BASE}/project/?is_leader=true`;          // GET — returns user's projects
+  const CONNECT_URL     = `${API_BASE}/discord/connect/`;  // POST — { project_ids: [...], guild_id }
+
+  // ─── STATE ─────────────────────────────────────────────────────────────────
+  let guildId       = null;
+  let accessToken   = null;
+  let allProjects   = [];
+  let selectedIds   = new Set();
+
+  // ─── INIT ──────────────────────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    guildId = params.get('guild_id') || params.get('guildId');
+
+    if (!guildId || !guildId.trim()) {
+      showView('no-guild-view');
+      return;
+    }
+
+    // Update all guild ID display elements
+    document.querySelectorAll(
+            '#guild-id-display-login, #guild-id-display-projects, #guild-id-display-success, #result-guild-id'
+    ).forEach(el => el.textContent = guildId);
+
+    showView('login-view');
+  });
+
+  // ─── VIEW SWITCHER ─────────────────────────────────────────────────────────
+  function showView(id) {
+    [
+      'no-guild-view', 'login-view', 'projects-view',
+      'success-view', 'result-error-view'
+    ].forEach(v => {
+      document.getElementById(v).style.display = 'none';
+    });
+    document.getElementById(id).style.display = 'block';
+  }
+
+  // ─── HELPERS ───────────────────────────────────────────────────────────────
+  function setBtn(id, loading, label, loadingLabel) {
+    const btn = document.getElementById(id);
+    btn.disabled = loading;
+    btn.innerHTML = loading
+            ? `<span class="spinner"></span> ${loadingLabel}`
+            : label;
+  }
+
+  function showCallout(id, msg, type) {
+    const el = document.getElementById(id);
+    el.className = `callout ${type} visible`;
+    el.innerHTML = `<strong>${type === 'error' ? 'ERROR' : 'OK'} —</strong> ${msg}`;
+  }
+
+  function hideCallout(id) {
+    document.getElementById(id).className = 'callout';
+  }
+
+  // ─── STEP 1: LOGIN ─────────────────────────────────────────────────────────
+  async function doLogin() {
+    hideCallout('login-error');
+
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!username || !password) {
+      showCallout('login-error', 'Username and password are required.', 'error');
+      return;
+    }
+
+    setBtn('login-btn', true, '&#x2192; LOGIN TO SCRUMB', 'AUTHENTICATING');
+
+    try {
+      const res = await fetch(LOGIN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        const msg =
+                data.non_field_errors?.[0] ||
+                data.detail ||
+                data.username?.[0] ||
+                data.password?.[0] ||
+                `Authentication failed (${res.status}).`;
+        showCallout('login-error', msg, 'error');
+        setBtn('login-btn', false, '&#x2192; LOGIN TO SCRUMB', '');
+        return;
+      }
+
+      // dj-rest-auth JWT returns access + refresh
+      accessToken = data.access;
+      showView('projects-view');
+      loadProjects();
+
+    } catch (err) {
+      showCallout('login-error', 'Network error. Check your connection.', 'error');
+      setBtn('login-btn', false, '&#x2192; LOGIN TO SCRUMB', '');
+    }
+  }
+
+  // ─── STEP 2: LOAD PROJECTS ─────────────────────────────────────────────────
+  async function loadProjects() {
+    document.getElementById('projects-loading').style.display = 'block';
+    document.getElementById('projects-content').style.display = 'none';
+    hideCallout('projects-error');
+
+    try {
+      const res = await fetch(PROJECTS_URL, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showCallout('projects-error', data.detail || `Failed to fetch projects (${res.status}).`, 'error');
+        document.getElementById('projects-loading').style.display = 'none';
+        document.getElementById('projects-content').style.display = 'block';
+        return;
+      }
+
+      const data = await res.json();
+
+      // Handle both paginated (results array) and raw array
+      allProjects = Array.isArray(data) ? data : (data.results || []);
+
+      renderProjects();
+      document.getElementById('projects-loading').style.display = 'none';
+      document.getElementById('projects-content').style.display = 'block';
+
+    } catch (err) {
+      showCallout('projects-error', 'Network error loading projects.', 'error');
+      document.getElementById('projects-loading').style.display = 'none';
+      document.getElementById('projects-content').style.display = 'block';
+    }
+  }
+
+  function renderProjects() {
+    const list = document.getElementById('project-list');
+
+    if (!allProjects.length) {
+      list.innerHTML = '<div class="project-list-empty">No projects found. Create one first.</div>';
+      return;
+    }
+
+    // Detect duplicate names so we can disambiguate with ID
+    const nameCounts = {};
+    allProjects.forEach(p => { nameCounts[p.name] = (nameCounts[p.name] || 0) + 1; });
+
+    list.innerHTML = allProjects.map(p => {
+      const health      = p.health?.status || 'UNKNOWN';
+      const healthClass = health === 'HEALTHY' ? 'healthy' : health === 'STRESSED' ? 'stressed' : health === 'TERMINAL' ? 'terminal' : '';
+      const completion  = p.completion_percentage ?? 0;
+      const deadline    = p.guarantee_date ? formatDate(p.guarantee_date) : '—';
+      const teamName    = p.team?.name || '—';
+      const isDuplicate = nameCounts[p.name] > 1;
+      const isSelected  = selectedIds.has(p.id);
+      // Show #id as disambiguator when multiple projects share a name
+      const displayName = isDuplicate ? `${escapeHtml(p.name)} <span style="color:var(--text-dim);font-weight:400">#${p.id}</span>` : escapeHtml(p.name);
+
+      return `
+        <div class="project-item ${isSelected ? 'selected' : ''}"
+             id="project-item-${p.id}"
+             onclick="toggleProject(${p.id})">
+          <div class="project-check">${isSelected ? '■' : '□'}</div>
+          <div class="project-info">
+            <div class="project-name">${displayName}</div>
+            <div class="project-meta">
+              <span><span class="health-dot ${healthClass}"></span>${health}</span>
+              <span>${completion}% done</span>
+              <span>📅 ${deadline}</span>
+              <span>team: ${escapeHtml(teamName)}</span>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    updateConnectBtn();
+  }
+
+  function toggleProject(id) {
+    if (selectedIds.has(id)) {
+      selectedIds.delete(id);
+    } else {
+      selectedIds.add(id);
+    }
+    // Update item visuals
+    const item = document.getElementById(`project-item-${id}`);
+    if (item) {
+      const isSelected = selectedIds.has(id);
+      item.className = `project-item ${isSelected ? 'selected' : ''}`;
+      item.querySelector('.project-check').textContent = isSelected ? '■' : '□';
+    }
+    updateConnectBtn();
+  }
+
+  function toggleSelectAll() {
+    const allSelected = selectedIds.size === allProjects.length;
+    selectedIds.clear();
+    if (!allSelected) {
+      allProjects.forEach(p => selectedIds.add(p.id));
+    }
+    renderProjects();
+  }
+
+  function updateConnectBtn() {
+    const count = selectedIds.size;
+    document.getElementById('selected-count-num').textContent = count;
+    const btn = document.getElementById('connect-btn');
+    btn.disabled = count === 0;
+    btn.innerHTML = count > 0
+            ? `&#x21D2; CONNECT ${count} PROJECT${count > 1 ? 'S' : ''} TO DISCORD`
+            : '&#x21D2; CONNECT TO DISCORD';
+  }
+
+  // ─── STEP 3: CONNECT ───────────────────────────────────────────────────────
+  // Backend expects ONE request: { project_ids: [1, 2, 3], guild_id: "<InstallationState id>" }
+  async function doConnect() {
+    if (!selectedIds.size) return;
+
+    const btn = document.getElementById('connect-btn');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span> CONNECTING…`;
+
+    const projectIds = Array.from(selectedIds); // array of ints
+
+    try {
+      const res = await fetch(CONNECT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          project_ids: projectIds,  // list — matches backend field name
+          guild_id: guildId,        // InstallationState.id from URL param
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        const results = projectIds.map(id => ({
+          id,
+          name: allProjects.find(p => p.id === id)?.name || `Project #${id}`,
+          ok: true,
+          message: data.message || 'Connected',
+        }));
+        renderResultCards('result-list', results);
+        document.getElementById('guild-id-display-success').textContent = guildId;
+        document.getElementById('result-guild-id').textContent = guildId;
+        showView('success-view');
+
+      } else {
+        // error_response() returns { error: "..." } or { detail: "..." }
+        const msg = data.error || data.detail || `HTTP ${res.status}`;
+        const results = projectIds.map(id => ({
+          id,
+          name: allProjects.find(p => p.id === id)?.name || `Project #${id}`,
+          ok: false,
+          message: msg,
+        }));
+        renderResultCards('result-error-list', results);
+        document.getElementById('result-error-text').textContent = msg;
+        showView('result-error-view');
+      }
+
+    } catch (err) {
+      const results = projectIds.map(id => ({
+        id,
+        name: allProjects.find(p => p.id === id)?.name || `Project #${id}`,
+        ok: false,
+        message: 'Network error',
+      }));
+      renderResultCards('result-error-list', results);
+      document.getElementById('result-error-text').textContent = 'Network error. Check your connection.';
+      showView('result-error-view');
+    }
+  }
+
+  function renderResultCards(containerId, results) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = results.map(r => `
+      <div class="result-card">
+        <span class="result-icon">${r.ok ? '✓' : '✗'}</span>
+        <span class="result-name">${escapeHtml(r.name)}</span>
+        <span class="result-status ${r.ok ? 'ok' : 'fail'}">${r.ok ? 'CONNECTED' : 'FAILED'}</span>
+      </div>
+    `).join('');
+  }
+
+  // ─── MISC ──────────────────────────────────────────────────────────────────
+  function doLogout() {
+    accessToken = null;
+    allProjects = [];
+    selectedIds.clear();
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    showView('login-view');
+  }
+
+  function goBackToProjects() {
+    showView('projects-view');
+    const btn = document.getElementById('connect-btn');
+    btn.disabled = selectedIds.size === 0;
+    updateConnectBtn();
+  }
+
+  function formatDate(dateStr) {
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch { return dateStr; }
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+  }
+
+  // Enter key on login
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const lv = document.getElementById('login-view');
+      if (lv && lv.style.display !== 'none') doLogin();
+    }
+  });
+</script>
+</body>
+</html>

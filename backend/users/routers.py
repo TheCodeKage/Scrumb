@@ -1,8 +1,9 @@
 from rest_framework import routers
 
-from Users.views import TeamViewSet, InvitationViewSet, DeveloperViewSet
+from users.views import TeamViewSet, InvitationViewSet, DeveloperViewSet, PreviousProjectViewSet
 
 router = routers.DefaultRouter()
+router.register(r'projects', PreviousProjectViewSet, basename="previous-project")
 router.register(r'developer', DeveloperViewSet, basename="developer")
 router.register(r'team', TeamViewSet, basename="team")
 router.register(r'invite', InvitationViewSet, basename="invite")

@@ -14,6 +14,14 @@ class Skill(models.Model):
 class Developer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='developer')
     skills = models.ManyToManyField(Skill)
+    description = models.TextField(blank=True, null=True)
+
+
+class PreviousProject(models.Model):
+    project_name = models.CharField(max_length=100)
+    project_description = models.TextField()
+    project_link = models.URLField(blank=True, null=True)
+    developer = models.ForeignKey(Developer, on_delete=models.CASCADE, related_name='previous_projects')
 
 
 class Team(models.Model):
@@ -41,6 +49,36 @@ class Team(models.Model):
     @property
     def invitations(self):
         return Invitation.objects.filter(team=self, status=Invitation.Status.PENDING, initiated_by=Invitation.Initiator.TEAM)
+
+    def get_team_data(self):
+        memberships = self.memberships.select_related("developer__user").prefetch_related(
+            "developer__skills",
+            "developer__previous_projects"
+        )
+
+        result = []
+
+        for m in memberships:
+            dev = m.developer
+
+            result.append({
+                "username": dev.user.username,
+                "role": m.role,
+                "skills": [s.name for s in dev.skills.all()],
+                "projects": [
+                    {
+                        "name": p.project_name,
+                        "description": p.project_description[:300],
+                        "link": p.project_link
+                    }
+                    for p in dev.previous_projects.all()
+                ]
+            })
+
+        return {
+            "team_name": self.name,
+            "members": result
+        }
 
 
 class Membership(models.Model):
@@ -89,11 +127,19 @@ class Invitation(models.Model):
             )
         ]
 
-    def join_requests (self, developer: Developer):
-        return self.objects.filter(initiated_by=self.Initiator.DEVELOPER, developer=Developer, status=self.Status.PENDING)
+    def join_requests(self, developer: Developer):
+        return Invitation.objects.filter(
+            initiated_by=self.Initiator.DEVELOPER,
+            developer=developer,
+            status=self.Status.PENDING
+        )
 
-    def active_invitations (self, developer: Developer):
-        return self.objects.filter(initiated_by=self.Initiator.TEAM, status=self.Status.PENDING, developer=developer)
+    def active_invitations(self, developer: Developer):
+        return Invitation.objects.filter(
+            initiated_by=self.Initiator.TEAM,
+            developer=developer,
+            status=self.Status.PENDING
+        )
 
 
 class TeamLog(models.Model):

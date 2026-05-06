@@ -1,4 +1,5 @@
 import os
+import time
 
 import django
 from google.genai.types import GenerateContentResponse
@@ -15,7 +16,8 @@ from django.utils import timezone
 from backend.settings import GEMINI_KEY
 from google import genai
 import json
-from projects.models import Project
+from projects.models import Project, Task
+import requests
 
 client = genai.Client(api_key=str(GEMINI_KEY).strip())
 
@@ -164,6 +166,23 @@ def shame_team(shame_data: list[dict[str, str]], team_data: dict[str, str]):
     prompt = f"Based on this data: {shame_data} and data on team: {team_data}, write a brutal but funny 2-sentence summary of why the project is failing. Mention names."
 
     return get_ai_response(prompt, in_json=False)
+
+
+def process_github_push(project: Project, commit_data: dict):
+    response = requests.post(f"https://ecclesiastical-jovita-semiglobularly.ngrok-free.dev/audit?user_id={project.team.members.first().id}&idea_id={project.id}", json=commit_data)
+    if response.status_code == 200:
+        if response.json()["verdict"] == "INGEST":
+            response = requests.post(f"https://ecclesiastical-jovita-semiglobularly.ngrok-free.dev/webhook/github?user_id={project.team.members.first().id}&idea_id={project.id}")
+            if response.status_code == 200:
+                time.sleep(180)
+                response = requests.post(f"https://ecclesiastical-jovita-semiglobularly.ngrok-free.dev/project-health/{project.team.members.first().id}/{project.id}")
+                if response.status_code == 200:
+                    for task in response.json()["task_breakdown"]:
+                        if task["status"] == "COMPLETED":
+                            t = Task.objects.filter(id=task["task_id"]).first()
+                            if t:
+                                t.status = "done"
+                                t.save()
 
 
 if __name__ == '__main__':

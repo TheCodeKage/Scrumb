@@ -18,7 +18,7 @@ def update_site_name(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Users', '0001_initial'),
+        ('users', '0001_initial'),
         ('sites', '0002_alter_domain_unique'),
     ]
 

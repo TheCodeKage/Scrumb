@@ -1,20 +1,25 @@
+import logging
+
 from django.db import transaction
 from django.http import JsonResponse
-from django.utils import timezone
 from rest_framework import viewsets, serializers, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from AI.api_caller import generate_tasks, get_panic_recommendations, shame_team, check_description
-from Users.models import Team, Membership
-from api_responses import success_response, error_response
-from .logic import save_tasks, cut_tasks, calculate_health, calculate_target_cut, get_stalled_tasks, add_questions, \
+from services.AI.api_caller import generate_tasks, get_panic_recommendations, check_description
+from services.api_responses import success_response, error_response
+from users.models import Team, Membership
+from . import analytics
+from .logic import save_tasks, cut_tasks, calculate_target_cut, add_questions, \
     select_option_for_question
-from .models import Project, Task, ArchitectQuestion
+from .models import Project, Task, ArchitectQuestion, ProjectSettings
 from .permissions import IsTeamLeader
-from .serializers import TaskSerializer, ProjectSerializer, QuestionSerializer
+from .serializers import TaskSerializer, ProjectSerializer, QuestionSerializer, ProjectSettingsSerializer
+from github.logic import get_github_installation, build_github_app_installation_link
+
+logger = logging.getLogger(__name__)
 
 
 # Create your views here.
@@ -24,6 +29,11 @@ class ProjectBaseViewSet(viewsets.GenericViewSet):
     serializer_class = ProjectSerializer
 
     def get_queryset(self):
+        if self.request.query_params.get('is_leader', 'false').lower() == 'true':
+            return (Project.objects.filter(team__members=self.request.user.developer,
+                                           team__memberships__role=Membership.Role.LEADER)
+                    .select_related('team')
+                    .prefetch_related('tasks__depends_on', 'tasks__subtasks'))
         return (Project.objects.filter(team__members=self.request.user.developer)
                 .select_related('team')
                 .prefetch_related('tasks__depends_on', 'tasks__subtasks'))
@@ -37,9 +47,13 @@ class ProjectViewSet(ProjectBaseViewSet, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         team_id = self.request.data.get('team_id')
+        github_repo_slug = self.request.data.get('github_repo_slug')
 
         if not team_id:
             raise serializers.ValidationError({"team_id": "This field is required."})
+
+        if not github_repo_slug:
+            raise serializers.ValidationError({"github_repo_slug": "This field is required."})
 
         team = Team.objects.filter(
             id=team_id,
@@ -50,8 +64,17 @@ class ProjectViewSet(ProjectBaseViewSet, viewsets.ModelViewSet):
         if not team:
             raise serializers.ValidationError({"team_id": "Invalid team ID."})
 
+        try:
+            github_installation_id = get_github_installation(github_repo_slug)
+        except Exception as e:
+            print(e)
+            raise serializers.ValidationError({"github_repo_slug": "Invalid GitHub repository slug."})
+
+        if github_installation_id is None or github_installation_id == -1:
+            raise serializers.ValidationError({"github_repo_slug": f"Github URL is not accessible by Scrumb. Connect your repository to Scrumb at {build_github_app_installation_link()} to continue."})
+
         # 1. Save the project first
-        project = serializer.save(team=team)
+        project = serializer.save(team=team, github_installation_id=github_installation_id)
         audit_data = check_description(project)
 
         if audit_data.get("is_detailed"):
@@ -59,6 +82,21 @@ class ProjectViewSet(ProjectBaseViewSet, viewsets.ModelViewSet):
             project.save(update_fields=["is_detailed"])
         else:
             add_questions(project, audit_data.get("questions", []))
+
+    @action(detail=True, methods=["get", "patch"], url_path="settings", url_name="settings")
+    def project_settings(self, request, pk=None):
+        project = self.get_object()
+
+        obj, _ = ProjectSettings.objects.get_or_create(project=project)
+
+        if request.method == "GET":
+            serializer = ProjectSettingsSerializer(obj)
+            return Response(serializer.data)
+
+        serializer = ProjectSettingsSerializer(obj, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 
 class ProjectPlanningViewSet(ProjectBaseViewSet):
@@ -81,12 +119,19 @@ class ProjectPlanningViewSet(ProjectBaseViewSet):
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Flip the switch: The project is now detailed enough because the user chose the MCQs
+        try:
+            tasks_data = generate_tasks(project)
+            save_tasks(tasks_data, project)
+        except Exception:
+            logger.exception("Failed to generate plan for project_id=%s", project.id)
+            return error_response(
+                message="Task plan generation is temporarily unavailable.",
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        # Mark the project detailed only after the plan has been generated and saved.
         project.is_detailed = True
         project.save(update_fields=['is_detailed'])
-
-        tasks_data = generate_tasks(project)
-        save_tasks(tasks_data, project)
         return success_response(message="Plan generated")
 
     @action(detail=True, methods=['post'])
@@ -152,37 +197,22 @@ class ProjectAnalyticsViewSet(ProjectBaseViewSet):
     @action(detail=True, methods=['get'])
     def health(self, request, pk=None):
         project = self.get_object()
-
-        project_status, velocity, distance, target_cut = calculate_health(project)
-
-        if not velocity:
-            return success_response(message="No history yet", data={"daily_velocity": "N/A"})
-
-        return success_response(
-            message="Project health fetched",
-            data={
-                "project_name": project.name,
-                "status": project_status,
-                "completion_percentage": project.completion_percentage,
-                "daily_velocity": velocity,
-                "current_panic_requirement": f"{target_cut}% scope cut needed",
-                "days_until_guarantee": (project.guarantee_date - timezone.now().date()).days,
-                "expected_complete_by": f"{round(distance / velocity)} days",
-            },
-        )
+        health = analytics.health(project)
+        if health is None:
+            return success_response(message="No history yet", data={'daily_velocity': 'N/A'})
+        return success_response(message="Project health fetched", data=health)
 
     @action(detail=True, methods=['get'])
     def stalled_tasks(self, request, pk=None):
         project = self.get_object()
-        stalled_tasks = get_stalled_tasks(project)
-        return success_response(message="Stalled tasks fetched", data={"stalled_tasks": stalled_tasks})
+        stalled_data = analytics.stalled_tasks(project)
+        return success_response(message="Stalled tasks fetched", data=stalled_data)
 
     @action(detail=True, methods=['get'])
     def roast(self, request, pk=None):
         project = self.get_object()
-        stalled_tasks = get_stalled_tasks(project)
-        shame_team(stalled_tasks, project.team.values())
-        return success_response(message="Roast sent")
+        roast_data = analytics.roast(project)
+        return success_response(message="Roast sent", data=roast_data)
 
 
 class ProjectPanicViewSet(ProjectBaseViewSet):

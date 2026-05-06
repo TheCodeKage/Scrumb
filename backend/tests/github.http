@@ -1,0 +1,120 @@
+# GitHub App integration HTTP checks
+#
+# Current issues found while reviewing the implementation:
+# 1) `github/urls.py` currently uses `path('', router.urls, ...)` instead of `include(router.urls)`,
+#    which breaks Django URL loading during `manage.py check`.
+# 2) `github/auth.py` expects `settings.GITHUB_APP_ID`, but that setting is not defined in
+#    `backend/settings.py`.
+#
+# These requests document the intended contract for the GitHub flow once the URL config is fixed.
+# Run the auth + project setup requests from `tests/users/auth.http`, `tests/users/team.http`,
+# and `tests/projects/create.http` first so `{{token1}}` and `{{project_id1}}` are populated.
+# @no-redirect
+
+HEAD https://apiv1.scrumb.in/healthz
+
+### GitHub setup redirects the project leader to GitHub install flow
+GET {{host_url}}/github/install/
+Authorization: Bearer {{token1}}
+
+> {%
+client.test("setup returns redirect", function() {
+    client.assert(response.status === 302, "expected 302 redirect");
+    const location = response.headers.valueOf("Location") || "";
+    client.assert(location.includes("https://github.com/apps/"), "missing GitHub apps install URL");
+    client.assert(location.includes("/installations/new?state="), "missing installation state parameter");
+});
+%}
+
+### GitHub setup denies non-leaders / unrelated users
+GET {{host_url}}/github/setup/?installation_id=123900247
+Authorization: Bearer {{token1}}
+
+> {%
+client.test("setup rejects non-leader access", function() {
+    client.assert(response.status === 404, "expected 404 for unauthorized setup access");
+});
+%}
+
+### GitHub callback handles missing query parameters
+POST {{host_url}}/github/webhook/push/
+Content-Type: application/json
+
+{
+  "installation": { "id": 123456789 },
+  "ref": "refs/heads/main",
+  "commits": [
+    {
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "author": { "name": "naman" },
+      "message": "test commit",
+      "timestamp": "2026-04-14T12:00:00Z"
+    }
+  ]
+}
+
+### GitHub callback links an installation back to the project
+GET {{host_url}}/github/callback/?installation_id=123456789&state={{project_id1}}
+
+> {%
+client.test("callback redirects to frontend success page", function() {
+    client.assert(response.status === 302, "expected redirect after linking installation");
+    const location = response.headers.valueOf("Location") || "";
+    client.assert(location.includes("/github-connected?project="), "missing frontend success path");
+});
+%}
+
+### GitHub webhook rejects unsigned payloads
+POST {{host_url}}/github/webhook/
+X-GitHub-Event: push
+X-Hub-Signature-256: sha256=invalidsignature
+Content-Type: application/json
+
+{
+  "installation": { "id": 123456789 },
+  "ref": "refs/heads/main",
+  "commits": [
+    {
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "author": { "name": "naman" },
+      "message": "test commit",
+      "timestamp": "2026-04-14T12:00:00Z"
+    }
+  ]
+}
+
+> {%
+client.test("webhook rejects invalid signatures", function() {
+    client.assert(response.status === 401, "expected 401 for invalid GitHub signature");
+    client.assert(response.body && response.body.error === "Invalid signature", "expected invalid signature error");
+});
+%}
+
+### GitHub webhook ignores non-push events once signature verification passes
+# NOTE: this request is a documentation stub for the intended branch. It will only reach the
+# "ignored" path when a valid `X-Hub-Signature-256` header is supplied for the running server.
+# Keep it here so the sequence of expected webhook behavior is explicit for frontend/backend QA.
+POST {{host_url}}/github/webhook/
+X-GitHub-Event: ping
+X-Hub-Signature-256: sha256=invalidsignature
+Content-Type: application/json
+
+{
+  "zen": "Keep it logically awesome."
+}
+
+> {%
+client.test("webhook still rejects invalid signatures before event filtering", function() {
+    client.assert(response.status === 401, "expected signature validation to run before event filtering");
+});
+%}
+
+### GitHub unrelated commits endpoint returns a project-scoped list
+GET {{host_url}}/project/{{project_id1}}/unrelated-commits/
+Authorization: Bearer {{token1}}
+
+> {%
+client.test("unrelated commits list is reachable", function() {
+    client.assert(response.status === 200, "expected 200 from unrelated commits list");
+});
+%}

@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from .logic import calculate_health
-from Users.serializers import TeamSerializer, DeveloperSerializer
-from .models import Project, Task, ArchitectQuestion, Option
+from users.serializers import TeamSerializer, DeveloperSerializer
+from .models import Project, Task, ArchitectQuestion, Option, ProjectSettings
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -68,16 +68,29 @@ class QuestionSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'text')
 
 
+class ProjectSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectSettings
+        fields = [
+            'completion_policy',
+            'suggestion_policy',
+            'skip_ai_completion_check',
+            'max_commits_for_review',
+        ]
+
+
 class ProjectSerializer(serializers.ModelSerializer):
     tasks = serializers.SerializerMethodField()
     questions = serializers.SerializerMethodField()
     health = serializers.SerializerMethodField()
     team = TeamSerializer(read_only=True)
+    settings = ProjectSettingsSerializer(read_only=True)
 
     class Meta:
         model = Project
         read_only_fields = ('is_detailed',)
-        fields = ['id', 'name', 'description', 'guarantee_date', 'team', 'tasks', 'completion_percentage', 'health', 'is_detailed', 'questions']
+        fields = ['id', 'name', 'description', 'guarantee_date', 'team', 'tasks', 'completion_percentage', 'health', 'is_detailed', 'questions', 'settings',
+                  'github_repo_slug']
 
     def get_tasks(self, project):
         root_tasks = project.tasks.filter(parent_task__isnull=True)
@@ -97,3 +110,4 @@ class ProjectSerializer(serializers.ModelSerializer):
             "expected_complete_in": f"{time} days",
         }
         return health
+

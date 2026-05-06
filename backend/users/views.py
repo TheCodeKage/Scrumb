@@ -4,27 +4,39 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
-from api_responses import success_response, error_response
-from .models import Team, Membership, Developer, Invitation, Skill
-from .serializers import TeamSerializer, DeveloperSerializer, InvitationSerializer
-from .permissions import IsTeamMember, IsTeamLeader
-from mixins import ActionPermissionMixin
+from services.api_responses import success_response, error_response
+from .models import Team, Membership, Developer, Invitation, Skill, PreviousProject
+from .serializers import TeamSerializer, DeveloperSerializer, InvitationSerializer, PreviousProjectSerializer
+from .permissions import IsTeamMember, IsTeamLeader, ActionPermissionMixin
 from .logic import send_invitation, send_join_request, accept_join_request, accept_invitation, decline_invitation
+
+
+class PreviousProjectViewSet(viewsets.ModelViewSet):
+    serializer_class = PreviousProjectSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
+
+    def get_queryset(self):
+        return PreviousProject.objects.filter(developer__user=self.request.user)
+
+    def perform_create(self, serializer):
+        developer = self.request.user.developer
+        serializer.save(developer=developer)
 
 
 class DeveloperViewSet(viewsets.ModelViewSet):
     serializer_class = DeveloperSerializer
     permission_classes = [IsAuthenticated]
 
-    allowed_actions = ['add_skill', 'remove_skill', 'get_skills', 'get']
+    allowed_actions = ['add_skill', 'remove_skill', 'get_skills', 'update_description', 'get']
 
     def get_queryset(self):
         return Developer.objects.filter(user=self.request.user).prefetch_related(
-            'skills',
+            'skills', 'previous_projects'
         )
 
-    def get_skill(self, request, pk=None, add=True):
-        developer = self.get_object()
+    def get_skill(self, request, add=True):
+        developer = self.request.user.developer
         skill = request.data.get('skill')
 
         if not skill:
@@ -33,6 +45,7 @@ class DeveloperViewSet(viewsets.ModelViewSet):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 errors=[{"field": "skill", "detail": "Skill is required"}],
             )
+        skill = skill.lower().strip()
         if not Skill.objects.filter(name=skill).exists():
             return error_response(
                 message="Skill not found",
@@ -46,18 +59,25 @@ class DeveloperViewSet(viewsets.ModelViewSet):
             developer.skills.remove(Skill.objects.get(name=skill))
         return success_response(message="Skill added" if add else "Skill removed")
 
-    @action(detail=True, methods=['post'])
+    @action(detail=False, methods=['post'])
     def add_skill(self, request, pk=None):
-        return self.get_skill(request, pk, add=True)
+        return self.get_skill(request, add=True)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=False, methods=['post'])
     def remove_skill(self, request, pk=None):
-        return self.get_skill(request, pk, add=False)
+        return self.get_skill(request, add=False)
 
-    @action(detail=True, methods=['get'])
+    @action(detail=False, methods=['get'])
     def get_skills(self, request, pk=None):
-        developer = self.get_object()
+        developer = request.user.developer
         return success_response(message="Skills fetched", data=list(developer.skills.values()))
+
+    @action(detail=False, methods=['patch'])
+    def update_description(self, request, pk=None):
+        developer = request.user.developer
+        developer.description = request.data.get('description')
+        developer.save()
+        return success_response(message="Description updated")
 
 
 class TeamViewSet(ActionPermissionMixin, viewsets.ModelViewSet):
@@ -74,6 +94,8 @@ class TeamViewSet(ActionPermissionMixin, viewsets.ModelViewSet):
         'join_request': [IsAuthenticated],
         'join_requests': [IsAuthenticated, IsTeamMember],
         'approve_join_request': [IsAuthenticated, IsTeamLeader],
+        'leave': [IsAuthenticated, IsTeamMember],
+        'kick': [IsAuthenticated, IsTeamLeader],
     }
 
     def get_queryset(self):
@@ -157,6 +179,52 @@ class TeamViewSet(ActionPermissionMixin, viewsets.ModelViewSet):
             return error_response(message=error, status_code=status.HTTP_400_BAD_REQUEST)
 
         return success_response(message="Join request approved")
+
+    @action(detail=True, methods=['post'])
+    def leave(self, request, pk=None):
+        team = self.get_object()
+        Membership.objects.filter(team=team, developer=request.user.developer).delete()
+        return success_response(message="Team left")
+
+    @action(detail=True, methods=['post'])
+    def kick(self, request, pk=None):
+        team = self.get_object()
+        kicked_username = request.data.get('username')
+
+        if not kicked_username:
+            return error_response(
+                message="Username is required",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                errors=[{"field": "username", "detail": "Username is required"}],
+            )
+
+        kicked_developer = Developer.objects.filter(
+            user__username=kicked_username,
+            memberships__team=team
+        ).first()
+
+        if not kicked_developer:
+            return error_response(
+                message="Developer not found in this team",
+                status_code=status.HTTP_404_NOT_FOUND,
+                errors=[{"field": "username", "detail": "Developer not found"}],
+            )
+
+        if kicked_developer.user == request.user:
+            return error_response(
+                message="You cannot kick yourself",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        deleted, _ = kicked_developer.memberships.filter(team=team).delete()
+
+        if deleted == 0:
+            return error_response(
+                message="Developer is not part of this team",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return success_response(message="Developer kicked successfully")
 
 
 class InvitationViewSet(ActionPermissionMixin, viewsets.ReadOnlyModelViewSet):

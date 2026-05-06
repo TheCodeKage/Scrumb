@@ -1,0 +1,15 @@
+name: Reset Weekly Cron Schedule
+
+on:
+  schedule:
+    - cron: "40 2 * * 1"
+  workflow_dispatch:
+
+jobs:
+  reset-weekly:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reset weekly schedules
+        run: |
+          curl -f -X GET "https://apiv2.scrumb.in/discord/reset_weekly_cron_schedule/" \
+          -H "X-CRON-API-KEY: ${{ secrets.CRON_API_KEY }}"
