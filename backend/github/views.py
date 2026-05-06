@@ -84,5 +84,5 @@ class EventsViewSet(viewsets.ViewSet):
             return error_response("Unsupported GitHub event")
 
         print(request.data)
-        process_github_push(Project.objects.filter(github_installation_id=request.data["installation_id"]).first(), request.data)
+        process_github_push(Project.objects.filter(github_installation_id=request.data["installation"]["id"]).first(), request.data)
         return success_response("hi")
